@@ -24,6 +24,8 @@ class PosFluxCons3rdOrder : public ForceField {
       
       /// A maximum value of the distribution function
       double f_infty;
+      
+      bool errmsg;
   protected:
       /// Advance the x--direction of the distribution function
       void advanceSpace_x(double timestep);
@@ -75,7 +77,7 @@ class PosFluxCons3rdOrder : public ForceField {
       /// The number of boundary cells needed to the left
       int bound_minus()  { return 1;}
   public:
-      PosFluxCons3rdOrder(SpeciesData &data) : ForceField(data) {}
+      PosFluxCons3rdOrder(SpeciesData &data) : ForceField(data), errmsg(false) {}
 };
 
 #include "scheme_temp.cpp"

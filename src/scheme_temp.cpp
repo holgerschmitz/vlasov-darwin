@@ -1,7 +1,9 @@
 template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_x(double timestep) {
-        
+    
+    errmsg = false;
+    
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
 
@@ -33,7 +35,10 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right: j is Xi[0] or Xi[0]+1
                 int j =  Xi[0]+deltaI;
                                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "X: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) && !errmsg) {
+                   cerr << "X: deltaI out of bounds:" << deltaI << endl;
+                   errmsg = true;
+                }
 
                 Flux(Xi[0]) = interpolateX(Xi, Vi, j, alpha);
                 Dj(Xi[0]) = Distribution(j   ,Xi[1], Vi[0], Vi[1], Vi[2]);
@@ -55,6 +60,8 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_y(double timestep) {
         
+    errmsg = false;
+    
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
 
@@ -85,7 +92,11 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right: j is Xi[1] or Xi[1]+1
                 int j =  Xi[1]+deltaI;
                                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Y: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) && !errmsg )
+                {
+                   cerr << "Y: deltaI out of bounds:" << deltaI << endl;
+                   errmsg = true;
+                }
 
                 Flux(Xi[1]) = interpolateY(Xi, Vi, j, alpha);
                 Dj(Xi[1]) = Distribution(Xi[0], j , Vi[0], Vi[1], Vi[2]);
@@ -105,6 +116,8 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_x(double timestep) {
         
+    errmsg = false;
+    
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
 
@@ -141,7 +154,11 @@ void PosFluxCons3rdOrder<ForceField>
                 int j = Vi[0]+deltaI;
                 // go deltaI right 
 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) && !errmsg ) 
+                {
+                  cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+                  errmsg = true;
+                }
 
 //                cerr << "Vx: " << Vi[0] << " " << deltavx << " " << deltaI << "\n";
 
@@ -180,6 +197,8 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_y(double timestep) {
         
+    errmsg = false;
+    
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
 
@@ -215,7 +234,11 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right 
                 int j = Vi[1]+deltaI;
                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vy: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) && !errmsg ) 
+                {
+                  cerr << "Vy: deltaI out of bounds:" << deltaI << endl;
+                  errmsg=true;
+                }
 
                 Dj(Vi[1]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
@@ -252,6 +275,8 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_z(double timestep) {
         
+    errmsg = false;
+    
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
 
@@ -287,7 +312,11 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right 
                 int j = Vi[2]+deltaI;
                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) && !errmsg ) 
+                {
+                  cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
+                  errmsg = true;
+                }
 
                 Dj(Vi[2]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
