@@ -63,8 +63,12 @@ pDistributionDerivedField ForceFieldBase::getDerivedField(std::string name) {
   return derivedFields.getField(name);
 }
 
+void ForceFieldBase::addDerivedDiagnostic(VlasovDerivedDiagnostic *ddg) {
+  diaglist.push_back(ddg);
+}
 
-VlasovDerivedDiagnostic::DiagList VlasovDerivedDiagnostic::diaglist;
+
+VlasovDerivedDiagnostic::DerivedDiagList VlasovDerivedDiagnostic::diaglist;
 VlasovDerivedDiagnostic *VlasovDerivedDiagnostic::fielddiag=NULL;
 
 VlasovDerivedDiagnostic::VlasovDerivedDiagnostic() {

@@ -60,6 +60,15 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
        
   std::cout << "Init Field " << Charge/Mass << " " << VRange << std::endl;
   ForceField::Init(dx[0]/dt);
+  
+  for (
+    ForceFieldBase::DerivedDiagList::iterator it=diaglist.begin();
+    it !=diaglist.end();
+    ++it
+  )
+  {
+    (*it)->retrieveField(this);
+  }
 }
 
 

@@ -23,7 +23,8 @@ void DerivedFieldsContainer::update(ForceFieldBase &vlasov) {
 pDistributionDerivedField DerivedFieldsContainer::getField(std::string name) {
   MapType::iterator pos = derivedFields.find(name);
   if (pos != derivedFields.end()) return pos->second;
-  else return pDistributionDerivedField(NULL);
+  cerr << "Field Class " << name << " not found\n";
+  return pDistributionDerivedField(NULL);
 }
 
 DistMomentRho::DistMomentRho(Boundary *boundary_) 

@@ -107,11 +107,12 @@ pVlasov VlasovRebuild::getVlasovInstance() {
   vlasovData.init = initRebuild->getInitInstance();
   pVlasov vl = new Vlasov(vlasovData);
   for (
-    VlasovDerivedDiagnostic::DiagList::iterator it=VlasovDerivedDiagnostic::diaglist.begin();
+    VlasovDerivedDiagnostic::DerivedDiagList::iterator it=VlasovDerivedDiagnostic::diaglist.begin();
     it !=VlasovDerivedDiagnostic::diaglist.end();
     ++it
   )
   {
+    vl->addDerivedDiagnostic(*it);
     (*it)->retrieveField(vl);
   }
   

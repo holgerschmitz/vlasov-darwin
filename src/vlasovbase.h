@@ -14,6 +14,7 @@ typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
 
 
 class VlasovInitialiser;
+class VlasovDerivedDiagnostic;
 struct SpeciesData;
 
 /** The Base class for the Force Field. All the 
@@ -63,7 +64,10 @@ class ForceFieldBase {
       PhaseDiag *phasediag;
       
       DerivedFieldsContainer derivedFields;
-
+  public:
+      typedef std::list<VlasovDerivedDiagnostic*> DerivedDiagList;
+  protected:
+      DerivedDiagList diaglist;
   public:
       ForceFieldBase(SpeciesData &data);
       /// Destructor
@@ -152,6 +156,7 @@ class ForceFieldBase {
       }
       
       pDistributionDerivedField getDerivedField(std::string);
+      void addDerivedDiagnostic(VlasovDerivedDiagnostic*);
 };
 
 struct SpeciesData {
@@ -171,8 +176,8 @@ class VlasovDerivedDiagnostic : public SimpleDiagnostic<ScalarField,std::ofstrea
   protected:
       bool singleOut() { return true; }
   public:
-      typedef std::list<VlasovDerivedDiagnostic*> DiagList;
-      static DiagList diaglist;
+      typedef ForceFieldBase::DerivedDiagList DerivedDiagList;
+      static DerivedDiagList diaglist;
       static VlasovDerivedDiagnostic *fielddiag;
   public:
       VlasovDerivedDiagnostic();
