@@ -28,17 +28,17 @@ void EFieldDiagnostic::init(ForceField::FieldType *field)
 {
   if (Pot_diag)
   {
-    Pot_diag->setField(&field->GetByName("Pot"));
+    Pot_diag->setField(field->GetByName("Pot"));
     Pot_diag->setSingleOut(true);
   }
   if (Ex_diag)
   {
-    Ex_diag->setField(&field->GetByName("Ex"));
+    Ex_diag->setField(field->GetByName("Ex"));
     Ex_diag->setSingleOut(true);
   }
   if (Ey_diag) 
   {
-    Ey_diag->setField(&field->GetByName("Ey"));
+    Ey_diag->setField(field->GetByName("Ey"));
     Ey_diag->setSingleOut(true);
   }
 }
@@ -81,32 +81,32 @@ void EBFieldDiagnostic::init(ForceField::FieldType *field)
 {
   if (Ex_diag)
   {
-    Ex_diag->setField(&field->GetByName("Ex"));
+    Ex_diag->setField(field->GetByName("Ex"));
     Ex_diag->setSingleOut(true);
   }
   if (Ey_diag) 
   {
-    Ey_diag->setField(&field->GetByName("Ey"));
+    Ey_diag->setField(field->GetByName("Ey"));
     Ey_diag->setSingleOut(true);
   }
   if (Ez_diag) 
   {
-    Ez_diag->setField(&field->GetByName("Ez"));
+    Ez_diag->setField(field->GetByName("Ez"));
     Ez_diag->setSingleOut(true);
   }
   if (Bx_diag)
   {
-    Bx_diag->setField(&field->GetByName("Bx"));
+    Bx_diag->setField(field->GetByName("Bx"));
     Bx_diag->setSingleOut(true);
   }
   if (By_diag) 
   {
-    By_diag->setField(&field->GetByName("By"));
+    By_diag->setField(field->GetByName("By"));
     By_diag->setSingleOut(true);
   }
   if (Bz_diag) 
   {
-    Bz_diag->setField(&field->GetByName("Bz"));
+    Bz_diag->setField(field->GetByName("Bz"));
     Bz_diag->setSingleOut(true);
   }
 }

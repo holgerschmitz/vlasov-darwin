@@ -68,7 +68,7 @@ class Potential {
       /// Returns a reference to the electric y-field
       ScalarField &GetEy() { return Ey; }
 
-      ScalarField &GetByName(const std::string &);
+      ScalarField *GetByName(const std::string &);
 
       /** @brief Perform initialization. Setting all the field sizes
        *  and clearing the values

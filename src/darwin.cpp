@@ -547,19 +547,18 @@ void Darwin::clearDiv(ScalarField &Fx, ScalarField &Fy) {
 }
 
 
-ScalarField &Darwin::GetByName(const std::string& name) {
+ScalarField *Darwin::GetByName(const std::string& name) {
   if ("Ex"==name)
-    return Ex; 
+    return &Ex; 
   else if ("Ey"==name)
-    return Ey; 
+    return &Ey; 
   else if ("Ez"==name)
-    return Ez; 
+    return &Ez; 
   else if ("Bx"==name)
-    return Bx; 
+    return &Bx; 
   else if ("By"==name)
-    return By; 
+    return &By; 
   else 
-    return Bz; 
-
+    return &Bz; 
 }
 

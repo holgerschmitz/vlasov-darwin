@@ -105,7 +105,7 @@ class Darwin {
       /// Return the scalar field that stores the field component \f$B_z\f$
       ScalarField &GetBz() { return Bz; }
 
-      ScalarField &GetByName(const std::string&);
+      ScalarField *GetByName(const std::string&);
       /** @brief Initialize all the physical quantities and allocate
        *  the scalar fields
        */

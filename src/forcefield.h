@@ -102,7 +102,7 @@ class VoidPotential {
       void Init() {}
       void Execute() {}
       void AddSpecies(ConstEBFieldForce*) {}
-      ScalarField &GetByName(const std::string&) {}
+      ScalarField *GetByName(const std::string&) { return NULL;}
 };
 
 /** @brief Implements a forcefield with a constant electric and magnetic

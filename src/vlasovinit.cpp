@@ -415,7 +415,7 @@ void VlasovGaussTempInit::initialise(ForceFieldBase *pVlasov) {
   int Nx = H[0]-L[0]-3;
   int Ny = H[1]-L[1]-3;
   
-  double NxH = Nx / 2;
+  double NxH = Parameters::instance().gridX() / 2;
   
   PositionI Xi;
   VelocityI Vi;
