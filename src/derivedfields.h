@@ -131,7 +131,7 @@ class DistMomentHeatFluxOne : public DistMomentHeatFluxBase {
 
 
 typedef DistMomentRhoOne DistMomentRho;
-typedef DistMomentVelocitiesOne DistMomentVelocities;
+typedef DistMomentVelocitiesTwo DistMomentVelocities;
 typedef DistMomentHeatFluxOne DistMomentHeatFlux;
 
 #endif
