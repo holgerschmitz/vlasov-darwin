@@ -10,10 +10,10 @@ VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 
 VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 		parameter.h poisson.h potential.h stlpwrapper.h Vlas2d.h \
-		vlasov.h vlasovinit.h wrapvlasov.h
+		vlasov.h vlasovinit.h wrapvlasov.h scheme.h
 
 OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
-		potential.o poisson.o wrapvlasov.o main.o \
+		potential.o poisson.o wrapvlasov.o scheme.o main.o \
 		Vlas2d.o
 
 HEADERS = $(VLASOV_HEADERS)
