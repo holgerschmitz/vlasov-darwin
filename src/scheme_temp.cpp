@@ -137,6 +137,8 @@ void PosFluxCons3rdOrder<ForceField>
     NumMatrix<double, 1> Flux(&lvx,&bvx);
     NumMatrix<double, 1> Dj(&lvx,&bvx);
     
+    VelocityD Vflux;
+    
     int j_old; 
     
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
@@ -145,12 +147,13 @@ void PosFluxCons3rdOrder<ForceField>
         
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
-            
+            Vflux[1] = Vi[1];
+            Vflux[2] = Vi[2];
             j_old = lvx-1;
              
             for (Vi[0] = lvx; Vi[0] < bvx; ++Vi[0]) {
-
-                VelocityD Vel = velocity(Vi);
+                Vflux[0] = Vi[0]+0.5;
+                VelocityD Vel = velocity(Vflux);
                 VelocityD F = Force(Xi,Vel,timestep);
                 double deltavx = -F[0]/deltaVx();
                 int deltaI = int(floor(deltavx)+1);  
@@ -217,6 +220,8 @@ void PosFluxCons3rdOrder<ForceField>
     NumMatrix<double, 1> Flux(&lvx,&bvx);
     NumMatrix<double, 1> Dj(&lvx,&bvx);
     
+    VelocityD Vflux;
+
     int j_old; 
 
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
@@ -224,12 +229,15 @@ void PosFluxCons3rdOrder<ForceField>
                
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
+            Vflux[0] = Vi[0];
+            Vflux[2] = Vi[2];
             
             j_old = lvx-1;
             
             for (Vi[1] = lvx; Vi[1] < bvx; ++Vi[1]) {
-            
-                VelocityD Vel = velocity(Vi);
+                Vflux[1] = Vi[1]+0.5;
+                VelocityD Vel = velocity(Vflux);
+                
                 VelocityD F = Force(Xi,Vel,timestep);
                 double deltavx = -F[1]/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
@@ -296,6 +304,8 @@ void PosFluxCons3rdOrder<ForceField>
     NumMatrix<double, 1> Flux(&lvx,&bvx);
     NumMatrix<double, 1> Dj(&lvx,&bvx);
     
+    VelocityD Vflux;
+
     int j_old; // check initialization inside the loop!!
     
 //    cerr << "Advancing in vz\n";
@@ -304,12 +314,16 @@ void PosFluxCons3rdOrder<ForceField>
       
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
+            Vflux[0] = Vi[0];
+            Vflux[1] = Vi[1];
             
             j_old = lvx-1;
              
             for (Vi[2] = lvx; Vi[2] < bvx; ++Vi[2]) {
             
-                VelocityD Vel = velocity(Vi);
+                Vflux[2] = Vi[2]+0.5;
+                VelocityD Vel = velocity(Vflux);
+                
                 VelocityD F = Force(Xi,Vel,timestep);
                 double deltavx = -F[2]/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
@@ -325,7 +339,7 @@ void PosFluxCons3rdOrder<ForceField>
                 }
 
                 Dj(Vi[2]) = 0;
-                for (int jj=j_old+1; jj<=j; ++jj)
+                for (int jj=j_old+1; jj<= ; ++jj)
                   Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
                   

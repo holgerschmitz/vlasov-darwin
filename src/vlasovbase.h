@@ -154,6 +154,14 @@ class ForceFieldBase {
         );
 //        return (VRange*(VelocityD(-0.5,-0.5,-0.5)+Vi))/VelSizeH - VRange;
       }
+
+      VelocityD velocity(const VelocityD &Vi) {
+        return VelocityD(
+          VRange[0]*(Vi[0]-VelGridCenter[0])/VelSizeH[0],
+          VRange[1]*(Vi[1]-VelGridCenter[1])/VelSizeH[1],
+          VRange[2]*(Vi[2]-VelGridCenter[2])/VelSizeH[2]
+        );
+      }
       
       /// Returns true if this is the master process
       bool master() {
