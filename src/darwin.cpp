@@ -71,46 +71,45 @@ void Darwin::Init () {
     
   jx.clear();
   jy.clear();
-	jz.clear();
+  jz.clear();
 
-	sx.clear();
-	sy.clear();
-	sz.clear();
+  sx.clear();
+  sy.clear();
+  sz.clear();
 
-    Pot.clear();
-    Az.clear();
+  Pot.clear();
+  Az.clear();
 
-    Ex.clear();
-    Ey.clear();
-    Ez.clear();
-    
-    Etx.clear();
-    Ety.clear();
-    Theta.clear();
-    DivEt.clear();
-    
-    Bx.clear();
-    By.clear();
-    Bz.clear();
+  Ex.clear();
+  Ey.clear();
+  Ez.clear();
 
-    int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
-    pois = new Poisson;
-    pois->resize(
-        PositionD(0.0,0.0), 
-        PositionD(gssx*GlGridSpace_x, gssy*GlGridSpace_y), 
-        PositionI(gssx,gssy),
-        Poisson::periodic, 
-        Poisson::periodic
-    );
+  Etx.clear();
+  Ety.clear();
+  Theta.clear();
+  DivEt.clear();
 
-    helmh = new Helmholtz();
-    
+  Bx.clear();
+  By.clear();
+  Bz.clear();
 
-    In.resize(LBound.Data(),HBound.Data());
-    Lambda.resize(LBound.Data(),HBound.Data());
-    Out.resize(LBound.Data(),HBound.Data());
-    
-    cerr << "Done Darwin: Size=( " << LBound << "," << HBound << endl;
+  int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
+  pois = new Poisson;
+  pois->resize(
+    PositionD(0.0,0.0), 
+    PositionD(gssx*GlGridSpace_x, gssy*GlGridSpace_y), 
+    PositionI(gssx,gssy),
+    Poisson::periodic, 
+    Poisson::periodic
+  );
+
+  helmh = new Helmholtz();
+
+  In.resize(LBound.Data(),HBound.Data());
+  Lambda.resize(LBound.Data(),HBound.Data());
+  Out.resize(LBound.Data(),HBound.Data());
+
+  cerr << "Done Darwin: Size=( " << LBound << "," << HBound << endl;
 }
 
 bool Darwin::Execute (double timestep) {
@@ -170,7 +169,7 @@ bool Darwin::Execute (double timestep) {
         
     //        cerr << "Creating Density\n";
     pS->MakeRho();          //request to make particle density.
-    pS->MakeJs();          //request to make particle density.
+    pS->MakeJs();           //request to make particle current.
 
         
     // ... and get it
