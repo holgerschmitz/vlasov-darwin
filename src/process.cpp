@@ -145,6 +145,8 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovTwoMaxwellInit, VlasovInitialiser>(&initialiser));
   (*pm)["wavegen"] 
       = WParameter(new ParameterRebuild<VlasovWaveGenInit, VlasovInitialiser>(&initialiser));
+  (*pm)["gausstemp"] 
+      = WParameter(new ParameterRebuild<VlasovGaussTempInit, VlasovInitialiser>(&initialiser));
   (*pm)["hdfrestart"] 
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
   return pm;

@@ -146,6 +146,42 @@ class VlasovWaveGenInit : public VlasovInitialiser {
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
+/** @brief Initialises the Vlasov distribution function with a
+ *  inhomogeneuos temperature. The temperature distribution is
+ *  initialised as a Gaussian distribution in space
+ * \f$T = a\left(1 + \frac{1}{2}\exp\left(-(x_0-x)^2/b\right)\right)\f$
+ */
+class VlasovGaussTempInit : public VlasovInitialiser {
+  protected:
+      /// density in particles\f$m^{-{\rm dim}}\f$
+      double N;
+      /// thermal velocity
+      VelocityD v_th;
+      /// Amplitude of temperature disturbance
+      double t_amp;
+      /// width of Gaussian
+      double t_width;      
+      /// streaming vlocity
+      VelocityD u_stream;
+
+      /// pointer to the owning VlasovSpecies class
+      ForceFieldBase *pVlasov; 
+  public:
+   /// Default constructor
+      VlasovGaussTempInit();
+   /// Destructor
+      virtual ~VlasovGaussTempInit();
+
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      virtual void initialise(ForceFieldBase *pVlasov);
+  protected:
+      virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
+};
+
+
 /** @brief Initialises the Vlasov distribution function 
  *  from a HDF file
  */

@@ -378,6 +378,115 @@ void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 
 }
+//=========================================================================
+//===============   VlasovGaussTempInit  ====================================
+//=========================================================================
+
+VlasovGaussTempInit::VlasovGaussTempInit() { }
+
+PARAMETERMAP* VlasovGaussTempInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["Stream_vx"] = WParameter(new ParameterValue<double>(&u_stream[0], 0));
+  (*pm)["Stream_vy"] = WParameter(new ParameterValue<double>(&u_stream[1], 0));
+  (*pm)["Stream_vz"] = WParameter(new ParameterValue<double>(&u_stream[2], 0));
+  (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
+  (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
+  (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
+  (*pm)["N0"] = WParameter(new ParameterValue<double>(&N, 1));
+  (*pm)["Amplitude"] = WParameter(new ParameterValue<double>(&t_amp, 1));
+  (*pm)["Width"] = WParameter(new ParameterValue<double>(&t_width, 10));
+  return pm;
+}
+
+VlasovGaussTempInit::~VlasovGaussTempInit() {}
+
+
+/** @brief Do the initialisation
+ *   
+ *  Iterate through the whole distribution function and assign the appropriate
+ *  phase space density to every point in phase space. The Phase space density 
+ *  is calculated as a Maxwellian distribution.
+ */
+void VlasovGaussTempInit::initialise(ForceFieldBase *pVlasov) {
+  VlasovDist &dist = pVlasov->getDistribution();
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+
+  int Nx = H[0]-L[0]-3;
+  int Ny = H[1]-L[1]-3;
+  
+  double NxH = Nx / 2;
+  
+  PositionI Xi;
+  VelocityI Vi;
+  VelocityD UStream(u_stream[0],u_stream[1],u_stream[2]);
+  VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
+      
+      
+      double TPert =
+          1+t_amp*exp(-sqr(double(Xi[0])-NxH)/t_width);
+//      std::cerr << "temperatur " << Xi[0] << " " << TPert << "\n";
+      VTh[0] = sqrt(TPert)*v_th[0];
+            
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+       for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+          for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+     
+           VelocityD V( pVlasov->velocity(Vi) );
+            VelocityD Vm( 
+            (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+           );
+           VelocityD Vp( 
+            (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+            );
+
+
+           VelocityD vd1m((Vm - UStream)/VTh);
+
+           VelocityD vd1p((Vp - UStream)/VTh);
+
+           VelocityD F1;
+
+           for (int j=0; j<3; ++j) {
+              if (Vi[j]==L[j+2]) {
+               F1[j] = 0.5*(erf(vd1p[j]) + 1);
+              } else if (Vi[j]==H[j+2]) {
+                F1[j] = 0.5*(1 - erf(vd1m[j]));
+              } else {
+               F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+             }
+            }
+
+
+            double F = N*F1.product();
+           dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+         }
+
+            // Set all the boundaries to zero
+
+            for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+              for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
+               dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
+               dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
+              }
+           
+            for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+             for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+               dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+               dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+              }
+
+            for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+              for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+               dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+               dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+              }
+          }
+        //    std::cout << "Initialized " << Xi[0] << std::endl;
+}
 
 //=========================================================================
 //========================   VlasovHDFInit ================================
