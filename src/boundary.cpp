@@ -333,6 +333,12 @@ double MPIPeriodicSplitXBoundary::AvgReduce(double val) {
     return result/double(ComSize);
 }
 
+double MPIPeriodicSplitXBoundary::MaxReduce(double val) {
+    double result;
+    MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_MAX, comm);
+    return result;
+}
+
 /* **************************************************************
  *                 MPIPeriodicSplitXYBoundary                    *
  ****************************************************************/
@@ -606,6 +612,12 @@ double MPIPeriodicSplitXYBoundary::AvgReduce(double val) {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_SUM, comm);
     return result/double(ComSize);
+}
+
+double MPIPeriodicSplitXYBoundary::MaxReduce(double val) {
+    double result;
+    MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_MAX, comm);
+    return result;
 }
 
 const PhasePositionI &MPIPeriodicSplitXYBoundary::DistLow() const {

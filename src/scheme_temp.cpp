@@ -172,8 +172,11 @@ void PosFluxCons3rdOrder<ForceField>
                 for (int jj=j_old+1; jj<=j; ++jj)
                   Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
                 j_old=j;
-                  
-                Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
+                
+                if (j+1 > lvx)  
+                  Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
+                else
+                  Flux(Vi[0]) = 0;
 
             }
             
@@ -259,7 +262,11 @@ void PosFluxCons3rdOrder<ForceField>
                   Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
                 j_old=j;
                   
-                Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
+                if (j+1 > lvx)
+                  Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
+                else
+                  Flux(Vi[1]) = 0;
+                
 
             }
             Dj(bvx) = 0;
@@ -346,6 +353,10 @@ void PosFluxCons3rdOrder<ForceField>
                 j_old=j;
                   
                 Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
+                if (j+1 > lvx)
+                  Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
+                else
+                  Flux(Vi[2]) = 0;
 
             }
             
@@ -375,7 +386,7 @@ void PosFluxCons3rdOrder<ForceField>
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-/*    double fdiff = fjp-fj;
+    double fdiff = fjp-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
@@ -383,13 +394,13 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp
         return 2*fj/fdiff;
     else if (fexc < (-fdiff) )
         return fexc/(-fdiff);
-    else */
+    else 
         return 1.;
 }
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-/*    double fdiff = fjm-fj;
+    double fdiff = fjm-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
@@ -397,7 +408,7 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fj
         return 2*fj/fdiff;
     else if (fexc < (-fdiff) )
         return fexc/(-fdiff);
-    else */
+    else 
         return 1.;
 }
 

@@ -104,7 +104,18 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::InterpolationInitStep(const VlasovDist &Dist) {
-    f_infty = 1;
+  f_infty = 0;
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
+  
+  for (int i=LBound[0]; i<=UBound[0]; ++i)
+    for (int j=LBound[1]; j<=UBound[1]; ++j)
+      for (int k=LBound[2]; k<=UBound[2]; ++k) 
+        for (int l=LBound[3]; l<=UBound[3]; ++l) 
+          for (int m=LBound[4]; m<=UBound[4]; ++m) 
+            f_infty = max(f_infty,Distribution(i,j,k,l,m));
+            
+  f_infty = boundary->MaxReduce(f_infty);
 }
 
 

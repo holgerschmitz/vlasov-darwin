@@ -61,6 +61,9 @@ class Boundary : public Rebuildable {
       /// Return the average of a single value over all the processes
       virtual double AvgReduce(double) = 0;    
 
+      /// Return the maximum of a single value over all the processes
+      virtual double MaxReduce(double) = 0;    
+
       /// Return the lower bound of the distribution function
       virtual const PhasePositionI &DistLow() const = 0;
 
@@ -102,6 +105,8 @@ class SinglePeriodicBoundary : public Boundary {
       const NumBoundary& getNumBoundary(ScalarField &field) const;
       /// There is no average to be calculated
       double AvgReduce(double val) { return val; }
+      /// There is no maximum to be calculated
+      double MaxReduce(double val) { return val; }
       /// Returns the global lower bound of the distribution function
       const PhasePositionI &DistLow() const;
       /// Returns the global upper bound of the distribution function
@@ -197,6 +202,10 @@ class MPIPeriodicSplitXBoundary : public Boundary {
        *  by the number of processes.
        */
       double AvgReduce(double val);
+      
+      /** @brief Use MPIALLReduce to calculate the maximum
+       */
+      double MaxReduce(double val);
       
       /// Returns the global lower bound of the distribution function
       const PhasePositionI &DistLow()const;
@@ -308,6 +317,10 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
        *  by the number of processes.
        */
       double AvgReduce(double val);
+      
+      /** @brief Use MPIALLReduce to calculate the maximum
+       */
+      double MaxReduce(double val);
       
       /// Returns the global lower bound of the distribution function
       const PhasePositionI &DistLow()const;
