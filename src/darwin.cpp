@@ -465,17 +465,17 @@ bool Darwin::Execute () {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
-//      Ez(i,j) = -Out(i,j);
-      Ez(i,j) = 0;
+      Ez(i,j) = -Out(i,j);
+//      Ez(i,j) = 0;
     }
            
   clearDiv(Etx, Ety);
 
-//  for (int i=lx0; i<=mx0; ++i) 
-//    for (int j=ly0; j<=my0; ++j) {
-//      Ex(i,j) += Etx(i,j);
-//      Ey(i,j) += Ety(i,j);
-//    }
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j) {
+      Ex(i,j) += Etx(i,j);
+      Ey(i,j) += Ety(i,j);
+    }
         
   /* *************************************
    *  This should be it!
