@@ -71,6 +71,10 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXYBoundary {
 
       /// Returns periodic boundary conditions
       const NumBoundary& getNumBoundary(ScalarField &field) const;
+      
+      bool periodicX() { return false; }
+      bool periodicY() { return false; }
+      
 };
 
 #endif // SINGLE_PROCESSOR

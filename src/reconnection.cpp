@@ -276,12 +276,17 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
   
+  std::cerr << "SYMMETRIC RECONNECTION\n";
+  
   PhasePositionI GlLow  = Parameters::instance().distLow();
   PhasePositionI GlHigh = Parameters::instance().distHigh();
   
   double Nx = GlHigh[0]-GlLow[0]-3;
   double Ny = GlHigh[1]-GlLow[1]-3;
-  double Ym = 0.5*(GlLow[1]+GlHigh[1]);
+  double Ysheet1 = GlLow[1]+1.5;
+  double Ysheet2 = GlHigh[1]-1.5;
+  
+  int GlMid = (GlLow[1] + GlHigh[1]-1)/2;
   
   double dy = Parameters::instance().gridSpace_y();
   double lambda_norm = lambda/dy; 
@@ -291,19 +296,44 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
 
   VelocityD VTh(v_th[0],v_th[1],v_th[2]);
   VelocityD UStream(0,0,0);
-  double Sum=0;
+
+  const Boundary& boundary = Process::instance().getBoundary();
+  ofstream USTREAMStream;
+  if (boundary.master())
+  {
+    static int cnt=1;
+    ostringstream ustrname;
+    ustrname << "USTREAM"<<cnt++<<".out";
+    USTREAMStream.open(ustrname.str().c_str());
+  }
+   
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
       
-      double sc = sech( (Xi[1]-Ym)/lambda_norm );
-//      double cs = cosh( (Xi[1]-Ym)/lambda_norm );
-      
-      double N = Ninf + N0*sc*sc;
-      
-      double vz_pert = -vz1*cos(2*PIl*Xi[0]/Nx)*sin(PIl*Xi[1]/Ny);
-      
-      UStream[2] = sc*sc*vz0/N + vz_pert;
+      double sc1 = sech( (Xi[1]-Ysheet1)/lambda_norm );
+      double sc2 = sech( (Xi[1]-Ysheet2)/lambda_norm );
 
+//      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*sin(2*PIl*Xi[1]/Ny);
+      
+      double N_pert = vz1*cos(2*PIl*Xi[0]/Nx);
+      double N;
+      double N1 = (N0-N_pert)*sc1*sc1;
+      double N2 = (N0+N_pert)*sc2*sc2;
+      
+      if ( Xi[1]<=GlMid )
+      {
+        N = N1;
+        UStream[2] =  vz0;
+          
+      } else 
+      {
+        N = N2;
+        UStream[2] =  -vz0;
+      } 
+                  
+      if (boundary.master())
+        USTREAMStream << Xi[0] << " " << Xi[1] << " " << UStream[2] << "\n";
+      
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
           for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
@@ -334,12 +364,33 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
             }
                 
             double F = N*F1.product();
-            Sum = Sum + F;
             dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+
+
+            VelocityD vd0m(Vm/VTh);
+
+            VelocityD vd0p(Vp/VTh);
+            
+            VelocityD F0;
+            
+            for (int j=0; j<3; ++j) {
+              if (Vi[j]==L[j+2]) {
+                F0[j] = 0.5*(erf(vd0p[j]) + 1);
+              } else if (Vi[j]==H[j+2]) {
+                F0[j] = 0.5*(1 - erf(vd0m[j]));
+              } else {
+                F0[j] = 0.5*(erf(vd0p[j]) - erf(vd0m[j]));
+              }
+            }
+                
+            F = Ninf*F0.product();
+            dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) += F;
+
           }
- 
+        
     }
-    std::cerr << "DENSITY SUM " << Sum << std::endl;
+    if (boundary.master()) USTREAMStream.close();
+    
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 }
 
