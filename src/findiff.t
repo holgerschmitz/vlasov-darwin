@@ -1,4 +1,9 @@
-
+template<class ForceField>
+void FiniteDiffScheme<ForceField>::initDist()
+{
+  TempDist = Distribution;
+  CurrentDist = Distribution;
+}
 
 template<class ForceField>
 void FiniteDiffScheme<ForceField>
@@ -6,6 +11,12 @@ void FiniteDiffScheme<ForceField>
     
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
+
+                                       //  T | C | D |
+    Distribution.swap(CurrentDist);    //  T | D | C |
+    Distribution.swap(TempDist);       //  D | T | C |
+                                       // after the following we have   
+                                       //    | T | C | D
 
     PositionI Xi;
     VelocityI Vi;
@@ -34,23 +45,24 @@ void FiniteDiffScheme<ForceField>
               VelocityD Vel = velocity(Vi);
               VelocityD F = Force(Xi,Vel,timestep);
               
-              double &D = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
-              double dfx = (Distribution(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
-                          - Distribution(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*dx[0]);
+              double dfx = (CurrentDist(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
+                          - CurrentDist(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*dx[0]);
 
-              double dfy = (Distribution(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
-                          - Distribution(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*dx[1]);
+              double dfy = (CurrentDist(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
+                          - CurrentDist(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*dx[1]);
 
-              double dfvx = (Distribution(Xi[0], Xi[1], Vi[0]+1, Vi[1], Vi[2])
-                           - Distribution(Xi[0], Xi[1], Vi[0]-1, Vi[1], Vi[2])) / (2*dvx);
+              double dfvx = (CurrentDist(Xi[0], Xi[1], Vi[0]+1, Vi[1], Vi[2])
+                           - CurrentDist(Xi[0], Xi[1], Vi[0]-1, Vi[1], Vi[2])) / (2*dvx);
 
-              double dfvy = (Distribution(Xi[0], Xi[1], Vi[0], Vi[1]+1, Vi[2])
-                           - Distribution(Xi[0], Xi[1], Vi[0], Vi[1]-1, Vi[2])) / (2*dvy);
+              double dfvy = (CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1]+1, Vi[2])
+                           - CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1]-1, Vi[2])) / (2*dvy);
 
-              double dfvz = (Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]+1)
-                           - Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]-1)) / (2*dvz);
+              double dfvz = (CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]+1)
+                           - CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]-1)) / (2*dvz);
                            
-              D = D - 2*( timestep*(Vel[0]*dfx + Vel[1]*dfy)
+              Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
+                = TempDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                   - 2*( timestep*(Vel[0]*dfx + Vel[1]*dfy)
                           + (F[0]*dfvx + F[1]*dfvy + F[2]*dfvz)
                         );
             }

@@ -6,10 +6,9 @@ template<
 void SimpleAdvance<ForceField,Scheme>::advance(double timestep) {
   switch (InitState) {
       case -1: InitState = 0;
-               TempDist = Distribution;
+               initDist();
                break;
-      case  0: Distribution.swap(TempDist);
-               advanceAll(timestep);
+      case  0: advanceAll(timestep);
                break;
   }
 }

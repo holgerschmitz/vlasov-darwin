@@ -15,7 +15,6 @@ template<
 class SimpleAdvance  : public Scheme<ForceField> {
   private:
       int InitState;
-      VlasovDist TempDist;
   protected:
  
       /// Advance the distribution function one timestep
