@@ -89,7 +89,7 @@ class ParameterRebuild : public Parameter {
         BaseType **value; ///< Pointer to the pointer of the object
     public:
         /// Constructor takes a pointer to the parent Rebuildable
-        ParameterRebuild (BaseType **value_) : value(value_){}
+        ParameterRebuild (BaseType **value_) : value(value_) { *value = NULL; }
         /// Destructor
         virtual ~ParameterRebuild () {}
 

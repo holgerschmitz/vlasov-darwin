@@ -1,3 +1,5 @@
+// -*- C++ -*-
+// $Id$
 #include "process.h"
 #include "wrapvlasov.h"
 #include "vlasovinit.h"
@@ -105,8 +107,12 @@ PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
   (*pm)["vx-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vx, 10));
   (*pm)["vy-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vy, 10));
   (*pm)["vz-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vz, 10));
-  (*pm)["init"] = 
-      WParameter(new ParameterRebuild<VlasovInitRebuild, VlasovInitRebuild>(&initRebuild));
+  (*pm)["init"] = WParameter(
+      new ParameterRebuild<VlasovInitRebuild, VlasovInitRebuild>(&initRebuild)
+  );
+  (*pm)["phase-space"] = WParameter(
+      new ParameterRebuild<PhaseDiag, PhaseDiag>(&phasediag)
+  );
   return pm;
 }
 

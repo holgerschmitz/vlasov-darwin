@@ -7,6 +7,8 @@
 #include "task.h"
 #include "globals.h"
 #include "simtype.h"
+#include "diagnostic.h"
+#include "hdfstream.h"
 
 typedef std::list<pVlasov> SpeciesList;
 
@@ -59,6 +61,8 @@ class VlasovRebuild : public Rebuildable {
       SpeciesData vlasovData;
       VlasovInitRebuild *initRebuild;
       static RebuildList slist;
+      typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
+      PhaseDiag *phasediag;
     protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:

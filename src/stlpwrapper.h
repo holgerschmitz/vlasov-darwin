@@ -45,8 +45,9 @@ class PtrWrapper {
         ~PtrWrapper() {};
         
         //@{
-        operator const TYPE* () const { return m_pObj; };
-        operator TYPE* () { return m_pObj; };
+        operator const TYPE* () const { return m_pObj; }
+        operator TYPE* () { return m_pObj; }
+        TYPE* operator->() { return m_pObj; }
         ///< Typecast to the original pointer type
         //@}
 

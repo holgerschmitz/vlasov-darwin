@@ -6,62 +6,62 @@
 
 /** IO for HDF files */
 class HDFstream {
-protected:
-  int32 sd_id;
-  int flags;
-  char label[256];
+  protected:
+      int32 sd_id;
+      int flags;
+      char label[256];
 
-public:
-  /** flags*/
-  enum {
-    /** */
-    convert_to_int    = 1,
-    /** */
-    convert_to_float  = 2,
-    /** */
-    convert_to_double = 4
-  };
+  public:
+      /** flags*/
+      enum {
+        /** */
+        convert_to_int    = 1,
+        /** */
+        convert_to_float  = 2,
+        /** */
+        convert_to_double = 4
+      };
 
-  /** constructor */
-  HDFstream();
+      /** constructor */
+      HDFstream();
 
-  /** copy constructur */
-  HDFstream(const HDFstream&);
+      /** copy constructur */
+      HDFstream(const HDFstream&);
 
-  /** destructor */
-  virtual ~HDFstream();
+      /** destructor */
+      virtual ~HDFstream();
 
-  /** */
-  virtual int open(const char*)=0;
-  /** */
-  virtual void close();
-  /** return true=1 if data are still available */
-  virtual int good() const;
-  /** return true=1 if data are still available */
-  operator int () const;
-  /** assign */
-  HDFstream& operator = (const HDFstream&);
-  /** set flags */
-  int setf(int);
-  /** unset flags */
-  int unsetf(int);
-  /** add label */
-  void setLabel(const char *label);
+      /** */
+      virtual int open(const char*)=0;
+      /** */
+      virtual void close();
+      /** return true=1 if data are still available */
+      virtual int good() const;
+      /** return true=1 if data are still available */
+      operator int () const;
+      /** assign */
+      HDFstream& operator = (const HDFstream&);
+      /** set flags */
+      int setf(int);
+      /** unset flags */
+      int unsetf(int);
+      /** add label */
+      void setLabel(const char *label);
 };
 
 /** input stream for HDF files */
 class HDFistream : public HDFstream {
-  int32 sds_cnt, num_datasets;
+      int32 sds_cnt, num_datasets;
 
-public:
-  /** constructor */
-  HDFistream() : HDFstream() {}
-  /** copy constructor */
-  HDFistream(const HDFstream&);
-  /** constructor, opens HDF file "fname", selects first dataset */
-  HDFistream(const char* fname);
+  public:
+      /** constructor */
+      HDFistream() : HDFstream() {}
+      /** copy constructor */
+      HDFistream(const HDFstream&);
+      /** constructor, opens HDF file "fname", selects first dataset */
+      HDFistream(const char* fname);
 
-  /** opens HDF file "fname", selects first dataset */
+      /** opens HDF file "fname", selects first dataset */
   virtual int open(const char*);
   /** return true=1 if data are still available */
   virtual int good() const;
@@ -87,26 +87,26 @@ public:
 
 /** output stream for HDF files */
 class HDFostream : public HDFstream {
-public:
-  /** constructor */
-  HDFostream() : HDFstream() {}
-  /** copy constructor */
-  HDFostream(const HDFstream&);
-  /** constructor, opens HDF file "fname" */
-  HDFostream(const char* fname);
+  public:
+      /** constructor */
+      HDFostream() : HDFstream() {}
+      /** copy constructor */
+      HDFostream(const HDFstream&);
+      /** constructor, opens HDF file "fname" */
+      HDFostream(const char* fname);
 
-  /** */
-  virtual int open(const char*);
+      /** */
+      virtual int open(const char*);
 
-  /** */
-  template<int RANK>
-  HDFostream& operator<< (const Matrix<int, RANK>&);
-  /** */
-  template<int RANK>
-  HDFostream& operator<< (const Matrix<float, RANK>&);
-  /** */
-  template<int RANK>
-  HDFostream& operator<< (const Matrix<double, RANK>&);
+      /** */
+      template<int RANK>
+      HDFostream& operator<< (const Matrix<int, RANK>&);
+      /** */
+      template<int RANK>
+      HDFostream& operator<< (const Matrix<float, RANK>&);
+      /** */
+      template<int RANK>
+      HDFostream& operator<< (const Matrix<double, RANK>&);
 };
 
 #define INT
