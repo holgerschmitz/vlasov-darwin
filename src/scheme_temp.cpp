@@ -358,8 +358,8 @@ void PosFluxCons3rdOrder<ForceField>
 }
 
 template<class ForceField>
-double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-    double fdiff = fjp-fj;
+inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
+/*    double fdiff = fjp-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
@@ -367,13 +367,13 @@ double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
         return 2*fj/fdiff;
     else if (fexc < (-fdiff) )
         return fexc/(-fdiff);
-    else 
+    else */
         return 1.;
 }
 
 template<class ForceField>
-double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-    double fdiff = fjm-fj;
+inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
+/*    double fdiff = fjm-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
@@ -381,7 +381,7 @@ double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
         return 2*fj/fdiff;
     else if (fexc < (-fdiff) )
         return fexc/(-fdiff);
-    else 
+    else */
         return 1.;
 }
 

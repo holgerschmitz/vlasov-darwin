@@ -16,9 +16,13 @@ template<
 void SimpleLeapFrogAdvance<ForceField,Scheme>
         ::advanceStepB(double timestep) {
 
-    advanceVel_x(timestep);
-    advanceVel_y(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
     advanceVel_z(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
 
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
@@ -32,9 +36,13 @@ template<
 void SimpleLeapFrogAdvance<ForceField,Scheme>
         ::advanceStepFull(double timestep) {
 
-    advanceVel_x(timestep);
-    advanceVel_y(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
     advanceVel_z(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
 
     advanceSpace_x(timestep);
     advanceSpace_y(timestep);

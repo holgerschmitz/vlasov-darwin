@@ -36,6 +36,8 @@ class ForceFieldBase {
       /// half of VelSize 
       VelocityD VelSizeH;
 
+      VelocityD VelGridCenter;
+
       /// the physical extent of the spatial grid
       PositionD BoxRange;
       /// range in velocty space
@@ -146,9 +148,9 @@ class ForceFieldBase {
        */
       VelocityD velocity(const VelocityI &Vi) {
         return VelocityD(
-          VRange[0]*( (Vi[0]-0.5)/VelSizeH[0] - 1 ),
-          VRange[1]*( (Vi[1]-0.5)/VelSizeH[1] - 1 ),
-          VRange[2]*( (Vi[2]-0.5)/VelSizeH[2] - 1 )
+          VRange[0]*(Vi[0]-VelGridCenter[0])/VelSizeH[0],
+          VRange[1]*(Vi[1]-VelGridCenter[1])/VelSizeH[1],
+          VRange[2]*(Vi[2]-VelGridCenter[2])/VelSizeH[2]
         );
 //        return (VRange*(VelocityD(-0.5,-0.5,-0.5)+Vi))/VelSizeH - VRange;
       }

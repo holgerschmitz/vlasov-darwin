@@ -244,6 +244,8 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   double Ysheet1 = 0.75*(GlLow[1]+1)+0.25*(GlHigh[1]-2);
   double Ysheet2 = 0.25*(GlLow[1]+1)+0.75*(GlHigh[1]-2);
   
+  int GlMid = (GlLow[1] + GlHigh[1]-1)/2;
+  
   double dy = Parameters::instance().gridSpace_y();
   double lambda_norm = lambda/dy; 
   
@@ -275,15 +277,19 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       double N1 = N0*sc1*sc1;
       double N2 = N0*sc2*sc2;
       
-      if (N1>N2)
+      if ( (Xi[1]>(GlLow[1]+1)) && (Xi[1]<GlMid) )
       {
         N = Ninf + N1;
         UStream[2] =  vz0*sc1*sc1/N + vz_pert;
-      } else
+      } else if (  (Xi[1]>GlMid) && (Xi[1]<(GlHigh[1]-2)) )
       {
         N = Ninf + N2;
         UStream[2] =  -vz0*sc2*sc2/N + vz_pert;
-      }                  
+      } else 
+      {
+        N = Ninf;
+        UStream[2] =  vz_pert;
+      }   
                   
       if (boundary.master())
         USTREAMStream << Xi[0] << " " << Xi[1] << " " << UStream[2] << "\n";

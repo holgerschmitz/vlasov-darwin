@@ -98,6 +98,7 @@ class HDFostream : public HDFstream {
       /** */
       virtual int open(const char*);
 
+      void precision(int) {}
       /** */
       template<int RANK>
       HDFostream& operator<< (const Matrix<int, RANK>&);

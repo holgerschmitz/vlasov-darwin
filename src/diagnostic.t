@@ -6,6 +6,7 @@ template<class Type, class StreamType>
 void SimpleDiagnostic<Type,StreamType>::open(const std::string &fname)
 {
   output.open(fname.c_str());
+  output.precision(14);
 }
 
 template<class Type, class StreamType>

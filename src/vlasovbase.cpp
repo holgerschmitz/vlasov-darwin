@@ -50,10 +50,13 @@ void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
       GridSize[pi] = high[Pi]-low[Pi]-3;
       GridSizeI[pi] = high[Pi]-low[Pi]-3;     
     }         
-    for (int vi = 0; vi < VelSize.length(); ++vi, ++Pi) 
-      VelSize[vi] = high[Pi]-low[Pi]-1; 
+    for (int vi = 0; vi < VelSize.length(); ++vi, ++Pi)
+    {
+      VelSize[vi] = high[Pi]-low[Pi]-1;
+      VelGridCenter[vi]  = 0.5*(high[Pi]+low[Pi]);
+      VelSizeH[vi] = 0.5*(high[Pi]-low[Pi]);
+    }
                 
-    VelSizeH = (VelSize+1.0) / 2.0;
 
     std::cout << "RISIZING Finite Volume Advancer" << std::endl;
     std::cout << "VelSize = " << VelSize << "  VelSizeH = " << VelSizeH << "\n";
