@@ -9,8 +9,8 @@
 // VlasovSpecies
 // -------------------------------------------------------------------
 
-template<class ForceField>
-VlasovSpecies<ForceField>::VlasovSpecies (SpeciesData &data) 
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+VlasovSpecies<ForceField,Scheme>::VlasovSpecies (SpeciesData &data) 
     :  ForceField(),
        RKState(-2),
        boundary(data.bound),
@@ -25,21 +25,21 @@ VlasovSpecies<ForceField>::VlasovSpecies (SpeciesData &data)
     VRange[2] = data.GridRange_vz;
 }
 
-template<class ForceField>
-VlasovSpecies<ForceField>::~VlasovSpecies () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+VlasovSpecies<ForceField,Scheme>::~VlasovSpecies () {
     cerr << "Destructing Vlasov Species\n";
     delete boundary;
 }
 
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::setForceField(typename ForceField::FieldType *pField_) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::setForceField(typename ForceField::FieldType *pField_) {
   pPot = pField_;
   pPot->AddSpecies(this);
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::initialise(VlasovInitialiser *init) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::initialise(VlasovInitialiser *init) {
     cerr << "Executing initializer " << endl;
     
     init->initialise(Distribution, VRange);
@@ -51,8 +51,8 @@ void VlasovSpecies<ForceField>::initialise(VlasovInitialiser *init) {
     cerr << "DONE INITIALIZING Vlasov Species" << endl;
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::Init() {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::Init() {
 
 
     cerr << "INITIALIZING Vlasov Species" << endl;
@@ -93,8 +93,8 @@ void VlasovSpecies<ForceField>::Init() {
     ForceField::Init(dx[0]/dt);
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::resize(PhasePositionI &low, PhasePositionI &high) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::resize(PhasePositionI &low, PhasePositionI &high) {
     cerr << "RISIZING Vlasov Advancer Base " << low << " " << high << endl;
     
     Distribution.resize(low.Data(),high.Data());
@@ -118,8 +118,8 @@ void VlasovSpecies<ForceField>::resize(PhasePositionI &low, PhasePositionI &high
 }
 
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::write(ostream &O) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::write(ostream &O) {
     const int *L = Distribution.getLow();
     const int *H = Distribution.getHigh();
 
@@ -136,8 +136,8 @@ void VlasovSpecies<ForceField>::write(ostream &O) {
             
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::writeYVySlice(int x,int vx,int vz, string fname) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::writeYVySlice(int x,int vx,int vz, string fname) {
     const int *L = Distribution.getLow();
     const int *H = Distribution.getHigh();
     if (   (x<L[0]+2) || (x>H[0]-2) 
@@ -154,8 +154,8 @@ void VlasovSpecies<ForceField>::writeYVySlice(int x,int vx,int vz, string fname)
     Slice.close();
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::writeVxVySlice(int t, int x, int y, int vz, ostream &Slice) 
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::writeVxVySlice(int t, int x, int y, int vz, ostream &Slice) 
 {
     const int *L = Distribution.getLow();
     const int *H = Distribution.getHigh();
@@ -182,8 +182,8 @@ void VlasovSpecies<ForceField>::writeVxVySlice(int t, int x, int y, int vz, ostr
  *  VlasovAdvancerBase and copy the result into a grid, as requested
  *  by the Opar architecture.
  */
-template<class ForceField>
-void VlasovSpecies<ForceField>::MakeRho () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::MakeRho () {
 
 //    cerr << "VlasovSpecies::MakeRho" << endl;
 
@@ -210,8 +210,8 @@ void VlasovSpecies<ForceField>::MakeRho () {
     boundary->ScalarFieldReduce(gRho);
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::MakeJs () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::MakeJs () {
     const int *L = Distribution.getLow();
     const int *H = Distribution.getHigh();
     
@@ -265,8 +265,8 @@ void VlasovSpecies<ForceField>::MakeJs () {
     boundary->ScalarFieldReduce(Vzz);
 }
 
-template<class ForceField>
-ScalarField &VlasovSpecies<ForceField>::KineticEnergy () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+ScalarField &VlasovSpecies<ForceField,Scheme>::KineticEnergy () {
     const int *L = Distribution.getLow();
     const int *H = Distribution.getHigh();
 
@@ -291,8 +291,8 @@ ScalarField &VlasovSpecies<ForceField>::KineticEnergy () {
     return EKin;
 }
 
-template<class ForceField>
-double VlasovSpecies<ForceField>::TotalEnergy () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+double VlasovSpecies<ForceField,Scheme>::TotalEnergy () {
     ScalarField &kin = KineticEnergy();
     ScalarField &fld = FieldEnergy();
     const int *L = kin.getLow();
@@ -309,13 +309,13 @@ double VlasovSpecies<ForceField>::TotalEnergy () {
     return ETot;
 }
 
-template<class ForceField>
-VelocityD VlasovSpecies<ForceField>::getJ(int i, int j) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+VelocityD VlasovSpecies<ForceField,Scheme>::getJ(int i, int j) {
     return VelocityD(Jx(i,j), Jy(i,j), Jz(i,j));
 }
 
-template<class ForceField>
-FixedArray<double,6> VlasovSpecies<ForceField>::getVVTens(int i, int j) {    
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+FixedArray<double,6> VlasovSpecies<ForceField,Scheme>::getVVTens(int i, int j) {    
     FixedArray<double,6> Result;
     
     Result[0] = Vxx(i,j);
@@ -329,12 +329,8 @@ FixedArray<double,6> VlasovSpecies<ForceField>::getVVTens(int i, int j) {
     
 }
 
-
-
-
-
-template<class ForceField>
-void VlasovSpecies<ForceField>::advance(double timestep) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::advance(double timestep) {
   switch (RKState) {
       case -2: RKState = -1;
                break;
@@ -409,13 +405,13 @@ void VlasovSpecies<ForceField>::advance(double timestep) {
 
 
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::InterpolationInitStep(const VlasovDist &Dist) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField, Scheme>::InterpolationInitStep(const VlasovDist &Dist) {
     f_infty = 1;
 }
 
-template<class ForceField>
-double VlasovSpecies<ForceField>::densityError() {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+double VlasovSpecies<ForceField,Scheme>::densityError() {
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
     double avg = 0;
@@ -436,8 +432,8 @@ double VlasovSpecies<ForceField>::densityError() {
     return avg;
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>::correctDensityError(double err) {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::correctDensityError(double err) {
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
     for (int i=LBound[0]; i<=UBound[0]; ++i)
@@ -450,8 +446,8 @@ void VlasovSpecies<ForceField>::correctDensityError(double err) {
 
 
 
-template<class ForceField>
-void VlasovSpecies<ForceField>
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>
         ::advanceStepA(double timestep) {
         
     InterpolationInitStep(Distribution);
@@ -459,8 +455,8 @@ void VlasovSpecies<ForceField>
     advanceSpace_y(0.5*timestep);
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>
         ::advanceStepB(double timestep) {
 
     advanceVel_x(0.25*timestep);
@@ -476,8 +472,8 @@ void VlasovSpecies<ForceField>
     
 }
 
-template<class ForceField>
-void VlasovSpecies<ForceField>
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>
         ::advanceStepFull(double timestep) {
 
     advanceVel_x(0.25*timestep);
@@ -496,8 +492,8 @@ void VlasovSpecies<ForceField>
 /** @brief Calls the advance method of the Advancer base class.
  * then calls Task::Execute to execute sub-Tasks
  */
-template<class ForceField>
-void VlasovSpecies<ForceField>::Execute () {
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+void VlasovSpecies<ForceField,Scheme>::Execute () {
     if ( (t%20) == 0) {
         double err = densityError();
         correctDensityError(err);

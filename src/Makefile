@@ -23,8 +23,8 @@ LOADLIBES = -lutil_mt -lmatrix_mt -lcyclic_mt -lm
 
 BINARY_PREFIX = $(X_ROOT_DIR)/bin/$(X_OSTYPE)
 
-#CXX = gcc
-CXX = /usr/local/mpich/bin/mpiCC
+CXX = g++
+#CXX = /usr/local/mpich/bin/mpiCC
 #CXX = /usr/lib/mpich/bin/mpiCC
 
 all: vlasov
