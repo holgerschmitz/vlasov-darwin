@@ -11,8 +11,17 @@
 #define WRAPVLASOV_H
 
 class Potential;
+class VlasovInitialiser;
 
-template<class ForceField>
+struct SpeciesData {
+  Boundary *bound;
+  double charge;
+  double mass;
+  double GridRange_vx;
+  double GridRange_vy;
+  double GridRange_vz;
+};
+
 
 /** @brief This class wraps the Vlasov advancers in a SpeciesBase class
  *  so that Opar can use it.
@@ -28,6 +37,7 @@ template<class ForceField>
  *  of type double whith which to multiply the forcefield.
  *
  */
+template<class ForceField>
 class VlasovSpecies : public ForceField {
   protected:
       /// the size of the numerical grid in the space direction
@@ -75,9 +85,6 @@ class VlasovSpecies : public ForceField {
       /// range in velocty space
       VelocityD VRange;   
 
-      /// The force field
-      typename ForceField::FieldType *pPot;
-
       /** The boundary class, used for exchanging values across
        *  processes and for wrapping periodic systems
        */
@@ -87,11 +94,22 @@ class VlasovSpecies : public ForceField {
       int t;
   public:
       /// Default constructor
-      VlasovSpecies (Boundary *boundary_);
+      VlasovSpecies (SpeciesData &data);
       /// Destructor
       virtual ~VlasovSpecies ();
 
-      /// Perform initialisation, resizing scalar fields etc.
+      /// Sets the force field and registers the species with it
+      void setForceField(typename ForceField::FieldType *pField_);
+
+      /// Initialises the distribution function with a given initialiser
+      void initialise(VlasovInitialiser *init);
+                        
+      /** @brief Initializes the VlasovSpecies
+       *
+       *  Additionally calls the Init of the ForceField class template.
+       *
+       *  @todo Test the normalisation.
+       */
       virtual void Init ();
       
       /** Perform one timestep.
@@ -332,9 +350,10 @@ class Potential;
  *  VlasovSpecies
  */
 class EFieldForce {
-  private:
+  protected:
       /// Pointer to the potential
-      Potential* pE;
+      Potential* pPot;
+  private:
       /// Scaling constant
       double dttx;
       /// A field containing the field energy
@@ -359,8 +378,8 @@ class EFieldForce {
                       double dt);
       
       /// Initialises the force field
-      void Init(double dttx_, Potential* pPot_);
-
+      void Init(double dttx_);
+      
       typedef Potential FieldType;
 };
 
@@ -368,12 +387,13 @@ class EFieldForce {
  *  field for plugging into the VlasovSpecies
  */
 class EBFieldForce {
-  private:
+  protected:
       /// Pointer to the potential
       Potential* pPot;
       /** @brief Magnetic Field normalized by 
        *  \f$\frac{v_A}{c}\frac{1}{B_0}\f$.
        */
+  private:
       VelocityD B;
       /// Scaling constant
       double dttx;
@@ -395,7 +415,7 @@ class EBFieldForce {
                       double dt);
 
        /// Initialises the force field
-      void Init(double dttx_, Potential* pPot_);
+      void Init(double dttx_);
       
       /// Sets the magnetic field 
       void setBField(VelocityD B_);
@@ -412,9 +432,10 @@ class Darwin;
  *  method to work together with the VlasovSpecies.
  */
 class EMDarwinForce {
-  public:
+  protected:
       /// Pointer to the darwin field solver
-      Darwin* pFields;
+      Darwin* pPot;
+  private:
       /// Scaling constant
       double dttx;
       /// A field containing the field energy
@@ -448,7 +469,7 @@ class EMDarwinForce {
                       double dt);
 
       /// Initialises the force field
-      void Init(double dttx_, Darwin* pFields_);
+      void Init(double dttx_);
 
       typedef Darwin FieldType;
 };

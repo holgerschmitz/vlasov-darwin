@@ -15,7 +15,8 @@ void Potential::AddSpecies(ESVlasovSpecies* pS) {
 /// Get parameters Nx and dx and initialize the potential grid
 void Potential::Init () {
 
-    n0 = -1;
+//    n0 = -1;
+    n0 = 0;
 
     LBound = GlGridLow;
     HBound = GlGridHigh;

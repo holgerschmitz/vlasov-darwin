@@ -109,7 +109,7 @@ void Darwin::Init () {
   Lambda.resize(LBound.Data(),HBound.Data());
   Out.resize(LBound.Data(),HBound.Data());
 
-  cerr << "Done Darwin: Size=( " << LBound << "," << HBound << endl;
+  cerr << "Done Darwin: Size=( " << LBound << "),(" << HBound<< ")" << endl;
 }
 
 bool Darwin::Execute (double timestep) {

@@ -9,19 +9,18 @@
 // EFieldForce
 // -------------------------------------------------------------------
 
-void EFieldForce::Init(double dttx_, Potential *pPot_) {
-    pE = pPot_;
+void EFieldForce::Init(double dttx_) {
     dttx = dttx_;
 }
 
-ScalarField &EFieldForce::GetEx() { return pE->GetEx(); }
-ScalarField &EFieldForce::GetEy() { return pE->GetEy(); }
+ScalarField &EFieldForce::GetEx() { return pPot->GetEx(); }
+ScalarField &EFieldForce::GetEy() { return pPot->GetEy(); }
 
 VelocityD EFieldForce::Force(const PositionI &Pos, 
                              const VelocityD &Vel,
                              double dt) {
-    double Fx = pE->GetEx()(Pos[0],Pos[1]);
-    double Fy = pE->GetEy()(Pos[0],Pos[1]);
+    double Fx = GetEx()(Pos[0],Pos[1]);
+    double Fy = GetEy()(Pos[0],Pos[1]);
     return VelocityD(dttx*dt*Fx, dttx*dt*Fy, 0.0);
         
 }
@@ -50,8 +49,7 @@ ScalarField &EFieldForce::FieldEnergy() {
 // EBFieldForce
 // -------------------------------------------------------------------
 
-void EBFieldForce::Init(double dttx_, Potential *pPot_) {
-    pPot = pPot_;
+void EBFieldForce::Init(double dttx_) {
     dttx = dttx_;
 }
 
@@ -121,17 +119,16 @@ VelocityD EBFieldForce::Force(const PositionI &Pos,
 // EMDarwinForce
 // -------------------------------------------------------------------
 
-void EMDarwinForce::Init(double dttx_, Darwin* pFields_) {
-    pFields = pFields_;
+void EMDarwinForce::Init(double dttx_) {
     dttx = dttx_;
 }
 
-ScalarField &EMDarwinForce::GetEx() { return pFields->GetEx(); }
-ScalarField &EMDarwinForce::GetEy() { return pFields->GetEy(); }
-ScalarField &EMDarwinForce::GetEz() { return pFields->GetEz(); }
-ScalarField &EMDarwinForce::GetBx() { return pFields->GetBx(); }
-ScalarField &EMDarwinForce::GetBy() { return pFields->GetBy(); }
-ScalarField &EMDarwinForce::GetBz() { return pFields->GetBz(); }
+ScalarField &EMDarwinForce::GetEx() { return pPot->GetEx(); }
+ScalarField &EMDarwinForce::GetEy() { return pPot->GetEy(); }
+ScalarField &EMDarwinForce::GetEz() { return pPot->GetEz(); }
+ScalarField &EMDarwinForce::GetBx() { return pPot->GetBx(); }
+ScalarField &EMDarwinForce::GetBy() { return pPot->GetBy(); }
+ScalarField &EMDarwinForce::GetBz() { return pPot->GetBz(); }
 
 
 VelocityD EMDarwinForce::Force(const PositionI &Pos, 

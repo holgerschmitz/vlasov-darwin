@@ -3,11 +3,11 @@
 
 #include "Vlas2d.h"
 
-const int GlGridX = 256;
-const int GlGridY = 4;
+int GlGridX = 256;
+int GlGridY = 4;
 //const int GlGridX = 64;
 //const int GlGridY = 64;
-const int GlVelRes = 20;
+int GlVelRes = 20;
 
 PositionI GlGridLow(0,0);
 PositionI GlGridHigh(GlGridX+1,GlGridY+1);
@@ -15,9 +15,9 @@ PositionI GlGridHigh(GlGridX+1,GlGridY+1);
 PhasePositionI GlDistLow(-1,-1,0,0,0);
 PhasePositionI GlDistHigh(GlGridX+2,GlGridY+2,GlVelRes+1,GlVelRes+1,GlVelRes+1);
 
-const double GlGridRange_vx = 5.5;
-const double GlGridRange_vy = 5.5;
-const double GlGridRange_vz = 5.5;
+//double GlGridRange_vx = 5.5;
+//double GlGridRange_vy = 5.5;
+//double GlGridRange_vz = 5.5;
 
 const double InitStream_vx = 0.0;
 const double InitStream_vy = 0.2;
@@ -49,8 +49,8 @@ const int MG_nu2 = 1;
 const int MG_gama = 1;
 const double MG_epsilon = 1e-6;
 
-const double GlGridSpace_x = 0.39269908; //4*M_PI/double(GlGridX);
-const double GlGridSpace_y = 0.39269908; //4*M_PI/double(GlGridY);
+double GlGridSpace_x = 0.39269908; //4*M_PI/double(GlGridX);
+double GlGridSpace_y = 0.39269908; //4*M_PI/double(GlGridY);
 
 //const double GlGridSpace_x = 2*M_PI/double(GlGridX);
 //const double GlGridSpace_y = 2*M_PI/double(GlGridY);
@@ -69,8 +69,6 @@ const int Gl_B0x = 3;
 const int Gl_B0y = 0;
 const int Gl_B0z = 0;
 
-const double Gl_dt = 5e-3;
-const double Gl_Charge = 1;
-const double Gl_Mass = 1;
+double Gl_dt = 5e-3;
 
-const double Gl_VelocityRatio = 0.1;
+double Gl_VelocityRatio = 0.1;

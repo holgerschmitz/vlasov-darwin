@@ -10,19 +10,19 @@
 // -------------------------------------------------------------------
 
 template<class ForceField>
-VlasovSpecies<ForceField>::VlasovSpecies (Boundary *boundary_) 
+VlasovSpecies<ForceField>::VlasovSpecies (SpeciesData &data) 
     :  ForceField(),
        RKState(-2),
-       boundary(boundary_),
+       boundary(data.bound),
        t(0) { 
     dt = Gl_dt;
-    Mass = Gl_Mass;
-    Charge = Gl_Charge;
+    Mass = data.mass;
+    Charge = data.charge;
 
     
-    VRange[0] = GlGridRange_vx;
-    VRange[1] = GlGridRange_vy;
-    VRange[2] = GlGridRange_vz;
+    VRange[0] = data.GridRange_vx;
+    VRange[1] = data.GridRange_vy;
+    VRange[2] = data.GridRange_vz;
 }
 
 template<class ForceField>
@@ -32,28 +32,40 @@ VlasovSpecies<ForceField>::~VlasovSpecies () {
 }
 
 
-/** @brief Initializes the VlasovSpecies
- *
- *  Additionally calls the Init of the ForceField class template.
- *
- *  @todo Test the normalisation.
- */
+template<class ForceField>
+void VlasovSpecies<ForceField>::setForceField(typename ForceField::FieldType *pField_) {
+  pPot = pField_;
+  pPot->AddSpecies(this);
+}
+
+template<class ForceField>
+void VlasovSpecies<ForceField>::initialise(VlasovInitialiser *init) {
+    cerr << "Executing initializer " << endl;
+    
+    init->initialise(Distribution, VRange);
+    
+    cerr << "Boundary Exchange " << endl;
+    boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
+
+    cerr << "DONE INITIALIZING Vlasov Species" << endl;
+}
+
 template<class ForceField>
 void VlasovSpecies<ForceField>::Init() {
 
 
     cerr << "INITIALIZING Vlasov Species" << endl;
 
-    pPot = new (typename ForceField::FieldType)(boundary->master());
-    pPot->Init();
-	pPot->AddSpecies(this);
-
     PhasePositionI Size;
     PositionI Lowx = pPot->GetLBound();
     PositionI Highx = pPot->GetHBound();
     
+    cerr << "Resizing" << endl;
     
     resize(boundary->DistLow(),boundary->DistHigh());
+    
+    cerr << "Resizing fields" << endl;
     
 	gRho.resize(Lowx.Data(),Highx.Data());
 	EKin.resize(Lowx.Data(),Highx.Data());
@@ -78,23 +90,7 @@ void VlasovSpecies<ForceField>::Init() {
        
        
     cerr << "Init Field " << Charge/Mass << " " << VRange << endl;
-    ForceField::Init(Charge/Mass, dx[0]/dt, pPot);
-    
-    cerr << "Creating initializer " << endl;
-//    VlasovMaxwellInit<ForceField> TheInit(this);
-//    VlasovTwoMaxwellInit<ForceField> TheInit(this);
-    VlasovWaveGenInit<ForceField> TheInit(this);
-//    VlasovCurrentSheetInit<ForceField> TheInit(this);
-    cerr << "Executing initializer " << endl;
-    
-    TheInit.initialise(Distribution, VRange);
-    
-    cerr << "Boundary Exchange " << endl;
-    boundary->exchangeX(Distribution);
-    boundary->exchangeY(Distribution);
-
-    cerr << "DONE INITIALIZING Vlasov Species" << endl;
-
+    ForceField::Init(dx[0]/dt);
 }
 
 template<class ForceField>
@@ -954,7 +950,7 @@ void VlasovSpecies<ForceField>::Execute () {
     t++;
 
 //    cerr << "Potential("<<t<<")\n";
-    pPot->Execute(dt);
+//    pPot->Execute(dt);
     
 //    cerr << "Advancing("<<t<<")\n";
     advance(dt);
