@@ -133,7 +133,7 @@ template<
 void RungeKuttaAdvance<ForceField,Scheme>::initializeAdvancer() {
   const int *UBound = Distribution.getHigh();
   const int *LBound = Distribution.getLow();
-  
+    
   TempDist.resize(LBound,UBound);
   T1.resize(LBound,UBound);
   T2.resize(LBound,UBound);
@@ -182,12 +182,13 @@ void RungeKuttaAdvance<ForceField,Scheme>::advance(double timestep) {
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m) {
                         Distribution(i,j,k,l,m) 
-                          = Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m);
+                          = fabs(Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m));
                         T2(i,j,k,l,m) = Distribution(i,j,k,l,m); // = d2
                       }
               advanceStepA(3*timestep/4.);
 
               RKState = 2;
+              VlasovDiagnostic = true;
               break;
       case 2: advanceStepB(3*timestep/4.);      // Distribution = c2
               for (int i=LBound[0]; i<=UBound[0]; ++i)
@@ -196,10 +197,10 @@ void RungeKuttaAdvance<ForceField,Scheme>::advance(double timestep) {
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m) {
                         Distribution(i,j,k,l,m) 
-                            =  (1/4.)*TempDist(i,j,k,l,m) 
+                            =  fabs((1/4.)*TempDist(i,j,k,l,m) 
                              + (3/4.)*T1(i,j,k,l,m) 
                              +  Distribution(i,j,k,l,m)
-                             - T2(i,j,k,l,m); 
+                             - T2(i,j,k,l,m)); 
                         TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
                       } 
               advanceStepA(timestep/3.); 
