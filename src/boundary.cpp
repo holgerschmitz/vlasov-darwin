@@ -91,7 +91,7 @@ void SinglePeriodicBoundary::exchangeYLine(NumMatrix<double, 1> &field)
 
 void SinglePeriodicBoundary::ScalarFieldCombine(ScalarField &field) const 
 {
-  ScalarFieldReduce(field);
+//  ScalarFieldReduce(field);
 }
 
 void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) const {
@@ -354,7 +354,7 @@ void MPIPeriodicSplitXBoundary::ScalarFieldCombine(ScalarField &field) const {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
-    ScalarFieldReduce(field);  
+//    ScalarFieldReduce(field);  
 }
 
 void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
@@ -492,8 +492,8 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     
     PositionI low = Parameters::instance().gridLow();
     PositionI high = Parameters::instance().gridHigh();
-    scalarSize = (high[0]-low[0]-1)
-                *(high[1]-low[1]-1);
+    scalarSize = (high[0]-low[0]+1)
+                *(high[1]-low[1]+1);
                 
     scalarsend = new double[scalarSize];
     scalarrecv = new double[scalarSize];
@@ -703,8 +703,8 @@ void MPIPeriodicSplitXYBoundary::ScalarFieldCombine(ScalarField &field) const {
     
     int arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         scalarsend[arr_ind++] = field(i,j);
       }
     
@@ -712,12 +712,12 @@ void MPIPeriodicSplitXYBoundary::ScalarFieldCombine(ScalarField &field) const {
 
     arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
-    ScalarFieldReduce(field);
+//    ScalarFieldReduce(field);
 }
 
 void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {

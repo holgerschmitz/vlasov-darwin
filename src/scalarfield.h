@@ -32,7 +32,8 @@ class ScalarField : public NumMatrix<double, DIMENSION>
       //static const int XComponent;
       //static const int YComponent;
       //static const int ZComponent;
-      enum {ScalarComponent=0, XComponent=1, YComponent=2, ZComponent=3};
+      enum {ScalarComponent=0, XComponent=1, YComponent=2, ZComponent=3, 
+            XYComponent=4, XZComponent=5, YZComponent=6};
       static const int EvenParity;
       static const int OddParity;
   public:

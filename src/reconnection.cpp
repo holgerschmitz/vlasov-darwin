@@ -199,8 +199,8 @@ void SimpleReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
     
     int arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         scalarsend[arr_ind++] = field(i,j);
       }
     
@@ -208,12 +208,12 @@ void SimpleReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
 
     arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
-    ScalarFieldReduce(field);
+//    ScalarFieldReduce(field);
 }
 
 void SimpleReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
@@ -242,6 +242,15 @@ const NumBoundary& SimpleReconnectionBoundary::getNumBoundary(ScalarField &field
       case ScalarField::ScalarComponent : 
         if (1==par) return ScalarBound; 
         else return evenZBound;
+        break;
+      case ScalarField::XYComponent : 
+        return evenZBound;
+        break;
+      case ScalarField::XZComponent : 
+        return evenYBound;
+        break;
+      case ScalarField::YZComponent : 
+        return evenXBound;
         break;
       default : std::cerr << " !!! Default Boundary !!!\n";
         return ScalarBound;
@@ -376,18 +385,19 @@ void GEMReconnectionBoundary::exchangeY(VlasovDist &field) {
                 field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
                   = recvarry[arr_ind++];
     }
-    else
-    {
-//      std::cerr << "Mirror Y - top\n";
-      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
-        for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
-          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
-            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
-              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
-                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
-                  = field(Xi[0], 2*High[1]-3-Xi[1], 
-                    Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
-    }
+// I will keep the initial distribution at the outer boundary
+//     else
+//     {
+// //      std::cerr << "Mirror Y - top\n";
+//       for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+//         for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
+//           for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+//             for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+//               for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+//                 field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+//                   = field(Xi[0], 2*High[1]-3-Xi[1], 
+//                     Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
+//     }
     
                 
     arr_ind = 0;
@@ -443,8 +453,8 @@ void GEMReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
     
     int arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         scalarsend[arr_ind++] = field(i,j);
       }
     
@@ -452,12 +462,12 @@ void GEMReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
 
     arr_ind=0;
 
-    for (int i = lx1; i <= mx1; ++i)
-      for (int j = ly1; j <= my1; ++j) {
+    for (int i = lx0; i <= mx0; ++i)
+      for (int j = ly0; j <= my0; ++j) {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
-    ScalarFieldReduce(field);
+//    ScalarFieldReduce(field);
 }
 
 void GEMReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
@@ -477,7 +487,8 @@ const NumBoundary& GEMReconnectionBoundary::getNumBoundary(ScalarField &field) c
         break;
       case ScalarField::YComponent : 
         if (1==par) return evenYBound; 
-        else return oddYBound;
+//        else return oddYBound;
+        else return evenXBound;
         break;
       case ScalarField::ZComponent : 
         if (1==par) return evenZBound; 
@@ -486,6 +497,15 @@ const NumBoundary& GEMReconnectionBoundary::getNumBoundary(ScalarField &field) c
       case ScalarField::ScalarComponent : 
         if (1==par) return ScalarBound; 
         else return evenZBound;
+        break;
+      case ScalarField::XYComponent : 
+        return evenZBound;
+        break;
+      case ScalarField::XZComponent : 
+        return evenXZBound;
+        break;
+      case ScalarField::YZComponent : 
+        return evenXBound;
         break;
       default : std::cerr << " !!! Default Boundary !!!\n";
         return ScalarBound;
@@ -569,7 +589,8 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       double N_pert = vz1*cos(PIl*Xi[0]/Nx);
       double N;
       double N1 = (N0-N_pert)*sc1*sc1;
-      double N2 = (N0+N_pert)*sc2*sc2;
+//      double N2 = (N0+N_pert)*sc2*sc2;
+      double N2 = (N0-N_pert)*sc2*sc2;
       
       if ( Xi[1]<=GlMid )
       {

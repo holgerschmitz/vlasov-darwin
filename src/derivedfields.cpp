@@ -64,8 +64,24 @@ void DistMomentRhoOne::calc(ForceFieldBase &vlasov) {
 
     VlasovDist &dist = vlasov.getDistribution();
   
-    const int *L = dist.getLow();
-    const int *H = dist.getHigh();
+    const PhasePositionI &DL = Parameters::instance().distLow();
+    const PhasePositionI &DH = Parameters::instance().distHigh();
+    const int *SL = dist.getLow();
+    const int *SH = dist.getHigh();
+    
+    int L[5];
+    int H[5];
+    
+    for (int i=0; i<2; ++i)
+    {
+      L[i] = (DL[i]==SL[i])?Parameters::instance().gridLow()[i]:SL[i]+2;
+      H[i] = (DH[i]==SH[i])?Parameters::instance().gridHigh()[i]:SH[i]-2;
+    }
+    for (int i=2; i<5; ++i)
+    {
+      L[i] = SL[i];
+      H[i] = SH[i];
+    }
     
     Rho.clear();
     
@@ -75,8 +91,8 @@ void DistMomentRhoOne::calc(ForceFieldBase &vlasov) {
     // inner cells, since ScalarFieldReduce simply adds all the densities of
     // the processes.
     
-    for (int ix=L[0]+2; ix<=H[0]-2; ++ix) {
-      for (int iy=L[1]+2; iy<=H[1]-2; ++iy) {
+    for (int ix=L[0]; ix<=H[0]; ++ix) {
+      for (int iy=L[1]; iy<=H[1]; ++iy) {
         for (int j=L[2]; j<=H[2]; ++j)
           for (int k=L[3]; k<=H[3]; ++k)
             for (int l=L[4]; l<=H[4]; ++l) 
@@ -110,16 +126,16 @@ DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_)
   Vxx.setComponent(ScalarField::ScalarComponent);
   Vxx.setParity(ScalarField::EvenParity);
   Vxy.resize(Lowx.Data(),Highx.Data());
-  Vxy.setComponent(ScalarField::ScalarComponent);
+  Vxy.setComponent(ScalarField::XYComponent);
   Vxy.setParity(ScalarField::EvenParity);
   Vxz.resize(Lowx.Data(),Highx.Data());
-  Vxz.setComponent(ScalarField::ScalarComponent);
+  Vxz.setComponent(ScalarField::XZComponent);
   Vxz.setParity(ScalarField::EvenParity);
   Vyy.resize(Lowx.Data(),Highx.Data());
   Vyy.setComponent(ScalarField::ScalarComponent);
   Vyy.setParity(ScalarField::EvenParity);
   Vyz.resize(Lowx.Data(),Highx.Data());
-  Vyz.setComponent(ScalarField::ScalarComponent);
+  Vyz.setComponent(ScalarField::YZComponent);
   Vyz.setParity(ScalarField::EvenParity);
   Vzz.resize(Lowx.Data(),Highx.Data());
   Vzz.setComponent(ScalarField::ScalarComponent);
@@ -171,8 +187,25 @@ ScalarField& DistMomentVelocitiesBase::getField(std::string name) {
 void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
   VlasovDist &dist = vlasov.getDistribution();
 
-  const int *L = dist.getLow();
-  const int *H = dist.getHigh();
+    const PhasePositionI &DL = Parameters::instance().distLow();
+    const PhasePositionI &DH = Parameters::instance().distHigh();
+    const int *SL = dist.getLow();
+    const int *SH = dist.getHigh();
+    
+    int L[5];
+    int H[5];
+    
+    for (int i=0; i<2; ++i)
+    {
+      L[i] = (DL[i]==SL[i])?Parameters::instance().gridLow()[i]:SL[i]+2;
+      H[i] = (DH[i]==SH[i])?Parameters::instance().gridHigh()[i]:SH[i]-2;
+    }
+    for (int i=2; i<5; ++i)
+    {
+      L[i] = SL[i];
+      H[i] = SH[i];
+    }
+    
   
   VelocityI vi;
   VelocityD V;
@@ -189,8 +222,8 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
   Vyz.clear();
   Vzz.clear();
 
-  for (int i=L[0]+2; i<=H[0]-2; ++i) {
-    for (int j=L[1]+2; j<=H[1]-2; ++j) {
+  for (int i=L[0]; i<=H[0]; ++i) {
+    for (int j=L[1]; j<=H[1]; ++j) {
       
       for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
         for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
@@ -256,8 +289,24 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
 void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     VlasovDist &dist = vlasov.getDistribution();
 
-    const int *L = dist.getLow();
-    const int *H = dist.getHigh();
+    const PhasePositionI &DL = Parameters::instance().distLow();
+    const PhasePositionI &DH = Parameters::instance().distHigh();
+    const int *SL = dist.getLow();
+    const int *SH = dist.getHigh();
+    
+    int L[5];
+    int H[5];
+    
+    for (int i=0; i<2; ++i)
+    {
+      L[i] = (DL[i]==SL[i])?Parameters::instance().gridLow()[i]:SL[i]+2;
+      H[i] = (DH[i]==SH[i])?Parameters::instance().gridHigh()[i]:SH[i]-2;
+    }
+    for (int i=2; i<5; ++i)
+    {
+      L[i] = SL[i];
+      H[i] = SH[i];
+    }
     
     VelocityI vi;
     VelocityD V, Vm, Vp;
@@ -281,8 +330,8 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     double dvy = vlasov.deltaVy();
     double dvz = vlasov.deltaVz();
     
-    for (int i=L[0]+2; i<=H[0]-2; ++i) {
-      for (int j=L[1]+2; j<=H[1]-2; ++j) {
+    for (int i=L[0]; i<=H[0]; ++i) {
+      for (int j=L[1]; j<=H[1]; ++j) {
         
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
@@ -395,16 +444,32 @@ ScalarField& DistMomentHeatFluxBase::getField(std::string name) {
 void DistMomentHeatFluxOne::calc(ForceFieldBase &vlasov) {
     VlasovDist &dist = vlasov.getDistribution();
   
-    const int *L = dist.getLow();
-    const int *H = dist.getHigh();
+    const PhasePositionI &DL = Parameters::instance().distLow();
+    const PhasePositionI &DH = Parameters::instance().distHigh();
+    const int *SL = dist.getLow();
+    const int *SH = dist.getHigh();
+    
+    int L[5];
+    int H[5];
+    
+    for (int i=0; i<2; ++i)
+    {
+      L[i] = (DL[i]==SL[i])?Parameters::instance().gridLow()[i]:SL[i]+2;
+      H[i] = (DH[i]==SH[i])?Parameters::instance().gridHigh()[i]:SH[i]-2;
+    }
+    for (int i=2; i<5; ++i)
+    {
+      L[i] = SL[i];
+      H[i] = SH[i];
+    }
 
     VelocityI vi;
     double Vx;
     double d;
     HFluxX.clear();
         
-    for (int i=L[0]+2; i<=H[0]-2; ++i)
-      for (int j=L[1]+2; j<=H[1]-2; ++j) {
+    for (int i=L[0]; i<=H[0]; ++i)
+      for (int j=L[1]; j<=H[1]; ++j) {
         
         double Jx = 0;
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])

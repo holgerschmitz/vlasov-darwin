@@ -14,7 +14,7 @@
 #ifdef POS_FLUX_3_TIMESPLIT
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE LeapFrogAdvance
-  #define FORCE_TYPE GenericEMForceBoris
+  #define FORCE_TYPE GenericEMForce
 #endif
 
 #ifdef FINITE_DIFF
@@ -39,7 +39,7 @@ class Darwin;
 class GenericEMForceBase_ConstEB;
 template<class> class GenericEMForceBase_FullEM;
 
-template<class> class GenericEMForceBoris;
+template<class> class GenericEMForce;
 template<class> class GenericEMForceBoris2;
 template<class> class GenericEMForceDirect;
 

@@ -69,11 +69,11 @@ void Darwin::Init ()
   vxx.setParity(ScalarField::EvenParity);
 
   vxy.resize(LBound.Data(),HBound.Data());
-  vxy.setComponent(ScalarField::ScalarComponent);
+  vxy.setComponent(ScalarField::XYComponent);
   vxy.setParity(ScalarField::EvenParity);
 
   vxz.resize(LBound.Data(),HBound.Data());
-  vxz.setComponent(ScalarField::ScalarComponent);
+  vxz.setComponent(ScalarField::XZComponent);
   vxz.setParity(ScalarField::EvenParity);
 
   vyy.resize(LBound.Data(),HBound.Data());
@@ -81,7 +81,7 @@ void Darwin::Init ()
   vyy.setParity(ScalarField::EvenParity);
 
   vyz.resize(LBound.Data(),HBound.Data());
-  vyz.setComponent(ScalarField::ScalarComponent);
+  vyz.setComponent(ScalarField::YZComponent);
   vyz.setParity(ScalarField::EvenParity);
 
   vzz.resize(LBound.Data(),HBound.Data());
@@ -256,7 +256,7 @@ bool Darwin::Execute () {
 	    vzz(i,j) +=  dF*vvt[5];
       }
   }
-
+  
   /* *************************************
    *  With the charge density we can first calculate the 
    *  scalar potential Pot. 

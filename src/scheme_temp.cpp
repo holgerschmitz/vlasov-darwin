@@ -28,7 +28,7 @@ void PosFluxCons3rdOrder<ForceField>
       double alpha = deltax - deltaI + 1;       // 0 <= alpha < 1
 
 //      cerr << "Vx: " << Vi[0] << " " << deltax << " " << deltaI << "\n";
-      for (Xi[1] = LBound[1]; Xi[1] <= UBound[1]; ++Xi[1])
+      for (Xi[1] = LBound[1]+2; Xi[1] <= UBound[1]-2; ++Xi[1])
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
@@ -86,7 +86,7 @@ void PosFluxCons3rdOrder<ForceField>
       int deltaI = int(floor(deltax)+1);        // i + deltaI - 1/2 <= X_(i+1/2) < i + deltaI + 1/2
       double alpha = deltax - deltaI + 1;       // 0 <= alpha < 1
 
-      for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
+      for (Xi[0] = LBound[0]+2; Xi[0] <= UBound[0]-2; ++Xi[0])
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
@@ -141,8 +141,8 @@ void PosFluxCons3rdOrder<ForceField>
     
     int j_old; 
     double new_f_infty = 0;
-    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
-      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
+    for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+2; Xi[1] < UBound[1]-1; ++Xi[1]) {
              
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
@@ -153,8 +153,8 @@ void PosFluxCons3rdOrder<ForceField>
             for (Vi[0] = lvx; Vi[0] < bvx; ++Vi[0]) {
                 Vflux[0] = Vi[0]+0.5;
                 VelocityD Vel = velocity(Vflux);
-                double F = ForceX(Xi,Vel,timestep);
-                double deltavx = -F/deltaVx();
+                double F = ForceX(Xi,Vel,-timestep);
+                double deltavx = F/deltaVx();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
@@ -247,8 +247,8 @@ void PosFluxCons3rdOrder<ForceField>
     int j_old; 
     double new_f_infty = 0;
     
-    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
-      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
+    for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+2; Xi[1] < UBound[1]-1; ++Xi[1]) {
                
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
@@ -261,8 +261,8 @@ void PosFluxCons3rdOrder<ForceField>
                 Vflux[1] = Vi[1]+0.5;
                 VelocityD Vel = velocity(Vflux);
                 
-                double F = ForceY(Xi,Vel,timestep);
-                double deltavx = -F/deltaVy();
+                double F = ForceY(Xi,Vel,-timestep);
+                double deltavx = F/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
@@ -359,8 +359,8 @@ void PosFluxCons3rdOrder<ForceField>
     double new_f_infty = 0;
     
 //    cerr << "Advancing in vz\n";
-    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
-      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
+    for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+2; Xi[1] < UBound[1]-1; ++Xi[1]) {
       
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
@@ -374,8 +374,8 @@ void PosFluxCons3rdOrder<ForceField>
                 Vflux[2] = Vi[2]+0.5;
                 VelocityD Vel = velocity(Vflux);
                 
-                double F = ForceZ(Xi,Vel,timestep);
-                double deltavx = -F/deltaVy();
+                double F = ForceZ(Xi,Vel,-timestep);
+                double deltavx = F/deltaVz();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
@@ -449,7 +449,7 @@ void PosFluxCons3rdOrder<ForceField>
  */
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-    double fdiff = fjp-fj;
+//    double fdiff = fjp-fj;
     //    double fexc = 2*(f_infty-fj);
     //  if (fexc<0) 
     //    return 0;
@@ -460,48 +460,52 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp
 //    if (fexc < (-fdiff) )
 //        return -fexc/fdiff;
 //    else 
+        return 1.;
+// 
+// //     double fexc=2*(f_infty-fj);    
+//      double fdiff_safe = fdiff + double(fdiff==0);
+//  
+//      double result[3];
+//      result[0] = 1.;
+//      result[1] = 2*fj/fdiff_safe;
+// //     result[2] = -fexc/fdiff_safe;
+//      
+//      int res1 = (2*fj<fdiff);
+// //     int res2 = (fexc < (-fdiff) );
+//      
+// //     return result[res1*(1-res2) + 2*(1-res1)*res2];
+//      return result[res1];
 //        return 1.;
-
-    double fexc=2*(f_infty-fj);    
-    double fdiff_safe = fdiff + double(fdiff==0);
-
-    double result[3];
-    result[0] = 1;
-    result[1] = 2*fj/fdiff_safe;
-    result[2] = -fexc/fdiff_safe;
-    
-    int res1 = (2*fj<fdiff);
-    int res2 = (fexc < (-fdiff) );
-    
-    return result[res1 + 2*(1-res1)*res2];
 }
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-    double fdiff = fjm-fj;
+//    double fdiff = fjm-fj;
     //    double fexc = 2*(f_infty-fj);
     //    if (fexc<0) 
     //        return 0;
 //    if (2*fj<fdiff)
-//        return 2*fj/fdiff;
+//      return 2*fj/fdiff;
 //    double fexc = 2*(f_infty-fj);
 //    if (fexc < (-fdiff) )
 //        return -fexc/fdiff;
 //    else 
+      return 1.;
+
+//     double fexc=2*(f_infty-fj);    
+//      double fdiff_safe = fdiff + double(fdiff==0);
+//  
+//      double result[3];
+//      result[0] = 1.;
+//      result[1] = 2*fj/fdiff_safe;
+// //     result[2] = -fexc/fdiff_safe;
+//      
+//      int res1 = (2*fj<fdiff);
+// //     int res2 = (fexc < (-fdiff) );
+//      
+// //     return result[res1*(1-res2) + 2*(1-res1)*res2];
+//      return result[res1];
 //        return 1.;
-
-    double fexc=2*(f_infty-fj);    
-    double fdiff_safe = fdiff + double(fdiff==0);
-
-    double result[3];
-    result[0] = 1;
-    result[1] = 2*fj/fdiff_safe;
-    result[2] = -fexc/fdiff_safe;
-    
-    int res1 = (2*fj<fdiff);
-    int res2 = (fexc < (-fdiff) );
-    
-    return result[res1 + 2*(1-res1)*res2];
 
 }
 

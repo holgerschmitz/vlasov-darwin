@@ -94,6 +94,7 @@ class GEMReconnectionBoundary : public MPIPeriodicSplitXYBoundary {
       MixedBoundary<BoundDirichlet,BoundDirichlet,BoundDirichlet,BoundNeumann> evenZBound;
       NDBoundary oddYBound;
       MixedBoundary<BoundNeumann,BoundNeumann,BoundNeumann,BoundDirichlet> oddZBound;
+      DNBoundary evenXZBound;
       NNBoundary ScalarBound;
   public:
       /**Default constructor used by the parsers
