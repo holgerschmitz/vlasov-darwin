@@ -167,7 +167,7 @@ void PosFluxCons3rdOrder<ForceField>
                     Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
                 j_old=j;
                 
-                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
+                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
                     Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
                 else
                     Flux(Vi[0]) = 0;
@@ -238,7 +238,7 @@ void PosFluxCons3rdOrder<ForceField>
                     Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
                 j_old=j;
 
-                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
+                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
                     Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
                 else
                     Flux(Vi[1]) = 0;
@@ -310,7 +310,7 @@ void PosFluxCons3rdOrder<ForceField>
                     Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
 
-                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
+                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
                     Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
                 else
                     Flux(Vi[2]) = 0;
