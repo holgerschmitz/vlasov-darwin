@@ -339,26 +339,6 @@ class GenericEMForceDirect : public ForceBaseType {
 };
 
 
-class Darwin;
-
-typedef GenericEMForceDirect<
-  GenericEMForceBase_ConstEB
-> ConstEBFieldForce;
-
-typedef PtrWrapper<ConstEBFieldForce> pConstEBFieldForce;
-
-typedef GenericEMForceDirect<
-  GenericEMForceBase_FullEM<Darwin>
-> EMDarwinForce;
-
-typedef PtrWrapper<EMDarwinForce> pEMDarwinForce;
-
-class Magnetostatic;
-typedef GenericEMForceDirect<
-  GenericEMForceBase_FullEM<Magnetostatic>
-> MagnetostaticForce;
-
-typedef PtrWrapper<MagnetostaticForce> pMagnetostaticForce;
 
 #include "forcefield.t"
 

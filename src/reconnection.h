@@ -73,9 +73,13 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
  *  The density is given by
  *  \f$$n(y) = n_0\text{sech}^2(y/\lambda) + n_{\infty}$\f$
  *  and the velocity by
- * \f$$v_z(y) = v_{z0}\frac{1}{n_0 + n_{\infty}\cosh^2(y/\lambda)}$\f$
+ * \f$$v_z(y) = v_{z0}$\f$
  *  where \f$v_{z0}\f$ is specified and should be 
  *  \f$$v_{z0} = -\frac{m}{\sum m} \frac{B_0}{q\mu_0\lambda}$\f$
+ * 
+ * The distribution is made up of two Maxwellians, one shifted with the
+ * velocity \f$v_{z0}\f$, creating the current sheet. The other is not shifted
+ * and has the constant background density.
  */
 class VlasovReconnectionInit : public VlasovInitialiser {
   protected:
@@ -102,10 +106,12 @@ class VlasovReconnectionInit : public VlasovInitialiser {
    /// Destructor
       virtual ~VlasovReconnectionInit();
 
-      /** @brief Perform distribution initialisation.
-       *  The Maxwellian distribution will be written into the
-       *  dist parameter.
-       */
+    /** @brief Do the initialisation
+     *    
+     *  Iterate through the whole distribution function and assign the appropriate
+     *  phase space density to every point in phase space. The Phase space density 
+     *  is calculated as a Maxwellian distribution.
+     */
       void initialise(ForceFieldBase *pVlasov);
     protected:
       PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);

@@ -16,6 +16,7 @@
 #include "helmholtz.h"
 #include "forcefield.h"
 #include "diaghelper.h"
+#include "simtype.h"
 #include "forcefield.h"
 #include <vector>
 #include <string>

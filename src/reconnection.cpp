@@ -223,12 +223,6 @@ PARAMETERMAP* VlasovPeriodicReconnectionInit::MakeParamMap (PARAMETERMAP* pm) {
 VlasovPeriodicReconnectionInit::~VlasovPeriodicReconnectionInit() {}
 
 
-/** @brief Do the initialisation
- *   
- *  Iterate through the whole distribution function and assign the appropriate
- *  phase space density to every point in phase space. The Phase space density 
- *  is calculated as a Maxwellian distribution.
- */
 void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
