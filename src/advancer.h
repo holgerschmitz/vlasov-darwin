@@ -8,6 +8,23 @@
 #ifndef ADVANCER_H
 #define ADVANCER_H
 
+template<
+  class ForceField, 
+  template<class> class Scheme = PosFluxCons3rdOrder
+>
+class SimpleAdvance  : public Scheme<ForceField> {
+  private:
+      int InitState;
+      VlasovDist TempDist;
+  protected:
+ 
+      /// Advance the distribution function one timestep
+      void advance(double timestep);
+    
+  public:
+      SimpleAdvance(SpeciesData &data) 
+          : InitState(-1), Scheme<ForceField>(data) {}
+};
 
 template<
   class ForceField, 

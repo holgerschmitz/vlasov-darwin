@@ -1,6 +1,7 @@
 #include "advancer.h"
 #include "scheme.h"
 #include "pparabolic.h"
+#include "findiff.h"
 #include "forcefield.h"
 
 #ifdef SIM_ELECTROSTATIC
@@ -28,15 +29,17 @@ template<
 class VlasovSpecies;
 
 // Advancers can be one of the following:
-//    LeapFrogAdvance
+//    SimpleAdvance (funktioniert nur mit FiniteDiffScheme)
+//    LeapFrogAdvance (deprecated)
 //    SimpleLeapFrogAdvance
 //    RungeKuttaAdvance
 
 // Scheme can be one of the following:
+//    FiniteDiffScheme (funktioniert nur mit SimpleAdvance)
 //    PosFluxCons3rdOrder
 //    PParabolicScheme
 
-typedef VlasovSpecies<ForceField,SimpleLeapFrogAdvance,PosFluxCons3rdOrder> Vlasov;
+typedef VlasovSpecies<ForceField,SimpleAdvance,FiniteDiffScheme> Vlasov;
 typedef Vlasov* pVlasov;
 
 

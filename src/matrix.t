@@ -54,6 +54,24 @@ Matrix<T, rank>::~Matrix()
   deleteData();
 }
 
+template<class T, int rank>
+void Matrix<T, rank>::swap(Matrix<T, rank>& M)
+{
+  T* matr_tmp=matr;             matr=M.matr;              M.matr=matr_tmp;
+  T* matr_fast_tmp=matr_fast;   matr_fast=M.matr_fast;    M.matr_fast=matr_fast_tmp;
+  void* index_tmp=index;        index=M.index;            M.index=index_tmp;
+  int size_tmp=size;            size=M.size;              M.size=size_tmp;
+  
+  for(int i=0; i<rank; ++i)
+  {
+    int tmp;
+    tmp = lo[i];      lo[i]=M.lo[i];      M.lo[i]=tmp;
+    tmp = hi[i];      hi[i]=M.hi[i];      M.hi[i]=tmp;
+    tmp = dims[i];    dims[i]=M.dims[i];  M.dims[i]=tmp;
+  }
+   
+}
+
 template<class T, int rank> 
 const int* Matrix<T, rank>::getLow() const
 {

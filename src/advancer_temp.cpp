@@ -1,3 +1,20 @@
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void SimpleAdvance<ForceField,Scheme>::advance(double timestep) {
+  switch (InitState) {
+      case -1: InitState = 0;
+               TempDist = Distribution;
+               break;
+      case  0: Distribution.swap(TempDist);
+               advanceAll(timestep);
+               break;
+  }
+}
+
+
 template<
   class ForceField, 
   template<class> class Scheme
@@ -7,6 +24,7 @@ void LeapFrogAdvance<ForceField,Scheme>
         
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
+    
 }
 
 template<
@@ -63,6 +81,7 @@ void LeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
       case 0: advanceStepFull(timestep); 
               break;
   }
+  
 }
 
 

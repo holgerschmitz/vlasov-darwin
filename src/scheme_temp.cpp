@@ -140,7 +140,7 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
     
     int j_old; 
-    
+    double new_f_infty = 0;
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
              
@@ -199,18 +199,20 @@ void PosFluxCons3rdOrder<ForceField>
 ////                }
 //            }
             
-            Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2])
-              = - Flux(lvx) + Dj(lvx);
-
-
+            double &dl = Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2]);
+            dl  = - Flux(lvx) + Dj(lvx);
+    
+            if (new_f_infty<dl) new_f_infty=dl;
+            
             for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
-                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
-                    = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
+                double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+                dd = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
+                if (new_f_infty<dd) new_f_infty=dd;
             }
             
-            Distribution(Xi[0], Xi[1], bvx, Vi[1], Vi[2])
-              = Flux(bvx-1) + Dj(bvx);
-            
+            double &dh = Distribution(Xi[0], Xi[1], bvx, Vi[1], Vi[2]);
+            dh  = Flux(bvx-1) + Dj(bvx);
+            if (new_f_infty<dh) new_f_infty=dh;
               
         }
     }
@@ -218,7 +220,7 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VXDone");
-
+    f_infty = boundary->MaxReduce(new_f_infty);
 }
 
 template<class ForceField>
@@ -243,7 +245,8 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
 
     int j_old; 
-
+    double new_f_infty = 0;
+    
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
                
@@ -306,16 +309,20 @@ void PosFluxCons3rdOrder<ForceField>
 ////                }
 //            }
 
-            Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2])
-              = - Flux(lvx) + Dj(lvx);
+            double &dl = Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2]);
+            dl  = - Flux(lvx) + Dj(lvx);
+            
+            if (new_f_infty<dl) new_f_infty=dl;
 
             for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
-                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
-                    = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
+                double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+                dd = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
+                if (new_f_infty<dd) new_f_infty=dd;
             }
 
-            Distribution(Xi[0], Xi[1], Vi[0], bvx, Vi[2])
-              = Flux(bvx-1) + Dj(bvx);
+            double &dh = Distribution(Xi[0], Xi[1], Vi[0], bvx, Vi[2]);
+            dh = Flux(bvx-1) + Dj(bvx);
+            if (new_f_infty<dh) new_f_infty=dh;
         }
     }
 //    CheckDensity(Distribution,"VYEnd");
@@ -323,6 +330,7 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VYDone");
+    f_infty = boundary->MaxReduce(new_f_infty);
 }
 
 
@@ -348,6 +356,7 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
 
     int j_old; // check initialization inside the loop!!
+    double new_f_infty = 0;
     
 //    cerr << "Advancing in vz\n";
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
@@ -412,14 +421,18 @@ void PosFluxCons3rdOrder<ForceField>
 ////                }
 //            }
 
-            Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx)
-              = - Flux(lvx) + Dj(lvx);
+            double &dl = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx);
+            dl = - Flux(lvx) + Dj(lvx);
+            if (new_f_infty<dl) new_f_infty=dl;
+            
             for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
-                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
-                  = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
+                double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+                dd = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
+                if (new_f_infty<dd) new_f_infty=dd;
             }
-            Distribution(Xi[0], Xi[1], Vi[0], Vi[1], bvx)
-              = Flux(bvx-1) + Dj(bvx);
+            double &dh = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], bvx);
+            dh = Flux(bvx-1) + Dj(bvx);
+            if (new_f_infty<dh) new_f_infty=dh;
         }
     }
 //    CheckDensity(Distribution,"VZEnd");
@@ -428,6 +441,7 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VZDone");
 
+    f_infty = boundary->MaxReduce(new_f_infty);
 }
 /** @todo The epsilon limiters do not go well with the Runge Kutta integration.
  *  Find a solution that does not involve commenting lines.
@@ -436,13 +450,13 @@ void PosFluxCons3rdOrder<ForceField>
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
     double fdiff = fjp-fj;
-//    double fexc = 2*(f_infty-fj);
-//    if (fexc<0) 
-//        return 0;
+    double fexc = 2*(f_infty-fj);
+    if (fexc<0) 
+        return 0;
     if (2*fj<fdiff)
         return 2*fj/fdiff;
-//    else if (fabs(fexc) < (-fdiff) )
-//        return -fabs(fexc)/fdiff;
+    else if (fexc < (-fdiff) )
+        return -fexc/fdiff;
     else 
         return 1.;
 }
@@ -450,13 +464,13 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
     double fdiff = fjm-fj;
-//    double fexc = 2*(f_infty-fj);
-//    if (fexc<0) 
-//        return 0;
+    double fexc = 2*(f_infty-fj);
+    if (fexc<0) 
+        return 0;
     if (2*fj<fdiff)
         return 2*fj/fdiff;
-//    else if (fabs(fexc) < (-fdiff) )
-//        return -fabs(fexc)/fdiff;
+    else if (fexc < (-fdiff) )
+        return -fexc/fdiff;
     else 
         return 1.;
 }

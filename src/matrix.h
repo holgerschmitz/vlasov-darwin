@@ -69,7 +69,8 @@ class Matrix : public ValueChecker<T> {
 
     /** destructor */
     ~Matrix();
-
+    
+    void swap(Matrix<T, rank>&);
     /** */
     const int* getLow() const;
     /** */
