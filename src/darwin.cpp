@@ -491,8 +491,8 @@ bool Darwin::Execute () {
   sumEx *= h;
   sumEy *= h;
 
-  for(int j = ly1; j <= my1; j++) {
-    for(int i = lx1; i <= mx1; i++) {
+  for(int j = ly0; j <= my0; j++) {
+    for(int i = lx0; i <= mx0; i++) {
       Ex(i,j) -= sumEx;
       Ey(i,j) -= sumEy;
     }
