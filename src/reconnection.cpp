@@ -131,7 +131,10 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   
   double Nx = GlHigh[0]-GlLow[0]-3;
   double Ny = GlHigh[1]-GlLow[1]-3;
-  double Ym = 0.5*(GlLow[0]+GlHigh[0]);
+  double Ym = 0.5*(GlLow[1]+GlHigh[1]);
+  
+  double dx = Parameters::instance().gridSpace_x();
+  double lambda_norm = lambda/dx; 
   
   PositionI Xi;
   VelocityI Vi;
@@ -142,15 +145,15 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
       
-      double sc = sech( (Xi[1]-Ym)/lambda );
-      double cs = cosh( (Xi[1]-Ym)/lambda );
+      double sc = sech( (Xi[1]-Ym)/lambda_norm );
+//      double cs = cosh( (Xi[1]-Ym)/lambda_norm );
       
       double N = Ninf + N0*sc*sc;
       
-      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[0]/Ny);
+      double vz_pert = -vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
       
-      UStream[2] = vz0/(N0+Ninf*cs*cs) + vz_pert;
-            
+      UStream[2] = sc*sc*vz0/(N0*sc*sc+Ninf) + vz_pert;
+              
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
           for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
