@@ -42,6 +42,16 @@ class Boundary : public Rebuildable {
        */
       virtual void exchangeY(VlasovDist &field) = 0;
 
+      /** @brief Exchange the boundaries of the distribution function
+       *  in the x-direction
+       */
+      virtual void exchangeXLine(NumMatrix<double, 1> &field) = 0;
+
+      /** @brief Exchange the boundaries of the distribution function
+       *  in the y-direction
+       */
+      virtual void exchangeYLine(NumMatrix<double, 1> &field) = 0;
+
       /** @brief Combine the scalar field. 
        *
        *  The resulting field should be the sum of the fields of all 
@@ -97,6 +107,10 @@ class SinglePeriodicBoundary : public Boundary {
       void exchangeX(VlasovDist &field);
       /// Wraps the boundaries in y-direction
       void exchangeY(VlasovDist &field);
+      /// Wraps the boundaries in x-direction
+      virtual void exchangeXLine(NumMatrix<double, 1> &field);
+      /// Wraps the boundaries in y-direction
+      virtual void exchangeYLine(NumMatrix<double, 1> &field);
       /// Only wraps the boundaries of the scalar field
       void ScalarFieldCombine(ScalarField &field) const;
       /// Only wraps the boundaries of the scalar field
@@ -190,6 +204,11 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       /// Wraps the boundaries in y-direction
       void exchangeY(VlasovDist &field);
       
+      /// Wraps the boundaries in x-direction
+      virtual void exchangeXLine(NumMatrix<double, 1> &field);
+      /// Wraps the boundaries in y-direction
+      virtual void exchangeYLine(NumMatrix<double, 1> &field);
+
       /// Adds the scalar fields and wraps them
       void ScalarFieldCombine(ScalarField &field) const;
       /// Wraps the scalar fields
@@ -305,6 +324,11 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
        */
       void exchangeY(VlasovDist &field);
       
+      /// Wraps the boundaries in x-direction
+      virtual void exchangeXLine(NumMatrix<double, 1> &field);
+      /// Wraps the boundaries in y-direction
+      virtual void exchangeYLine(NumMatrix<double, 1> &field);
+
       /// Adds the scalar fields and wraps them
       void ScalarFieldCombine(ScalarField &field) const;
       /// Wraps the scalar fields

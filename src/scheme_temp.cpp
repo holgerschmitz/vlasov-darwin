@@ -143,8 +143,7 @@ void PosFluxCons3rdOrder<ForceField>
     
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
-      
-        
+             
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             Vflux[1] = Vi[1];

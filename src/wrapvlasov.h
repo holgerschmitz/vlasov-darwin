@@ -10,6 +10,7 @@
 
 #include "vlasovbase.h"
 #include "scheme.h"
+#include "pparabolic.h"
 #include "advancer.h"
 
 #include "parameter.h"

@@ -8,20 +8,7 @@
 
 template<class ForceField>
 class PosFluxCons3rdOrder : public ForceField {
-  protected:
-      /// the size of the numerical grid in the space direction
-      PositionD GridSize;
-      /// the size of the numerical grid in the space direction
-      PositionI GridSizeI;
-      /// the size of the numerical grid in the velocity directions
-      VelocityD VelSize; 
-      /// half of VelSize 
-      VelocityD VelSizeH;
-      /// the physical extent of the spatial grid
-      PositionD BoxRange;
-      /// the physical space between grid points
-      PositionD dx;       
-      
+  protected:      
       /// A maximum value of the distribution function
       double f_infty;
       

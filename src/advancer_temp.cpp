@@ -2,7 +2,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void SimpleLeapFrogAdvance<ForceField,Scheme>
+void LeapFrogAdvance<ForceField,Scheme>
         ::advanceStepA(double timestep) {
         
     advanceSpace_x(0.5*timestep);
@@ -13,7 +13,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void SimpleLeapFrogAdvance<ForceField,Scheme>
+void LeapFrogAdvance<ForceField,Scheme>
         ::advanceStepB(double timestep) {
 
     advanceVel_x(0.25*timestep);
@@ -33,7 +33,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void SimpleLeapFrogAdvance<ForceField,Scheme>
+void LeapFrogAdvance<ForceField,Scheme>
         ::advanceStepFull(double timestep) {
 
     advanceVel_x(0.25*timestep);
@@ -53,7 +53,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void SimpleLeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
+void LeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
   switch (InitState) {
       case -2: InitState = -1;
                break;
@@ -70,7 +70,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void LeapFrogAdvanceBase<ForceField,Scheme>
+void SimpleLeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepA(double timestep) {
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
@@ -80,16 +80,12 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void LeapFrogAdvanceBase<ForceField,Scheme>
+void SimpleLeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepB(double timestep) {
 
-    advanceVel_x(0.25*timestep);
-    advanceVel_y(0.5*timestep);
-    advanceVel_x(0.25*timestep);
+    advanceVel_x(timestep);
+    advanceVel_y(timestep);
     advanceVel_z(timestep);
-    advanceVel_x(0.25*timestep);
-    advanceVel_y(0.5*timestep);
-    advanceVel_x(0.25*timestep);
 
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
@@ -99,16 +95,12 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void LeapFrogAdvanceBase<ForceField,Scheme>
+void SimpleLeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepFull(double timestep) {
 
-    advanceVel_x(0.25*timestep);
-    advanceVel_y(0.5*timestep);
-    advanceVel_x(0.25*timestep);
+    advanceVel_x(timestep);
+    advanceVel_y(timestep);
     advanceVel_z(timestep);
-    advanceVel_x(0.25*timestep);
-    advanceVel_y(0.5*timestep);
-    advanceVel_x(0.25*timestep);
 
     advanceSpace_x(timestep);
     advanceSpace_y(timestep);
@@ -118,7 +110,7 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
-void LeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
+void SimpleLeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
   switch (InitState) {
       case -2: InitState = -1;
                break;

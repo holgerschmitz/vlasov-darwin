@@ -12,53 +12,81 @@
  ****************************************************************/
 
 void SinglePeriodicBoundary::exchangeX(VlasovDist &field) {
-    const int *UBound = field.getHigh();
-    const int *LBound = field.getLow();
-    
-    PositionI Xi;
-    VelocityI Vi;
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+  
+  PositionI Xi;
+  VelocityI Vi;
 
-    int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
-    int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
-    
-    for (Xi[1] = LBound[1]; Xi[1] <= UBound[1]; ++Xi[1])
-      for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
-        for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
-          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
-              field(lx0, Xi[1], Vi[0], Vi[1], Vi[2]) =
-                    field(mx3, Xi[1], Vi[0], Vi[1], Vi[2]);
-              field(lx1, Xi[1], Vi[0], Vi[1], Vi[2]) =
-                    field(mx2, Xi[1], Vi[0], Vi[1], Vi[2]);
-              field(mx0, Xi[1], Vi[0], Vi[1], Vi[2]) =
-                    field(lx3, Xi[1], Vi[0], Vi[1], Vi[2]);
-              field(mx1, Xi[1], Vi[0], Vi[1], Vi[2]) =
-                    field(lx2, Xi[1], Vi[0], Vi[1], Vi[2]);
-          }
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+  
+  for (Xi[1] = LBound[1]; Xi[1] <= UBound[1]; ++Xi[1])
+    for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
+      for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
+        for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
+            field(lx0, Xi[1], Vi[0], Vi[1], Vi[2]) =
+                  field(mx3, Xi[1], Vi[0], Vi[1], Vi[2]);
+            field(lx1, Xi[1], Vi[0], Vi[1], Vi[2]) =
+                  field(mx2, Xi[1], Vi[0], Vi[1], Vi[2]);
+            field(mx0, Xi[1], Vi[0], Vi[1], Vi[2]) =
+                  field(lx3, Xi[1], Vi[0], Vi[1], Vi[2]);
+            field(mx1, Xi[1], Vi[0], Vi[1], Vi[2]) =
+                  field(lx2, Xi[1], Vi[0], Vi[1], Vi[2]);
+        }
 }
 
 void SinglePeriodicBoundary::exchangeY(VlasovDist &field) {
-    const int *UBound = field.getHigh();
-    const int *LBound = field.getLow();
-    
-    PositionI Xi;
-    VelocityI Vi;
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+  
+  PositionI Xi;
+  VelocityI Vi;
 
-    int my0=UBound[1], my1=my0-1, my2=my0-2, my3=my0-3;
-    int ly0=LBound[1], ly1=ly0+1, ly2=ly0+2, ly3=ly0+3;
-    
-    for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
-      for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
-        for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
-          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
-              field(Xi[0], ly0, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], my3, Vi[0], Vi[1], Vi[2]);
-              field(Xi[0], ly1, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], my2, Vi[0], Vi[1], Vi[2]);
-              field(Xi[0], my0, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], ly3, Vi[0], Vi[1], Vi[2]);
-              field(Xi[0], my1, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], ly2, Vi[0], Vi[1], Vi[2]);
-          }
+  int my0=UBound[1], my1=my0-1, my2=my0-2, my3=my0-3;
+  int ly0=LBound[1], ly1=ly0+1, ly2=ly0+2, ly3=ly0+3;
+  
+  for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
+    for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
+      for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
+        for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
+            field(Xi[0], ly0, Vi[0], Vi[1], Vi[2]) =
+                  field(Xi[0], my3, Vi[0], Vi[1], Vi[2]);
+            field(Xi[0], ly1, Vi[0], Vi[1], Vi[2]) =
+                  field(Xi[0], my2, Vi[0], Vi[1], Vi[2]);
+            field(Xi[0], my0, Vi[0], Vi[1], Vi[2]) =
+                  field(Xi[0], ly3, Vi[0], Vi[1], Vi[2]);
+            field(Xi[0], my1, Vi[0], Vi[1], Vi[2]) =
+                  field(Xi[0], ly2, Vi[0], Vi[1], Vi[2]);
+        }
+}
+
+void SinglePeriodicBoundary::exchangeXLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  field(lx0) = field(mx3);
+  field(lx1) = field(mx2);
+  field(mx0) = field(lx3);
+  field(mx1) = field(lx2);
+}
+
+void SinglePeriodicBoundary::exchangeYLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  field(lx0) = field(mx3);
+  field(lx1) = field(mx2);
+  field(mx0) = field(lx3);
+  field(mx1) = field(lx2);
 }
 
 void SinglePeriodicBoundary::ScalarFieldCombine(ScalarField &field) const 
@@ -251,6 +279,53 @@ void MPIPeriodicSplitXBoundary::exchangeY(VlasovDist &field) {
               field(Xi[0], my1, Vi[0], Vi[1], Vi[2]) =
                     field(Xi[0], ly2, Vi[0], Vi[1], Vi[2]);
           }
+}
+
+void MPIPeriodicSplitXBoundary::exchangeXLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  double snd[2], recv[2];
+
+  MPI_Status stat; 
+  
+  snd[0] = field(lx2);
+  snd[1] = field(lx3);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, leftcoord, 0, 
+               recv, 2, MPI_DOUBLE, rightcoord, 0, 
+               comm, &stat); 
+
+  field(mx1) = recv[0];
+  field(mx0) = recv[1];
+
+  snd[0] = field(mx3);
+  snd[1] = field(mx2);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, rightcoord, 0, 
+               recv, 2, MPI_DOUBLE, leftcoord, 0, 
+               comm, &stat); 
+  
+  field(lx0) = recv[0];
+  field(lx1) = recv[1];
+}
+
+void MPIPeriodicSplitXBoundary::exchangeYLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  field(lx0) = field(mx3);
+  field(lx1) = field(mx2);
+  field(mx0) = field(lx3);
+  field(mx1) = field(lx2);
 }
 
 void MPIPeriodicSplitXBoundary::ScalarFieldCombine(ScalarField &field) const {
@@ -548,6 +623,72 @@ void MPIPeriodicSplitXYBoundary::exchangeY(VlasovDist &field) {
               field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
                 = recvarry[arr_ind++]; 
                 
+}
+
+void MPIPeriodicSplitXYBoundary::exchangeXLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  MPI_Status stat; 
+
+  double snd[2], recv[2];
+
+  snd[0] = field(lx2);
+  snd[1] = field(lx3);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, leftcoord, 0, 
+               recv, 2, MPI_DOUBLE, rightcoord, 0, 
+               comm, &stat); 
+
+  field(mx1) = recv[0];
+  field(mx0) = recv[1];
+
+  snd[0] = field(mx3);
+  snd[1] = field(mx2);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, rightcoord, 0, 
+               recv, 2, MPI_DOUBLE, leftcoord, 0, 
+               comm, &stat); 
+  
+  field(lx0) = recv[0];
+  field(lx1) = recv[1];
+}
+
+void MPIPeriodicSplitXYBoundary::exchangeYLine(NumMatrix<double, 1> &field)
+{
+  const int *UBound = field.getHigh();
+  const int *LBound = field.getLow();
+
+  int mx0=UBound[0], mx1=mx0-1, mx2=mx0-2, mx3=mx0-3;
+  int lx0=LBound[0], lx1=lx0+1, lx2=lx0+2, lx3=lx0+3;
+
+  MPI_Status stat; 
+
+  double snd[2], recv[2];
+
+  snd[0] = field(lx2);
+  snd[1] = field(lx3);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, leftcoord, 0, 
+               recv, 2, MPI_DOUBLE, rightcoord, 0, 
+               comm, &stat); 
+
+  field(mx1) = recv[0];
+  field(mx0) = recv[1];
+
+  snd[0] = field(mx3);
+  snd[1] = field(mx2);
+
+  MPI_Sendrecv(snd, 2, MPI_DOUBLE, rightcoord, 0, 
+               recv, 2, MPI_DOUBLE, leftcoord, 0, 
+               comm, &stat); 
+  
+  field(lx0) = recv[0];
+  field(lx1) = recv[1];
 }
 
 void MPIPeriodicSplitXYBoundary::ScalarFieldCombine(ScalarField &field) const {

@@ -3,6 +3,7 @@
 
 #include "vlasovbase.h"
 #include "scheme.h"
+#include "pparabolic.h"
 
 #ifndef ADVANCER_H
 #define ADVANCER_H
@@ -12,7 +13,7 @@ template<
   class ForceField, 
   template<class> class Scheme = PosFluxCons3rdOrder
 >
-class SimpleLeapFrogAdvance  : public Scheme<ForceField> {
+class LeapFrogAdvance  : public Scheme<ForceField> {
   private:
       int InitState;
   protected:
@@ -37,7 +38,7 @@ class SimpleLeapFrogAdvance  : public Scheme<ForceField> {
       void advance(double timestep);
     
   public:
-      SimpleLeapFrogAdvance(SpeciesData &data) 
+      LeapFrogAdvance(SpeciesData &data) 
           : InitState(-2), Scheme<ForceField>(data) {}
 };
 
@@ -45,7 +46,7 @@ template<
   class ForceField, 
   template<class> class Scheme = PosFluxCons3rdOrder
 >
-class LeapFrogAdvanceBase  : public Scheme<ForceField> {
+class SimpleLeapFrogAdvanceBase  : public Scheme<ForceField> {
   protected:
 
       /** @brief Half of the distribution advance.
@@ -70,18 +71,18 @@ class LeapFrogAdvanceBase  : public Scheme<ForceField> {
 };
 
 template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
-class LeapFrogAdvance : public LeapFrogAdvanceBase<ForceField,Scheme> {
+class SimpleLeapFrogAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme> {
   private:
       int InitState;
   public:
-      LeapFrogAdvance(SpeciesData &data) 
-          : InitState(-2), LeapFrogAdvanceBase<ForceField,Scheme>(data) {}
+      SimpleLeapFrogAdvance(SpeciesData &data) 
+          : InitState(-2), SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) {}
       /// Advance the distribution function one timestep
       void advance(double timestep);
 };
 
 template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
-class RungeKuttaAdvance : public LeapFrogAdvanceBase<ForceField,Scheme> {
+class RungeKuttaAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme> {
   private:
       /** The state of the Runge Kutta integrator.
        *  Also used by the leap-frog integrator for the start-up phase
@@ -94,7 +95,7 @@ class RungeKuttaAdvance : public LeapFrogAdvanceBase<ForceField,Scheme> {
 
   public:
       RungeKuttaAdvance(SpeciesData &data) 
-          : RKState(-2), LeapFrogAdvanceBase<ForceField,Scheme>(data) {}
+          : RKState(-2), SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) {}
       void initializeAdvancer();
       /// Advance the distribution function one timestep
       void advance(double timestep);

@@ -24,6 +24,12 @@
  */
 inline double frand() { return rand()/double(RAND_MAX); }
 
+template<typename T>
+inline int sgn(T x)
+{
+  return (x>0)?1:( (x<0)?-1:0 );
+}
+
 /** @brief Returns the error function
  *  @todo Do we really need the error function. Isn't it implemented in math.h
  */

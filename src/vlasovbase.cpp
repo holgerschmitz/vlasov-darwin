@@ -6,15 +6,15 @@ ForceFieldBase::ForceFieldBase(SpeciesData &data)
     :  boundary(BoundaryKeeper::getBoundary()),
        derivedFields(BoundaryKeeper::getBoundary()),
        tstep(0) { 
-    Mass = data.mass;
-    Charge = data.charge;
-    
-    VRange[0] = data.GridRange_vx;
-    VRange[1] = data.GridRange_vy;
-    VRange[2] = data.GridRange_vz;
-    
-    init = data.init;
-    phasediag = data.phasediag;
+  Mass = data.mass;
+  Charge = data.charge;
+  
+  VRange[0] = data.GridRange_vx;
+  VRange[1] = data.GridRange_vy;
+  VRange[2] = data.GridRange_vz;
+  
+  init = data.init;
+  phasediag = data.phasediag;
 }
 
 
