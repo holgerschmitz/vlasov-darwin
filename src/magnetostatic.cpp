@@ -67,6 +67,18 @@ void Magnetostatic::Init ()
   Az.setComponent(ScalarField::ZComponent);
   Az.setParity(ScalarField::OddParity);
 
+  oldAx.resize(LBound.Data(),HBound.Data());
+  oldAx.setComponent(ScalarField::XComponent);
+  oldAx.setParity(ScalarField::OddParity);
+
+  oldAy.resize(LBound.Data(),HBound.Data());
+  oldAy.setComponent(ScalarField::YComponent);
+  oldAy.setParity(ScalarField::OddParity);
+
+  oldAz.resize(LBound.Data(),HBound.Data());
+  oldAz.setComponent(ScalarField::ZComponent);
+  oldAz.setParity(ScalarField::OddParity);
+
   Ex.resize(LBound.Data(),HBound.Data());
   Ex.setComponent(ScalarField::XComponent);
   Ex.setParity(ScalarField::OddParity);

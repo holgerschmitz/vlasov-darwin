@@ -1,3 +1,4 @@
+#include "simtype.h"
 #include "globals.h"
 #include "fielddiag.h"
 #include "potential.h"
