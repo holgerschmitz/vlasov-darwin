@@ -481,8 +481,8 @@ bool Darwin::Execute () {
 
   double sumEx=0, sumEy=0;
 
-  for(j = ly1; j <= my1; j++) {
-    for(i = lx1; i <= mx1; i++) {
+  for(int j = ly1; j <= my1; j++) {
+    for(int i = lx1; i <= mx1; i++) {
       sumEx += Ex(i,j);
       sumEy += Ey(i,j);
     }
@@ -491,8 +491,8 @@ bool Darwin::Execute () {
   sumEx *= h;
   sumEy *= h;
 
-  for(j = ly1; j <= my1; j++) {
-    for(i = lx1; i <= mx1; i++) {
+  for(int j = ly1; j <= my1; j++) {
+    for(int i = lx1; i <= mx1; i++) {
       Ex(i,j) -= sumEx;
       Ey(i,j) -= sumEy;
     }
