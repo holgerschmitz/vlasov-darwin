@@ -102,13 +102,14 @@ VlasovReconnectionInit::VlasovReconnectionInit() {}
 PARAMETERMAP* VlasovReconnectionInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["vz0"] = WParameter(new ParameterValue<double>(&vz0, 0));
+  (*pm)["vz1"] = WParameter(new ParameterValue<double>(&vz1, 0));
   (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
   (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
   (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
   (*pm)["N0"] = WParameter(new ParameterValue<double>(&N0, 0));
   (*pm)["Ninf"] = WParameter(new ParameterValue<double>(&Ninf, 1));
   (*pm)["lambda"] = WParameter(new ParameterValue<double>(&lambda, 10));
-  return pm;
+   return pm;
 }
 
 VlasovReconnectionInit::~VlasovReconnectionInit() {}
@@ -146,7 +147,9 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       double N = Ninf + N0*sc*sc;
       
-      UStream[2] = vz0/(N0+Ninf*cs*cs);
+      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[0]/Ny);
+      
+      UStream[2] = vz0/(N0+Ninf*cs*cs) + vz_pert;
             
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
