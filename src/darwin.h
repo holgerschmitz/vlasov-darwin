@@ -74,7 +74,7 @@ class Darwin {
       /** @brief Helper fields for clearing the divergence of the 
        *  transverse electric field.
        */
-      ScalaField Theta, DivEt;
+      ScalarField Theta, DivEt;
       
       /** @brief Contains the charge and current densities 
        * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
