@@ -386,13 +386,6 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     if (mycoord[1]<(dims[1]-1))
         High[1] = int(width[1]*(mycoord[1]+1))+2;
         
-    std::cerr << "Split XY Boundary\n";
-    std::cerr << "Boundary Width (" << mycoord[0] << " " << mycoord[1] 
-      << ") " << width[0] << " " << width[1] << "\n";
-    std::cerr << "Boundary Low,High (" << mycoord[0] << " " << mycoord[1] 
-      << ") " << Low[0] << " " << Low[1]
-      << " " << High[0] << " " << High[1] << "\n";
-        
     exchSize[0] = 2*(High[1]-Low[1]+1)
                    *(High[2]-Low[2]+1)
                    *(High[3]-Low[3]+1)
@@ -414,12 +407,10 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
                 
     scalarsend = new double[scalarSize];
     scalarrecv = new double[scalarSize];
-    
-    char fname[20];
-    
-    std::ostringstream S(fname,20);
+        
+    std::ostringstream S(20);
     S << "boundary"<<ComRank<<".dat"<<char(0);
-    ofstream O(fname);
+    ofstream O(S.str().c_str());
     O << "Coord: " << mycoord[0] << " " << mycoord[1] << "\n";
     O << "Dims: " << dims[0] << " " << dims[1] << "\n";
     O << "Low: " << Low << "\n";
