@@ -204,6 +204,8 @@ double Poisson::distance( NumMatrix<double,2> &uold,
 
 void Poisson::normalize(NumMatrix<double,2> &u) {
     
+    if (!boundary->normalize()) return;
+
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
 

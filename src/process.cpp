@@ -101,6 +101,8 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<MPIPeriodicSplitXYBoundary, Boundary>(&boundary));
   (*pm)["simple-reconnection"] 
       = WParameter(new ParameterRebuild<SimpleReconnectionBoundary, Boundary>(&boundary));
+  (*pm)["gem-reconnection"] 
+      = WParameter(new ParameterRebuild<GEMReconnectionBoundary, Boundary>(&boundary));
 #endif // single processor
   return pm;
 }
@@ -184,6 +186,8 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
   (*pm)["reconnection"] 
       = WParameter(new ParameterRebuild<VlasovReconnectionInit, VlasovInitialiser>(&initialiser));
+ (*pm)["gem-reconnection"] 
+      = WParameter(new ParameterRebuild<GEMReconnectionInit, VlasovInitialiser>(&initialiser));
   (*pm)["periodic-reconnection"] 
       = WParameter(new ParameterRebuild<VlasovPeriodicReconnectionInit, VlasovInitialiser>(&initialiser));
   return pm;

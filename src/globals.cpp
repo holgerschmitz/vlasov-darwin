@@ -6,6 +6,10 @@
 #include "potential.h"
 #include "fielddiag.h"
 
+#ifndef SINGLE_PROCESSOR
+#include <mpi.h>
+#endif
+
 Parameters *Parameters::globals;
 int Parameters::Argc;
 char **Parameters::Argv;
@@ -73,3 +77,4 @@ std::string Parameters::Rebuild(std::istream& in)
 }
 
 Boundary **BoundaryKeeper::ppboundary;
+ 

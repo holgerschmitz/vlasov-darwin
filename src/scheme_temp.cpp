@@ -463,11 +463,12 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp
 //        return 1.;
 
     double fexc=2*(f_infty-fj);    
+    double fdiff_safe = fdiff + double(fdiff==0);
 
     double result[3];
     result[0] = 1;
-    result[1] = 2*fj/fdiff;
-    result[2] = -fexc/fdiff;
+    result[1] = 2*fj/fdiff_safe;
+    result[2] = -fexc/fdiff_safe;
     
     int res1 = (2*fj<fdiff);
     int res2 = (fexc < (-fdiff) );
@@ -490,11 +491,12 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fj
 //        return 1.;
 
     double fexc=2*(f_infty-fj);    
+    double fdiff_safe = fdiff + double(fdiff==0);
 
     double result[3];
     result[0] = 1;
-    result[1] = 2*fj/fdiff;
-    result[2] = -fexc/fdiff;
+    result[1] = 2*fj/fdiff_safe;
+    result[2] = -fexc/fdiff_safe;
     
     int res1 = (2*fj<fdiff);
     int res2 = (fexc < (-fdiff) );

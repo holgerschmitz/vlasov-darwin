@@ -12,12 +12,24 @@ class NumBoundary {
 };
 
 template<class BoundX, class BoundY>
+class SymmetricBoundary : public NumBoundary {
+  public:
+      SymmetricBoundary() {}
+      SymmetricBoundary(const SymmetricBoundary&) {}
+      void apply(NumMatrix<double,2> &u) const;
+      bool normalize() const { return BoundX::normalize() && BoundY::normalize(); }
+};
+
+template<class BoundLeft, class BoundRight, class BoundBottom, class BoundTop>
 class MixedBoundary : public NumBoundary {
   public:
       MixedBoundary() {}
       MixedBoundary(const MixedBoundary&) {}
       void apply(NumMatrix<double,2> &u) const;
-      bool normalize() const { return BoundX::normalize() && BoundY::normalize(); }
+      bool normalize() const { 
+         return BoundLeft::normalize() && BoundRight::normalize()
+          && BoundBottom::normalize() && BoundTop::normalize(); 
+      }
 };
 
 class BoundPeriodic {
@@ -64,17 +76,17 @@ class BoundNeumann {
 
 #include "numboundary.t"
 
-typedef MixedBoundary<BoundPeriodic,BoundPeriodic>   PPBoundary;
-typedef MixedBoundary<BoundPeriodic,BoundDirichlet>  PDBoundary;
-typedef MixedBoundary<BoundPeriodic,BoundNeumann>    PNBoundary;
+typedef SymmetricBoundary<BoundPeriodic,BoundPeriodic>   PPBoundary;
+typedef SymmetricBoundary<BoundPeriodic,BoundDirichlet>  PDBoundary;
+typedef SymmetricBoundary<BoundPeriodic,BoundNeumann>    PNBoundary;
 
-typedef MixedBoundary<BoundDirichlet,BoundPeriodic>  DPBoundary;
-typedef MixedBoundary<BoundDirichlet,BoundDirichlet> DDBoundary;
-typedef MixedBoundary<BoundDirichlet,BoundNeumann>   DNBoundary;
+typedef SymmetricBoundary<BoundDirichlet,BoundPeriodic>  DPBoundary;
+typedef SymmetricBoundary<BoundDirichlet,BoundDirichlet> DDBoundary;
+typedef SymmetricBoundary<BoundDirichlet,BoundNeumann>   DNBoundary;
 
-typedef MixedBoundary<BoundNeumann,BoundPeriodic>    NPBoundary;
-typedef MixedBoundary<BoundNeumann,BoundDirichlet>   NDBoundary;
-typedef MixedBoundary<BoundNeumann,BoundNeumann>     NNBoundary;
+typedef SymmetricBoundary<BoundNeumann,BoundPeriodic>    NPBoundary;
+typedef SymmetricBoundary<BoundNeumann,BoundDirichlet>   NDBoundary;
+typedef SymmetricBoundary<BoundNeumann,BoundNeumann>     NNBoundary;
 
 #endif
 

@@ -159,7 +159,6 @@ MPIPeriodicSplitXBoundary::MPIPeriodicSplitXBoundary(int argc, char **argv) :
 
 void MPIPeriodicSplitXBoundary::init(int argc, char **argv)
 { 
-    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
     
     int periodic = true;
@@ -435,7 +434,6 @@ MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary(int argc, char **argv) :
 
 void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
 { 
-    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
     
     int periodic[2] = {periodicX(), periodicY()};
@@ -500,7 +498,7 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     scalarsend = new double[scalarSize];
     scalarrecv = new double[scalarSize];
         
-    std::ostringstream S(20);
+    std::ostringstream S;
     S << "boundary"<<ComRank<<".dat"<<char(0);
     ofstream O(S.str().c_str());
     O << "Coord: " << mycoord[0] << " " << mycoord[1] << "\n";

@@ -3,9 +3,11 @@
 
 
 #include "wrapvlasov.h"
-#include "boundary.h"
+#include "boundary.h" 
 #include <fstream>
 #include <string>
+#include <unistd.h>
+
 
 bool VlasovDiagnostic = false;
 
@@ -17,19 +19,28 @@ ForceField::FieldType *field;
  */
 int main (int argc, char** argv) {
 
+#ifndef SINGLE_PROCESSOR
+      MPI_Init(&argc, &argv);
+#endif
+
   Parameters::setArgc(argc);
   Parameters::setArgv(argv);
  
   // If argument is specified read setup from file
+  
   std::string setupfilename = "setup.dat";
 //  if (argc > 1) setupfilename = argv[1];
+
+  char buf[200];
+  getcwd(buf,200);
+  cerr << "CWD is " << buf << "\n";
   
   ifstream setupfile(setupfilename.c_str());
-  cerr << "MAIN: Reading Inputfile " << setupfilename << " ...\n";
+  cerr << "MAIN: Reading Inputfile " << setupfilename.c_str() << " ...\n";
   
   if (!setupfile)
   {
-    cerr << "MAIN: Could not open " << setupfilename << " ...\n"; 
+    cerr << "MAIN: Could not open " << setupfilename.c_str() << " ...\n"; 
     exit(-1);
   }
   ProcessRebuild().Rebuild(setupfile);

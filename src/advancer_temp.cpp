@@ -90,8 +90,11 @@ template<
 >
 void SimpleLeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepA(double timestep) {
+//    std::cerr << "advanceStepA x\n";
     advanceSpace_x(0.5*timestep);
+//    std::cerr << "advanceStepA y\n";
     advanceSpace_y(0.5*timestep);
+//    std::cerr << "advanceStepA done\n";
 }
 
 template<
@@ -116,12 +119,18 @@ template<
 void SimpleLeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepFull(double timestep) {
 
+//    std::cerr << "advanceStepFull vx\n";
     advanceVel_x(timestep);
+//    std::cerr << "advanceStepFull vy\n";
     advanceVel_y(timestep);
+//    std::cerr << "advanceStepFull vz\n";
     advanceVel_z(timestep);
 
+//    std::cerr << "advanceStepFull x\n";
     advanceSpace_x(timestep);
+//    std::cerr << "advanceStepFull y\n";
     advanceSpace_y(timestep);
+//    std::cerr << "advanceStepFull done\n";
 }
 
 template<

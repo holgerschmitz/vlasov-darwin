@@ -175,6 +175,8 @@ void Helmholtz::defect( NumMatrix<double,2> &u,
 				                 +lambda(i+1,j)+lambda(i+1,j+1));
         }
     }
+    boundary->apply(fn);
+    boundary->apply(lambdan);
 }
 
 
