@@ -58,7 +58,7 @@ class Matrix {
     Matrix(const Matrix<T, rank>&);
 
     /** destructor */
-    virtual ~Matrix();
+    ~Matrix();
 
     /** */
     const int* getLow() const;
@@ -132,9 +132,9 @@ class Matrix {
 
   protected:
     /** */
-    virtual void deleteData();
+    void deleteData();
     /** */
-    virtual void newData(const int* l, const int* h);
+    void newData(const int* l, const int* h);
 };
 
 
