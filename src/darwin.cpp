@@ -399,10 +399,10 @@ bool Darwin::Execute () {
   // x-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = -(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-                -(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                +om2(i,j)*Ex(i,j)                      /// om2*E
-                +sy(i,j)*Bz(i,j)-sz(i,j)*By(i,j);      /// q/m rho <v> x B
+      In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
+                +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                -om2(i,j)*Ex(i,j)                      /// om2*E
+                -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
     }
   }
 
@@ -419,10 +419,10 @@ bool Darwin::Execute () {
   // y-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = -(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-                -(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                +om2(i,j)*Ey(i,j)                   /// om2*E
-                +sz(i,j)*Bx(i,j)-sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
+      In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
+                +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                -om2(i,j)*Ey(i,j)                   /// om2*E
+                -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
     }
 
   In.setParity(ScalarField::OddParity);
@@ -439,9 +439,9 @@ bool Darwin::Execute () {
   // z-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = -(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-                -(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j); /// q/m rho <v> x B
+      In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
+                +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
     }
     
   In.setParity(ScalarField::OddParity);
