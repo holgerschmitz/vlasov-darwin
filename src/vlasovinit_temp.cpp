@@ -1,37 +1,166 @@
-
 //=========================================================================
-//===============   VlasovMaxwellInit   ===================================
+//===============   VlasovMaxwellInit  ====================================
 //=========================================================================
 
 template<class ForceField>
 VlasovMaxwellInit<ForceField>::VlasovMaxwellInit(VlasovSpecies<ForceField>* pVlasov_) {
-    pVlasov = pVlasov_;
-    
-    u_stream[0] = InitStream_vx;
-    u_stream[1] = InitStream_vy;
-    u_stream[2] = InitStream_vz;
-    
-    v_th[0] = InitTherm_vx;
-    v_th[1] = InitTherm_vy;
-    v_th[2] = InitTherm_vz;
-    
-    N = Init_N0;
-    n_perturb = Init_N1;
-    
-    k_perturb[0] = Init_kx;
-    k_perturb[1] = Init_ky;
-
-    Nx[0] = GlGridSize_x;
-    Nx[1] = GlGridSize_y;
-
-
-    cout << "VlasovMaxwellInit::Init (" <<
-        u_stream << ") (" <<
-        v_th << ") ";
+  pVlasov = pVlasov_;
+  
+  u_stream[0] = InitStream_vx;
+  u_stream[1] = InitStream_vy;
+  u_stream[2] = InitStream_vz;
+  
+  v_th[0] = InitTherm_vx;
+  v_th[1] = InitTherm_vy;
+  v_th[2] = InitTherm_vz;
+  
+  N = Init_N0;
+  n_perturb = Init_N1;
+  
+  k_perturb[0] = Init_kx;
+  k_perturb[1] = Init_ky;
+  
+  cout << "VlasovMaxwellInit::Init (" << u_stream << ") (" <<  v_th << ") ";
 }
 
 template<class ForceField>
 VlasovMaxwellInit<ForceField>::~VlasovMaxwellInit() {}
+
+
+/** @brief Do the initialisation
+ *   
+ *  Iterate through the whole distribution function and assign the appropriate
+ *  phase space density to every point in phase space. The Phase space density 
+ *  is calculated as a Maxwellian distribution.
+ */
+template<class ForceField>
+void VlasovMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+  
+  double Nx = GlDistHigh[0]-GlDistLow[0]-3;
+  double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+  
+  PositionI Xi;
+  VelocityI Vi;
+  VelocityD UStream(u_stream[0],u_stream[1],u_stream[2]);
+  VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
+      
+      double NPert = (
+		      1+n_perturb*cos(
+				      2*PI*k_perturb[0]*Xi[0]/Nx
+				      +2*PI*k_perturb[1]*Xi[1]/Ny
+				      )
+		      );
+      
+      //        double NPert =  1 + n_perturb*frand();
+      
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	    
+	    VelocityD V( pVlasov->velocity(Vi) );
+	    VelocityD Vm( 
+			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			 );
+	    VelocityD Vp( 
+			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			 );
+	    
+                
+	    VelocityD vd1m((Vm - UStream)/VTh);
+
+	    VelocityD vd1p((Vp - UStream)/VTh);
+
+	    VelocityD F1;
+                
+	    for (int j=0; j<3; ++j) {
+	      if (Vi[j]==L[j+2]) {
+		F1[j] = 0.5*(erf(vd1p[j]) + 1);
+	      } else if (Vi[j]==H[j+2]) {
+		F1[j] = 0.5*(1 - erf(vd1m[j]));
+	      } else {
+		F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+
+	      }
+	    }
+                
+                
+	    double F = N*NPert*F1.product();
+	    dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+	  }
+        
+      // Set all the boundaries to zero
+        
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
+	  dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
+	  dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
+        }
+           
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	  dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+	  dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+        }
+      
+      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	  dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+	  dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+        }
+    }
+  //    std::cout << "Initialized " << Xi[0] << std::endl;
+}
+
+
+//=========================================================================
+//===============   VlasovTwoMaxwellInit  =================================
+//=========================================================================
+
+template<class ForceField>
+VlasovTwoMaxwellInit<ForceField>::VlasovTwoMaxwellInit(VlasovSpecies<ForceField>* pVlasov_) {
+  pVlasov = pVlasov_;
+    
+  u_stream1[0] = InitStream_vx;
+  u_stream1[1] = InitStream_vy;
+  u_stream1[2] = InitStream_vz;
+    
+  u_stream2[0] = InitStream2_vx;
+  u_stream2[1] = InitStream2_vy;
+  u_stream2[2] = InitStream2_vz;
+    
+  v_th1[0] = InitTherm_vx;
+  v_th1[1] = InitTherm_vy;
+  v_th1[2] = InitTherm_vz;
+    
+  v_th2[0] = InitTherm2_vx;
+  v_th2[1] = InitTherm2_vy;
+  v_th2[2] = InitTherm2_vz;
+    
+  N1 = Init_N0;
+  N2 = Init2_N0;
+  n_perturb1 = Init_N1;
+  n_perturb2 = Init2_N1;
+    
+  k_perturb1[0] = Init_kx;
+  k_perturb1[1] = Init_ky;
+
+  k_perturb2[0] = Init2_kx;
+  k_perturb2[1] = Init2_ky;
+
+  cout << "VlasovTwoMaxwellInit::Init (" <<
+    u_stream1 << ") (" <<
+    v_th1 << ") "<<
+    u_stream2 << ") (" <<
+    v_th2 << ")\n";
+}
+
+template<class ForceField>
+VlasovTwoMaxwellInit<ForceField>::~VlasovTwoMaxwellInit() {}
 
 
 /** @brief Do the initialisation
@@ -41,58 +170,103 @@ VlasovMaxwellInit<ForceField>::~VlasovMaxwellInit() {}
  *  is calculated as a Maxwellian distribution.
  */
 template<class ForceField>
-void VlasovMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
-    PositionI Xi;
-    VelocityI Vi;
-    VelocityD UStream(u_stream[0],u_stream[1],u_stream[2]);
-    VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+void VlasovTwoMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+
+  double Nx = GlDistHigh[0]-GlDistLow[0]-3;
+  double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+
+  PositionI Xi;
+  VelocityI Vi;
+  VelocityD UStream1(u_stream1[0],u_stream1[1],u_stream1[2]);
+  VelocityD VTh1(v_th1[0],v_th1[1],v_th1[2]);
+  VelocityD UStream2(u_stream2[0],u_stream2[1],u_stream2[2]);
+  VelocityD VTh2(v_th2[0],v_th2[1],v_th2[2]);
         
-    for (Xi[0] = 0; Xi[0] <= dist.getHigh(0); ++Xi[0]) 
-      for (Xi[1] = 0; Xi[1] <= dist.getHigh(1); ++Xi[1]) {
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
+      cerr << "X pos " << Xi << endl;
+      double NPert1 = (
+		       1+n_perturb1*cos(
+					2*PI*k_perturb1[0]*Xi[0]/Nx
+					+2*PI*k_perturb1[1]*Xi[1]/Ny
+					)
+		       );
+        
+        
+      double NPert2 = (
+		       1+n_perturb2*cos(
+					2*PI*k_perturb2[0]*Xi[0]/Nx
+					+2*PI*k_perturb2[1]*Xi[1]/Ny
+					)
+		       );
+        
 
-        double NPert = (
-            1+n_perturb*cos(
-                2*PI*k_perturb[0]*Xi[0]/(dist.getHigh(0)-1.)
-               +2*PI*k_perturb[1]*Xi[1]/(dist.getHigh(1)-1.)
-            )
-        );
-        for (Vi[0] = 0; Vi[0] <= dist.getHigh(2); ++Vi[0]) 
-          for (Vi[1] = 0; Vi[1] <= dist.getHigh(3); ++Vi[1]) 
-            for (Vi[2] = 0; Vi[2] <= dist.getHigh(4); ++Vi[2]) {
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) {
+	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) { 
+	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	    //                cerr << "V pos " << Vi << endl;
 
-                VelocityD V( pVlasov->velocity(Vi) );
-                VelocityD Vm( 
-                    (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-                );
-                VelocityD Vp( 
-                    (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-                );
+	    VelocityD V( pVlasov->velocity(Vi) );
+	    VelocityD Vm( 
+			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			 );
+	    VelocityD Vp( 
+			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			 );
                 
                 
-                VelocityD vd1m((Vm - UStream)/VTh);
+	    VelocityD vd1m((Vm - UStream1)/VTh1);
+	    VelocityD vd1p((Vp - UStream1)/VTh1);
 
-                VelocityD vd1p((Vp - UStream)/VTh);
+	    VelocityD vd2m((Vm - UStream2)/VTh2);
+	    VelocityD vd2p((Vp - UStream2)/VTh2);
 
-                VelocityD F1;
+	    VelocityD F1, F2;
                 
-                for (int j=0; j<3; ++j) {
-                    if (Vi[j]==0) {
-                        F1[j] = 0.5*(erf(vd1p[j]) + 1);
-                    } else if (Vi[j]==dist.getHigh(j+2)) {
-                        F1[j] = 0.5*(1 - erf(vd1m[j]));
-                    } else {
-                        F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
-
-                    }
-                }
+	    for (int j=0; j<3; ++j) {
+	      if (Vi[j]==L[j+2]) {
+		F1[j] = 0.5*(erf(vd1p[j]) + 1);
+		F2[j] = 0.5*(erf(vd2p[j]) + 1);
+	      } else if (Vi[j]==H[j+2]) {
+		F1[j] = 0.5*(1 - erf(vd1m[j]));
+		F2[j] = 0.5*(1 - erf(vd2m[j]));
+	      } else {
+		F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+		F2[j] = 0.5*(erf(vd2p[j]) - erf(vd2m[j]));
+	      }
+	    }
                 
                 
-                double F = N*NPert*F1.product();
-                dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
-          }
+	    double F = N1*NPert1*F1.product() + N2*NPert2*F2.product();
+	    dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+	  }
+	}
+      }
+        
+      // Set all the boundaries to zero
+        
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) {
+	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
+	  dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
+	  dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
+	}
+      }
+           
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	  dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+	  dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+	}
+      
+      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	  dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+	  dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+	}
     }
-//    std::cout << "Initialized " << Xi[0] << std::endl;
-
+  //    std::cout << "Initialized " << Xi[0] << std::endl;
 }
 
 
@@ -102,21 +276,21 @@ void VlasovMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD
 
 template<class ForceField>
 VlasovWaveGenInit<ForceField>::VlasovWaveGenInit(VlasovSpecies<ForceField>* pVlasov_) {
-    pVlasov = pVlasov_;
+  pVlasov = pVlasov_;
     
-    v_th[0] = InitTherm_vx;
-    v_th[1] = InitTherm_vy;
-    v_th[2] = InitTherm_vz;
+  u_stream[0] = InitStream_vx;
+  u_stream[1] = InitStream_vy;
+  u_stream[2] = InitStream_vz;
     
-    N = Init_N0;
-    n_perturb = Init_N1;
+  v_th[0] = InitTherm_vx;
+  v_th[1] = InitTherm_vy;
+  v_th[2] = InitTherm_vz;
     
-    Nx[0] = GlGridSize_x;
-    Nx[1] = GlGridSize_y;
-
-
-    cout << "VlasovWaveGenInit::Init (" <<
-        v_th << ") ";
+  N = Init_N0;
+  n_perturb = Init_N1;
+    
+  cout << "VlasovWaveGenInit::Init (" <<
+    v_th << ") ";
 
 }
 
@@ -132,67 +306,76 @@ VlasovWaveGenInit<ForceField>::~VlasovWaveGenInit() {}
  */
 template<class ForceField>
 void VlasovWaveGenInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
-    PositionI Xi;
-    VelocityI Vi;
-    VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+
+  int Nx = H[0]-L[0]-3;
+  int Ny = H[1]-L[1]-3;
+
+  PositionI Xi;
+  VelocityI Vi;
+  VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  VelocityD UStream;
     
-    double xmh  = dist.getHigh(0)/2.;
-    double xmhh = dist.getHigh(0)/4.;
-    double ymh  = dist.getHigh(1)/2.;
-    double ymhh = dist.getHigh(1)/4.;
+  double NPert;
+  int state=0;
     
-    double NPert;
-    
-    for (Xi[0] = 0; Xi[0] <= dist.getHigh(0); ++Xi[0]) 
-      for (Xi[1] = 0; Xi[1] <= dist.getHigh(1); ++Xi[1]) {
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
         
-        NPert = 0;
-        if ( (Xi[0]>=8) && (Xi[0]<16) && (Xi[1]>=8) && (Xi[1]<16) )
-            NPert = n_perturb;
-        if ( (Xi[0]>=16) && (Xi[0]<24) && (Xi[1]>=8) && (Xi[1]<16) )
-            NPert = -n_perturb;
-        if ( (Xi[0]>=8) && (Xi[0]<16) && (Xi[1]>=16) && (Xi[1]<24) )
-            NPert = -n_perturb;
-        if ( (Xi[0]>=16) && (Xi[0]<24) && (Xi[1]>=16) && (Xi[1]<24) )
-            NPert = n_perturb;
-
-        NPert = 1+NPert;
+      double PP = 0;
+      for (int kx=1; kx<(GlGridX/2); ++kx) 
+	PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
         
-        for (Vi[0] = 0; Vi[0] <= dist.getHigh(2); ++Vi[0]) 
-          for (Vi[1] = 0; Vi[1] <= dist.getHigh(3); ++Vi[1]) 
-            for (Vi[2] = 0; Vi[2] <= dist.getHigh(4); ++Vi[2]) {
+      //        for (int ky=1; ky<Ny/2; ++kx) 
+      //            PP += cos( 2*PI*ky*Xi[0]/double(Ny)) / double(ky);
 
-                VelocityD V( pVlasov->velocity(Vi) );
-                VelocityD Vm( 
-                    (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-                );
-                VelocityD Vp( 
-                    (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-                );
-                
-                
-                VelocityD vd1m(Vm/VTh);
+      //        PP *= 0.5;
+        
+      double NPert = 1.0;
+      double VPert = PP;
+        
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
 
-                VelocityD vd1p(Vp/VTh);
+	    VelocityD V( pVlasov->velocity(Vi) );
+	    VelocityD Vm( 
+			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			 );
+	    VelocityD Vp( 
+			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			 );
+                                
+                
+	    UStream[0] = u_stream[0]*PP;
+	    UStream[1] = u_stream[1]*PP;
+	    UStream[2] = u_stream[2]*PP;
+                
+	    VelocityD vd1m((Vm-UStream)/VTh);
 
-                VelocityD F1;
-                
-                for (int j=0; j<3; ++j) {
-                    if (Vi[j]==0) {
-                        F1[j] = 0.5*(erf(vd1p[j]) + 1);
-                    } else if (Vi[j]==dist.getHigh(j+2)) {
-                        F1[j] = 0.5*(1 - erf(vd1m[j]));
-                    } else {
-                        F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+	    VelocityD vd1p((Vp-UStream)/VTh);
 
-                    }
-                }
+	    VelocityD F1;
+                
+	    for (int j=0; j<3; ++j) {
+	      if (Vi[j]==0) {
+		F1[j] = 0.5*(erf(vd1p[j]) + 1);
+	      } else if (Vi[j]==dist.getHigh(j+2)) {
+		F1[j] = 0.5*(1 - erf(vd1m[j]));
+	      } else {
+		F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+
+	      }
+	    }
                 
                 
-                double F = N*NPert*F1.product();
-                dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
-          }
+	    double F = N*NPert*F1.product();
+	    dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+	  }
+      state = (state==0)?1:0;
+
     }
-//    std::cout << "Initialized " << Xi[0] << std::endl;
+  //    std::cout << "Initialized " << Xi[0] << std::endl;
 
 }

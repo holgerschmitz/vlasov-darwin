@@ -11,11 +11,33 @@ void EFieldForce::Init(double dttx_, double vnorm, Potential *pPot_) {
     dttx = dttx_;
 }
 
+ScalarField &EFieldForce::GetEx() { return pE->GetEx(); }
+ScalarField &EFieldForce::GetEy() { return pE->GetEy(); }
+
 VelocityD EFieldForce::Force(const PositionI &Pos, const VelocityD &Vel) {
     double Fx = pE->GetEx()(Pos[0],Pos[1]);
     double Fy = pE->GetEy()(Pos[0],Pos[1]);
     return VelocityD(dttx*Fx, dttx*Fy, 0.0);
         
+}
+
+ScalarField &EFieldForce::FieldEnergy() {
+    ScalarField &Ex = GetEx();
+    ScalarField &Ey = GetEy();
+    
+    const int *L = Ex.getLow();
+    const int *H = Ex.getHigh();
+    
+    FEngy.resize(Ex);
+    FEngy.clear();
+    
+    for (int i=L[0]; i<=H[0]; ++i)
+        for (int j=L[1]; i<=H[1]; ++i) {
+            FEngy(i,j) += sqr(Ex(i,j));
+            FEngy(i,j) += sqr(Ey(i,j));
+    }
+    
+    return FEngy;
 }
 
 
@@ -163,17 +185,43 @@ VelocityD EMDarwinForce::Force(const PositionI &Pos, const VelocityD &Vel) {
         
 }
 
+ScalarField &EMDarwinForce::FieldEnergy() {
+    ScalarField &Ex = GetEx();
+    ScalarField &Ey = GetEy();
+    ScalarField &Ez = GetEz();
+    ScalarField &Bx = GetBx();
+    ScalarField &By = GetBy();
+    ScalarField &Bz = GetBz();
+    
+    const int *L = Ex.getLow();
+    const int *H = Ex.getHigh();
+    
+    FEngy.resize(Ex);
+    FEngy.clear();
+    
+    for (int i=L[0]; i<=H[0]; ++i)
+        for (int j=L[1]; i<=H[1]; ++i) {
+            FEngy(i,j) += sqr(Ex(i,j));
+            FEngy(i,j) += sqr(Ey(i,j));
+            FEngy(i,j) += sqr(Ez(i,j));
+            FEngy(i,j) += sqr(Bx(i,j));
+            FEngy(i,j) += sqr(By(i,j));
+            FEngy(i,j) += sqr(Bz(i,j));
+    }
+    
+    return FEngy;
+}
 
 void write_Distribution(VlasovDist &Dist, const char *fname) {
     ofstream O(fname);
-    for (int i=0; i<=Dist.getHigh(1); ++i) 
-      for (int j=0; j<=Dist.getHigh(0); ++j) 
-        for (int k=0; k<=Dist.getHigh(2); ++k) 
-          for (int l=0; l<=Dist.getHigh(3); ++l) 
-            for (int m=0; m<=Dist.getHigh(4); ++m) 
+    for (int i=Dist.getLow(0); i<=Dist.getHigh(0); ++i) 
+      for (int j=Dist.getLow(1); j<=Dist.getHigh(1); ++j) 
+        for (int k=Dist.getLow(2); k<=Dist.getHigh(2); ++k) 
+          for (int l=Dist.getLow(3); l<=Dist.getHigh(3); ++l) 
+            for (int m=Dist.getLow(4); m<=Dist.getHigh(4); ++m) 
                 O   << i << " "  << j << " "  << k << " "  
                     << l << " "  << m << " "
-                    << Dist(j,i,k,l,m) << endl;
+                    << Dist(i,j,k,l,m) << endl;
 }
 
 

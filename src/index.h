@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <iostream>
 
-//using namespace std;
+// using namespace std;
 
 template<class T, int rank>
 class FixedArray {

@@ -1,5 +1,7 @@
 #include <fstream>
 
+#include "config.h"
+
 #ifndef DIAGHELPER_H
 #define DIAGHELPER_H
 

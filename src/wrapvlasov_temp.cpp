@@ -7,16 +7,15 @@
 // -------------------------------------------------------------------
 
 template<class ForceField>
-VlasovSpecies<ForceField>::VlasovSpecies () 
+VlasovSpecies<ForceField>::VlasovSpecies (Boundary *boundary_) 
     :  ForceField(),
-       RKState(-2) { 
-    dt = 0.125;
-    Mass = 1;
-    Charge = 1;
+       RKState(-2),
+       boundary(boundary_),
+       t(0) { 
+    dt = Gl_dt;
+    Mass = Gl_Mass;
+    Charge = Gl_Charge;
 
-    NV[0] = GlGridSize_vx;
-    NV[1] = GlGridSize_vy;
-    NV[2] = GlGridSize_vz;
     
     VRange[0] = GlGridRange_vx;
     VRange[1] = GlGridRange_vy;
@@ -24,7 +23,10 @@ VlasovSpecies<ForceField>::VlasovSpecies ()
 }
 
 template<class ForceField>
-VlasovSpecies<ForceField>::~VlasovSpecies () {}
+VlasovSpecies<ForceField>::~VlasovSpecies () {
+    cerr << "Destructing Vlasov Species\n";
+    delete boundary;
+}
 
 
 /** @brief Initializes the VlasovSpecies
@@ -39,76 +41,93 @@ void VlasovSpecies<ForceField>::Init() {
 
     cerr << "INITIALIZING Vlasov Species" << endl;
 
-    pPot = new (typename ForceField::FieldType);
+    pPot = new (typename ForceField::FieldType)(boundary->master());
     pPot->Init();
 	pPot->AddSpecies(this);
 
     PhasePositionI Size;
-    PositionI Nx = pPot->GetNx();
+    PositionI Lowx = pPot->GetLBound();
+    PositionI Highx = pPot->GetHBound();
     
-    for (int i=0; i<2; ++i) Size[i]  =Nx[i];
-    for (int i=0; i<3; ++i) Size[2+i]=NV[i];
     
-    resize(Size);
+    resize(boundary->DistLow(),boundary->DistHigh());
     
-	gRho.resize(Nx.Data());
+	gRho.resize(Lowx.Data(),Highx.Data());
+	EKin.resize(Lowx.Data(),Highx.Data());
+
+	Jx.resize(Lowx.Data(),Highx.Data());
+	Jy.resize(Lowx.Data(),Highx.Data());
+	Jz.resize(Lowx.Data(),Highx.Data());
+
+	Vxx.resize(Lowx.Data(),Highx.Data());
+	Vxy.resize(Lowx.Data(),Highx.Data());
+	Vxz.resize(Lowx.Data(),Highx.Data());
+	Vyy.resize(Lowx.Data(),Highx.Data());
+	Vyz.resize(Lowx.Data(),Highx.Data());
+	Vzz.resize(Lowx.Data(),Highx.Data());
 
 	dx[0] = GlGridSpace_x;
     dx[1] = GlGridSpace_y;
     
-    for (int i=0; i<2; ++i) BoxRange[i]=(Nx[i]-1)*dx[i];
+    for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-3)*dx[i];
     
     cerr << "Init Base " << BoxRange << " " << VRange << endl;
+       
        
     cerr << "Init Field " << Charge/Mass << " " << VRange << endl;
     ForceField::Init(Charge/Mass, dx[0]/dt, pPot);
     
     cerr << "Creating initializer " << endl;
-    VlasovWaveGenInit<
-        ForceField
-    > TheInit(this);
+//    VlasovMaxwellInit<ForceField> TheInit(this);
+//    VlasovTwoMaxwellInit<ForceField> TheInit(this);
+    VlasovWaveGenInit<ForceField> TheInit(this);
     cerr << "Executing initializer " << endl;
     
     TheInit.initialise(Distribution, VRange);
     
-    cerr << "Finished initializer " << endl;
+    cerr << "Boundary Exchange " << endl;
+    boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
+
+    cerr << "DONE INITIALIZING Vlasov Species" << endl;
+
 }
 
-
 template<class ForceField>
-void VlasovSpecies<ForceField>::resize(const PhasePositionI &size_) {
-    cerr << "RISIZING Vlasov Advancer Base" << endl;
-    int DSize[5];
-    for (int i=0; i<5; ++i) DSize[i] = size_[i]+1;
+void VlasovSpecies<ForceField>::resize(PhasePositionI &low, PhasePositionI &high) {
+    cerr << "RISIZING Vlasov Advancer Base " << low << " " << high << endl;
     
-    Distribution.resize(DSize);
+    Distribution.resize(low.Data(),high.Data());
 
     int Pi = 0;
     
-    for (   int pi = 0; pi<GridSize.length(); ++pi, ++Pi) 
-                GridSize[pi] = size_[Pi];
-                
+    for (   int pi = 0; pi<GridSize.length(); ++pi, ++Pi) { 
+        GridSize[pi] = high[Pi]-low[Pi]-3;
+        GridSizeI[pi] = high[Pi]-low[Pi]-3;     
+    }         
     for (   int vi = 0; vi < VelSize.length(); ++vi, ++Pi) 
-                VelSize[vi] = size_[Pi];
+                VelSize[vi] = high[Pi]-low[Pi]; 
                 
     VelSizeH = (VelSize-1.0) / 2.0;
 
     cerr << "RISIZING Finite Volume Advancer" << endl;
-
-    TempDist.resize(DSize);
-    T1.resize(DSize);
-    T2.resize(DSize);
+    cerr << "VelSize = " << VelSize << "  VelSizeH = " << VelSizeH << "\n";
+    TempDist.resize(low.Data(),high.Data());
+    T1.resize(low.Data(),high.Data());
+    T2.resize(low.Data(),high.Data());
 }
 
 
 template<class ForceField>
 void VlasovSpecies<ForceField>::write(ostream &O) {
-    const int *DSize = Distribution.getHigh();
-    for (int i=0; i<=DSize[0]; ++i)
-      for (int j=0; j<=DSize[1]; ++j)
-        for (int k=0; k<=DSize[2]; ++k)
-          for (int l=0; l<=DSize[3]; ++l) {
-            for (int m=0; m<=DSize[4]; ++m) 
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
+
+    for (int i=L[0]; i<=H[0]; ++i)
+      for (int j=L[1]; j<=H[1]; ++j)
+        for (int k=L[2]; k<=H[2]; ++k)
+          for (int l=L[3]; l<=H[3]; ++l) {
+            for (int m=L[4]; m<=H[4]; ++m) 
                 O << i << " " << j << " " << 
                     k << " " << l << " " << 
                     m << " " << Distribution(i,j,k,l,m) << endl;
@@ -117,20 +136,45 @@ void VlasovSpecies<ForceField>::write(ostream &O) {
             
 }
 
+template<class ForceField>
+void VlasovSpecies<ForceField>::writeYVySlice(int x,int vx,int vz, string fname) {
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
+    if (   (x<L[0]+2) || (x>H[0]-2) 
+        || (vx<L[2]) || (vx>H[2])
+        || (vz<L[4]) || (vz>H[4]))  return;
+    
+    ofstream Slice(fname.c_str());
+    
+    for (int j=L[1]+2; j<=H[1]-2; ++j)
+        for (int k=L[3]; k<=H[3]; ++k)
+            Slice << j << " " << k << " " 
+                << Distribution(x,j,vx,k,vz) << endl;
+    
+    Slice.close();
+}
 
 /** @brief Calls the advance method of the Advancer base class.
  * then calls Task::Execute to execute sub-Tasks
  */
 template<class ForceField>
-bool VlasovSpecies<ForceField>::Execute () {
-    cerr << "Potential\n";
+void VlasovSpecies<ForceField>::Execute () {
+    if ( (t%100) == 0) {
+        double err = densityError();
+        correctDensityError(err);
+    }
+    t++;
+
+//    cerr << "Potential("<<t<<")\n";
     pPot->Execute(dt);
     
-    cerr << "Advancing\n";
+//    cerr << "Advancing("<<t<<")\n";
     advance(dt);
+//    cerr << "Done Advancing("<<t<<")\n";
+
 //    write_Distribution(Distribution,"Advanced.out");
-    return false;
 }
+
 
 /** @brief Create density with the density() method supplied by
  *  VlasovAdvancerBase and copy the result into a grid, as requested
@@ -141,88 +185,146 @@ void VlasovSpecies<ForceField>::MakeRho () {
 
 //    cerr << "VlasovSpecies::MakeRho" << endl;
 
-    ScalarField SFRho = density();
-
-    int xbnd = SFRho.getHigh()[0];
-    int ybnd = SFRho.getHigh()[1];
-	for (int i = 0; i <= xbnd; ++i) 
-	  for (int j = 0; j <= ybnd; ++j)  {
-		gRho(i,j) = SFRho(i,j);
-//        cerr << "den " << i << " " << j << " " << gRho(i,j) << endl;
-    }
-
-}
-
-template<class ForceField>
-ScalarField VlasovSpecies<ForceField>::density() {
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
     
-//    cerr << "density\n";
-    const int *S = Distribution.getHigh();
-    PositionI GS(GlGridSize_x,GlGridSize_y);
-    ScalarField DEN(GS.Data());
-    for (int ix=0; ix<GlGridSize_x; ++ix) {
-      for (int iy=0; iy<GlGridSize_y; ++iy) {
-        DEN(ix,iy) = 0;
-        for (int j=0; j<=S[2]; ++j)
-          for (int k=0; k<=S[3]; ++k)
-            for (int l=0; l<=S[4]; ++l) 
-                DEN(ix,iy) += Distribution(ix,iy,j,k,l);
-//        cerr << "den " << ix << " " << iy << " " << DEN(ix,iy) << endl;
+    gRho.clear();
+    
+    // The region of the electromagnetic fields is on
+    // grid cell smaller in every direction
+    // It's important that the density is only calculated on the
+    // inner cells, since ScalarFieldReduce simply adds all the densities of
+    // the processes.
+    for (int ix=L[0]+2; ix<=H[0]-2; ++ix) {
+      for (int iy=L[1]+2; iy<=H[1]-2; ++iy) {
+        for (int j=L[2]; j<=H[2]; ++j)
+          for (int k=L[3]; k<=H[3]; ++k)
+            for (int l=L[4]; l<=H[4]; ++l) 
+                gRho(ix,iy) += Distribution(ix,iy,j,k,l);
+//        cerr << "den " << ix << " " << iy << " " << gRho(ix,iy) << endl;
         }
     }
     
-    return DEN;
+    boundary->ScalarFieldReduce(gRho);
 }
 
 template<class ForceField>
-VelocityD VlasovSpecies<ForceField>::getJ(int i, int j) {
-    
-    const int *S = Distribution.getHigh();
-    
-    double d;
-    VelocityI vi;
-    VelocityD J, V; 
-    J[0] = 0.;
-    J[1] = 0.;
-    J[2] = 0.;
-    for (vi[0]=0; vi[0]<=S[2]; ++vi[0])
-        for (vi[1]=0; vi[1]<=S[3]; ++vi[1])
-            for (vi[2]=0; vi[2]<=S[4]; ++vi[2]) {
-                V = velocity(vi);
-                d = Distribution(i,j,vi[0],vi[1],vi[2]);
-                for (int i=0; i<3; ++i)
-                    J[i] += V[i]*d;
-            }
-    
-    return J;
-}
-
-template<class ForceField>
-FixedArray<double,6> VlasovSpecies<ForceField>::getVVTens(int i, int j) {
-    
-    const int *S = Distribution.getHigh();
+void VlasovSpecies<ForceField>::MakeJs () {
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
     
     VelocityI vi;
     VelocityD V;
     double d;
-    FixedArray<double,6> VV;
     
-    for (int l=0; l<6; ++l) VV[l]=0;
+    Jx.clear();
+    Jy.clear();
+    Jz.clear();
 
-    for (vi[0]=0; vi[0]<=S[2]; ++vi[0])
-        for (vi[1]=0; vi[1]<=S[3]; ++vi[1])
-            for (vi[2]=0; vi[2]<=S[4]; ++vi[2]) {
+    Vxx.clear();
+    Vxy.clear();
+    Vxz.clear();
+    Vyy.clear();
+    Vyz.clear();
+    Vzz.clear();
+
+    for (int i=L[0]+2; i<=H[0]-2; ++i) {
+      for (int j=L[1]+2; j<=H[1]-2; ++j) {
+
+        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
                 V = velocity(vi);
                 d = Distribution(i,j,vi[0],vi[1],vi[2]);
-                VV[0] += d*V[0]*V[0];
-                VV[1] += d*V[0]*V[1];
-                VV[2] += d*V[0]*V[2];
-                VV[3] += d*V[1]*V[1];
-                VV[4] += d*V[1]*V[2];
-                VV[5] += d*V[2]*V[2];
+                Jx(i,j) += V[0]*d;
+                Jy(i,j) += V[1]*d;
+                Jz(i,j) += V[2]*d;
+                
+                Vxx(i,j) += V[0]*V[0]*d;
+                Vxy(i,j) += V[0]*V[1]*d;
+                Vxz(i,j) += V[0]*V[2]*d;
+                Vyy(i,j) += V[1]*V[1]*d;
+                Vyz(i,j) += V[1]*V[2]*d;
+                Vzz(i,j) += V[2]*V[2]*d;
+                
             }
+      }
+    }
     
-    return VV;
+    boundary->ScalarFieldReduce(Jx);
+    boundary->ScalarFieldReduce(Jy);
+    boundary->ScalarFieldReduce(Jz);
+
+    boundary->ScalarFieldReduce(Vxx);
+    boundary->ScalarFieldReduce(Vxy);
+    boundary->ScalarFieldReduce(Vxz);
+    boundary->ScalarFieldReduce(Vyy);
+    boundary->ScalarFieldReduce(Vyz);
+    boundary->ScalarFieldReduce(Vzz);
+}
+
+template<class ForceField>
+ScalarField &VlasovSpecies<ForceField>::KineticEnergy () {
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
+
+    VelocityI vi;
+    VelocityD V;
+    double d;
+
+    EKin.clear();
+
+    for (int i=L[0]+2; i<=H[0]-2; ++i) 
+      for (int j=L[1]+2; j<=H[1]-2; ++j)
+
+        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
+                V = velocity(vi);
+                d = Distribution(i,j,vi[0],vi[1],vi[2]);
+                EKin(i,j) += (V[0]*V[0]+V[1]*V[1]+V[2]*V[2])*d;
+    }
+    
+    boundary->ScalarFieldReduce(EKin);
+    return EKin;
+}
+
+template<class ForceField>
+double VlasovSpecies<ForceField>::TotalEnergy () {
+    ScalarField &kin = KineticEnergy();
+    ScalarField &fld = FieldEnergy();
+    const int *L = kin.getLow();
+    const int *H = kin.getHigh();
+    
+    double ETot = 0;
+    double dxdy = dx[0]*dx[1];
+    
+    
+    for (int i=L[0]+1; i<=H[0]-1; ++i) 
+        for (int j=L[1]+1; j<=H[1]-1; ++j) {
+            ETot += kin(i,j)+ fld(i,j);
+    }
+    return ETot;
+}
+
+template<class ForceField>
+VelocityD VlasovSpecies<ForceField>::getJ(int i, int j) {
+    return VelocityD(Jx(i,j), Jy(i,j), Jz(i,j));
+}
+
+template<class ForceField>
+FixedArray<double,6> VlasovSpecies<ForceField>::getVVTens(int i, int j) {    
+    FixedArray<double,6> Result;
+    
+    Result[0] = Vxx(i,j);
+    Result[1] = Vxy(i,j);
+    Result[2] = Vxz(i,j);
+    Result[3] = Vyy(i,j);
+    Result[4] = Vyz(i,j);
+    Result[5] = Vzz(i,j);
+    
+    return Result;
+    
 }
 
 
@@ -231,47 +333,52 @@ template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceSpace_x(double timestep) {
         
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+
     PositionI Xi;
     VelocityI Vi;
     
-    int bx = Distribution.getHigh(0);
-    int bxp = bx+1;
-    int bxm = bx - 1;
+    int lx = LBound[0];
+    int bx = UBound[0];
     int bxM = bx - 2;
-    NumMatrix<double, 1> Flux(&bxp);
-    NumMatrix<double, 1> Dj(&bxp);
     
-    for (Vi[0] = 1; Vi[0] < Distribution.getHigh(2); ++Vi[0]) {
+    NumMatrix<double, 1> Flux(&lx,&bx);
+    NumMatrix<double, 1> Dj(&lx,&bx);
 
+//    cerr << "Advancing in x\n";
+    for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) {
       double deltax = -timestep*velocity(Vi)[0]/dx[0];
       int deltaI = int(floor(deltax)+1);        // i + deltaI - 1/2 <= X_(i+1/2) < i + deltaI + 1/2
+                                                // für vernünftige Werte von V ist deltaI = 0 oder 1
       double alpha = deltax - deltaI + 1;       // 0 <= alpha < 1
 
-      for (Xi[1] = 1; Xi[1] < Distribution.getHigh(1); ++Xi[1])
-        for (Vi[1] = 1; Vi[1] < Distribution.getHigh(3); ++Vi[1]) 
-          for (Vi[2] = 1; Vi[2] < Distribution.getHigh(4); ++Vi[2]) {
+//      cerr << "Vx: " << Vi[0] << " " << deltax << " " << deltaI << "\n";
+      for (Xi[1] = LBound[1]; Xi[1] <= UBound[1]; ++Xi[1])
+        for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
+          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
              
-            for (Xi[0] = 1; Xi[0] < bx; ++Xi[0]) {
-                // go deltaI right and restrict to 1 .. bx-1
-                int j =  ((Xi[0]+deltaI+bxM) % bxm) + 1;
+            // Asymmetric since we later use Flux(x) and Flux(x-1)
+            for (Xi[0] = LBound[0]+1; Xi[0] <= bxM; ++Xi[0]) {
+                // go deltaI right: j is Xi[0] or Xi[0]+1
+                int j =  Xi[0]+deltaI;
                                 
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "X: deltaI out of bounds:" << deltaI << endl;
+
                 Flux(Xi[0]) = interpolateX(Xi, Vi, j, alpha, Distribution);
                 Dj(Xi[0]) = Distribution(j   ,Xi[1], Vi[0], Vi[1], Vi[2]);
             }
-            // wrap around
-            Flux(0) = Flux(bxm);
-            Flux(bx) = Flux(1);
-            
-            Dj(0) = Dj(bxm);
-            Dj(bx) = Dj(1);
-            
-            for (Xi[0] = 1; Xi[0] <= bx; ++Xi[0]) {
-                Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = Flux(Xi[0]-1) - Flux(Xi[0]) + Dj(Xi[0]);
-            }
-            Distribution(0 ,Xi[1] , Vi[0], Vi[1], Vi[2]) = Distribution(bxm ,Xi[1] , Vi[0], Vi[1], Vi[2]);
-        }
+    
+            for (Xi[0] = LBound[0]+2; Xi[0] <= bxM; ++Xi[0]) 
+                Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) 
+                    = Flux(Xi[0]-1) - Flux(Xi[0]) + Dj(Xi[0]);
+          }
     }
+    
+//    cerr << "Exchanging boundaries... "; 
+    boundary->exchangeX(Distribution);
+//    cerr << " ...done\n"; 
     
 }
 
@@ -279,53 +386,49 @@ template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceSpace_y(double timestep) {
         
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+
     PositionI Xi;
     VelocityI Vi;
     
-    int bx = Distribution.getHigh(1);
-    int bxp = bx+1;
-    int bxm = bx - 1;
+    int lx = LBound[1];
+    int bx = UBound[1];
     int bxM = bx - 2;
-    NumMatrix<double, 1> Flux(&bxp);
-    NumMatrix<double, 1> Dj(&bxp);
+
+    NumMatrix<double, 1> Flux(&lx,&bx);
+    NumMatrix<double, 1> Dj(&lx,&bx);
     
-//      std::cerr << "Advancing " << Xi[0] << std::endl;
-    for (Vi[1] = 1; Vi[1] < Distribution.getHigh(3); ++Vi[1]) {
+//    cerr << "Advancing in y\n";
+    for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
 
       double deltax = -timestep*velocity(Vi)[1]/dx[1];
       int deltaI = int(floor(deltax)+1);        // i + deltaI - 1/2 <= X_(i+1/2) < i + deltaI + 1/2
       double alpha = deltax - deltaI + 1;       // 0 <= alpha < 1
 
-//      std::cout << "Delta x = " << deltax << " " << velocity(Vi)[0] 
-//                << " " << deltaI << " " << alpha << std::endl; 
-      for (Xi[0] = 1; Xi[0] < Distribution.getHigh(0); ++Xi[0])
-        for (Vi[0] = 1; Vi[0] < Distribution.getHigh(2); ++Vi[0]) 
-          for (Vi[2] = 1; Vi[2] < Distribution.getHigh(4); ++Vi[2]) {
+      for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
+        for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
+          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
-             
-            for (Xi[1] = 1; Xi[1] < bx; ++Xi[1]) {
-                // go deltaI right and restrict to 1 .. bx-1
-                int j =  ((Xi[1]+deltaI+bxM) % bxm) + 1;
-                
-//                std::cout << "  -  " << Xi[0] << " " << j << " " 
-//                    << jl << " " << jr << " " << std::endl;
-                
+            
+            // Asymmetric since we later use Flux(x) and Flux(x-1)
+            for (Xi[1] = LBound[1]+1; Xi[1] <= bxM; ++Xi[1]) {
+                // go deltaI right: j is Xi[1] or Xi[1]+1
+                int j =  Xi[1]+deltaI;
+                                
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Y: deltaI out of bounds:" << deltaI << endl;
+
                 Flux(Xi[1]) = interpolateY(Xi, Vi, j, alpha, Distribution);
                 Dj(Xi[1]) = Distribution(Xi[0], j , Vi[0], Vi[1], Vi[2]);
             }
-            // wrap around
-            Flux(0) = Flux(bxm);
-            Flux(bx) = Flux(1);
-            
-            Dj(0) = Dj(bxm);
-            Dj(bx) = Dj(1);
-            
-            for (Xi[1] = 1; Xi[1] <= bx; ++Xi[1]) {
-                Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = Flux(Xi[1]-1) - Flux(Xi[1]) + Dj(Xi[1]);
-            }
-            Distribution(Xi[0], 0, Vi[0], Vi[1], Vi[2]) = Distribution(Xi[0], bxm , Vi[0], Vi[1], Vi[2]);
-        }
+            for (Xi[1] = LBound[1]+2; Xi[1] <= bxM; ++Xi[1]) 
+                Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) 
+                    = Flux(Xi[1]-1) - Flux(Xi[1]) + Dj(Xi[1]);
+
+          }
     }
+    
+    boundary->exchangeY(Distribution);
     
 }
 
@@ -333,27 +436,33 @@ template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceVel_x(double timestep) {
         
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+
     PositionI Xi;
     VelocityI Vi;
     
-    int bvx = Distribution.getHigh(2);
-    int bvxp = bvx+1;
-    int bvxm = bvx - 1;
-    int bvxM = bvx - 1;
-    NumMatrix<double, 1> Flux(&bvxp);
-    NumMatrix<double, 1> Dj(&bvxp);
+    int lvx = LBound[2];
+    int bvx = UBound[2];
     
-    int j_old = -1;
+    NumMatrix<double, 1> Flux(&lvx,&bvx);
+    NumMatrix<double, 1> Dj(&lvx,&bvx);
     
-    for (Xi[0] = 1; Xi[0] < Distribution.getHigh(0); ++Xi[0]) 
-      for (Xi[1] = 1; Xi[1] < Distribution.getHigh(1); ++Xi[1]) {
+    int j_old; // check initialization inside the loop!!
+    
+//    cerr << "Advancing in vx\n";
+    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        for (Vi[1] = 0; Vi[1] <= Distribution.getHigh(3); ++Vi[1]) 
-          for (Vi[2] = 0; Vi[2] <= Distribution.getHigh(4); ++Vi[2]) {
+        j_old = -1;
+        
+        for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
+          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
              
-            for (Vi[0] = 0; Vi[0] < bvx; ++Vi[0]) {
-
+            for (Vi[0] = lvx; Vi[0] <= bvx; ++Vi[0]) {
+//                cerr << " - " << Vi[0] <<  " - " << Vi[1] <<  " - " << Vi[2] <<  " - " 
+//                    << Xi[0] <<  " - " << Xi[1] << "\n";
                 VelocityD Vel = velocity(Vi);
                 VelocityD F = Force(Xi,Vel);
                 double deltavx = -timestep*F[0]/deltaVx();
@@ -362,57 +471,72 @@ void VlasovSpecies<ForceField>
 
                 int j = Vi[0]+deltaI;
                 // go deltaI right 
+
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+
+//                cerr << "Vx: " << Vi[0] << " " << deltavx << " " << deltaI << "\n";
+
+                Dj(Vi[0]) = 0;
+                for (int jj=j_old+1; jj<=j; ++jj)
+                    Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+                j_old=j;
                 
-                if ((j>=bound_minus()) && (j<=bvx-bound_plus())) {
+                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
                     Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha, Distribution);
-                    if (j_old==-1)
-                        Dj(Vi[0]) = Distribution(Xi[0], Xi[1], j, Vi[1], Vi[2]);
-                    else {
-                        Dj(Vi[0]) = 0;
-                        for (int jj=j_old+1; jj<=j; ++jj)
-                            Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
-                        j_old=j;
-                    }
-                } else {
+                else
                     Flux(Vi[0]) = 0;
-                    Dj(Vi[0]) = 0;
-                }
+
             }
             
-            for (Vi[0] = 1; Vi[0] < bvx; ++Vi[0]) {
+            Dj(bvx-1) = 0;
+            for (int jj=j_old+1; jj<bvx; ++jj)
+                Dj(bvx-1) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+
+            Flux(lvx) = 0;
+            Flux(bvx-1) = 0;
+
+            for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                     = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
             }
 
         }
     }
-    
+    boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
+
 }
 
 template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceVel_y(double timestep) {
         
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+
     PositionI Xi;
     VelocityI Vi;
     
-    int bvx = Distribution.getHigh(3);
-    int bvxp = bvx+1;
-    int bvxm = bvx - 1;
-    int bvxM = bvx - 1;
-    NumMatrix<double, 1> Flux(&bvxp);
-    NumMatrix<double, 1> Dj(&bvxp);
+    int lvx = LBound[3];
+    int bvx = UBound[3];
+
+    NumMatrix<double, 1> Flux(&lvx,&bvx);
+    NumMatrix<double, 1> Dj(&lvx,&bvx);
     
-    int j_old = -1;
+    int j_old; // check initialization inside the loop!!
     
-    for (Xi[0] = 1; Xi[0] < Distribution.getHigh(0); ++Xi[0]) 
-      for (Xi[1] = 1; Xi[1] < Distribution.getHigh(1); ++Xi[1]) {
-      
-        for (Vi[0] = 0; Vi[0] <= Distribution.getHigh(2); ++Vi[0]) 
-          for (Vi[2] = 0; Vi[2] <= Distribution.getHigh(4); ++Vi[2]) {
+//    cerr << "Advancing in vy\n";
+    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
+       
+        j_old = -1;
+        
+        for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
+          for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
              
-            for (Vi[1] = 0; Vi[1] < bvx; ++Vi[1]) {
+            for (Vi[1] = lvx; Vi[1] < bvx; ++Vi[1]) {
+            
                 VelocityD Vel = velocity(Vi);
                 VelocityD F = Force(Xi,Vel);
                 double deltavx = -timestep*F[1]/deltaVy();
@@ -422,30 +546,36 @@ void VlasovSpecies<ForceField>
                 // go deltaI right 
                 int j = Vi[1]+deltaI;
                 
-                if ((j>=bound_minus()) && (j<=bvx-bound_plus())) {
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+
+                Dj(Vi[1]) = 0;
+                for (int jj=j_old+1; jj<=j; ++jj)
+                    Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+                j_old=j;
+
+                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
                     Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha, Distribution);
-                    Dj(Vi[1]) = Distribution(Xi[0], Xi[1], Vi[0], j, Vi[2]);
-                    if (j_old==-1)
-                        Dj(Vi[1]) = Distribution(Xi[0], Xi[1], Vi[0], j, Vi[2]);
-                    else {
-                        Dj(Vi[1]) = 0;
-                        for (int jj=j_old+1; jj<=j; ++jj)
-                            Dj(Vi[1]) = Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
-                        j_old=j;
-                    }
-                } else {
+                else
                     Flux(Vi[1]) = 0;
-                    Dj(Vi[1]) = 0;
-                }
+
             }
             
-            for (Vi[1] = 1; Vi[1] < bvx; ++Vi[1]) {
+            Dj(bvx-1) = 0;
+            for (int jj=j_old+1; jj<bvx; ++jj)
+                Dj(bvx-1) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+
+            Flux(lvx) = 0;
+            Flux(bvx-1) = 0;
+
+            for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
             }
 
         }
     }
     
+    boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
 }
 
 
@@ -453,26 +583,32 @@ template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceVel_z(double timestep) {
         
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+
     PositionI Xi;
     VelocityI Vi;
     
-    int bvx = Distribution.getHigh(4);
-    int bvxp = bvx+1;
-    int bvxm = bvx - 1;
-    int bvxM = bvx - 1;
-    NumMatrix<double, 1> Flux(&bvxp);
-    NumMatrix<double, 1> Dj(&bvxp);
+    int lvx = LBound[4];
+    int bvx = UBound[4];
+
+    NumMatrix<double, 1> Flux(&lvx,&bvx);
+    NumMatrix<double, 1> Dj(&lvx,&bvx);
     
-    int j_old = -1;
+    int j_old; // check initialization inside the loop!!
     
-    for (Xi[0] = 1; Xi[0] < Distribution.getHigh(0); ++Xi[0]) 
-      for (Xi[1] = 1; Xi[1] < Distribution.getHigh(1); ++Xi[1]) {
+//    cerr << "Advancing in vz\n";
+    for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
+      for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        for (Vi[0] = 0; Vi[0] <= Distribution.getHigh(2); ++Vi[0]) 
-          for (Vi[1] = 0; Vi[1] <= Distribution.getHigh(3); ++Vi[1]) {
+        j_old = -1;
+        
+        for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
+          for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
             
              
-            for (Vi[2] = 0; Vi[2] < bvx; ++Vi[2]) {
+            for (Vi[2] = lvx; Vi[2] < bvx; ++Vi[2]) {
+            
                 VelocityD Vel = velocity(Vi);
                 VelocityD F = Force(Xi,Vel);
                 double deltavx = -timestep*F[2]/deltaVy();
@@ -482,92 +618,111 @@ void VlasovSpecies<ForceField>
                 // go deltaI right 
                 int j = Vi[2]+deltaI;
                 
-                if ((j>=bound_minus()) && (j<=bvx-bound_plus())) {
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+
+                Dj(Vi[2]) = 0;
+                for (int jj=j_old+1; jj<=j; ++jj)
+                    Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
+                j_old=j;
+
+                if ((j>=lvx+bound_minus()) && (j<=bvx-bound_plus()))
                     Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha, Distribution);
-                    Dj(Vi[2]) = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], j);
-                    if (j_old==-1)
-                        Dj(Vi[2]) = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], j);
-                    else {
-                        Dj(Vi[2]) = 0;
-                        for (int jj=j_old+1; jj<=j; ++jj)
-                            Dj(Vi[2]) = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], jj);
-                        j_old=j;
-                    }
-                } else {
+                else
                     Flux(Vi[2]) = 0;
-                    Dj(Vi[2]) = 0;
-                }
+
             }
             
-            for (Vi[2] = 1; Vi[2] < bvx; ++Vi[2]) {
+            Dj(bvx-1) = 0;
+            for (int jj=j_old+1; jj<bvx; ++jj)
+                Dj(bvx-1) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
+
+            Flux(lvx) = 0;
+            Flux(bvx-1) = 0;
+
+            for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
             }
 
         }
     }
     
+    boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
 }
 
 
 
 template<class ForceField>
 void VlasovSpecies<ForceField>::advance(double timestep) {
-    const int *DSize = Distribution.getHigh();
-
     switch (RKState) {
         case -2: RKState = -1;
                  break;
         case -1: RKState = 0;
-                 advanceStepA(timestep); 
-                 break;
-        case 0: advanceStepB(T1, timestep);         // T1 = k1
-        
-                for (int i=0; i<=DSize[0]; ++i)
-                  for (int j=0; j<=DSize[1]; ++j)
-                    for (int k=0; k<=DSize[2]; ++k)
-                      for (int l=0; l<=DSize[3]; ++l)
-                        for (int m=0; m<=DSize[4]; ++m)
-                          Distribution(i,j,k,l,m) 
-                              = Distribution(i,j,k,l,m) + 0.5*T1(i,j,k,l,m); 
-                        // D = y_n + 1/2*k1
-                            
                 advanceStepA(timestep); 
-                RKState = 1;
                 break;
-        case 1: advanceStepB(T2, timestep);         // T2 = k2
-        
-                for (int i=0; i<=DSize[0]; ++i)
-                  for (int j=0; j<=DSize[1]; ++j)
-                    for (int k=0; k<=DSize[2]; ++k)
-                      for (int l=0; l<=DSize[3]; ++l)
-                        for (int m=0; m<=DSize[4]; ++m)
-                        Distribution(i,j,k,l,m) 
-                            = Distribution(i,j,k,l,m) - 1.5*T1(i,j,k,l,m) + 2*T2(i,j,k,l,m);
-                        // D = y_n - k1 + 2*k2
-                        
-                advanceStepA(timestep);
-                
-                for (int i=0; i<=DSize[0]; ++i)
-                  for (int j=0; j<=DSize[1]; ++j)
-                    for (int k=0; k<=DSize[2]; ++k)
-                      for (int l=0; l<=DSize[3]; ++l)
-                        for (int m=0; m<=DSize[4]; ++m)
-                        T1(i,j,k,l,m) = (7./6.)*T1(i,j,k,l,m) - (4./3.)*T2(i,j,k,l,m);
-                        
-                RKState = 2;
-                break;
-        case 2: advanceStepB(T2, timestep);      // T2 = 1/6*k3
-                for (int i=0; i<=DSize[0]; ++i)
-                  for (int j=0; j<=DSize[1]; ++j)
-                    for (int k=0; k<=DSize[2]; ++k)
-                      for (int l=0; l<=DSize[3]; ++l)
-                        for (int m=0; m<=DSize[4]; ++m)
-                          Distribution(i,j,k,l,m) 
-                              = Distribution(i,j,k,l,m) + T1(i,j,k,l,m) + (1/6.)*T2(i,j,k,l,m);          // D = y_n + 1/6*k1 + 2/3*k2 + 1/6*k3
-                advanceStepA(timestep); 
-                RKState = 0;
+        case 0: advanceStepFull(timestep); 
                 break;
     }
+//     const int *UBound = Distribution.getHigh();
+//     const int *LBound = Distribution.getLow();
+// 
+//     switch (RKState) {
+//         case -2: RKState = -1;
+//                  break;
+//         case -1: RKState = 0;
+//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                         for (int m=LBound[4]; m<=UBound[4]; ++m)
+//                           TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+//                 advanceStepA(timestep/3.); 
+//                 break;
+//         case 0: advanceStepB(timestep/3.);         // Distribution = c0 = d1
+// 
+//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                         for (int m=LBound[4]; m<=UBound[4]; ++m)
+//                           T1(i,j,k,l,m) = Distribution(i,j,k,l,m);
+// 
+// 
+//                 advanceStepA(2*timestep/3.); 
+//                 RKState = 1;
+//                 break;
+//         case 1: advanceStepB(2*timestep/3.);        // Distribution = c1
+// 
+//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                         for (int m=LBound[4]; m<=UBound[4]; ++m) {
+//                           Distribution(i,j,k,l,m) 
+//                             = Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m);
+//                           T2(i,j,k,l,m) = Distribution(i,j,k,l,m); // = d2
+//                         }
+//                 advanceStepA(3*timestep/4.);
+// 
+//                 RKState = 2;
+//                 break;
+//         case 2: advanceStepB(3*timestep/4.);      // Distribution = c2
+//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                         for (int m=LBound[4]; m<=UBound[4]; ++m) {
+//                           Distribution(i,j,k,l,m) 
+//                               =  (1/4.)*TempDist(i,j,k,l,m) 
+//                                + (3/4.)*T1(i,j,k,l,m) 
+//                                +  Distribution(i,j,k,l,m)
+//                                - T2(i,j,k,l,m); 
+//                           TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+//                         } 
+//                 advanceStepA(timestep/3.); 
+//                 RKState = 0;
+//                 break;
+//     }
 }
 
 
@@ -576,14 +731,6 @@ template<class ForceField>
 void VlasovSpecies<ForceField>
         ::advanceStepA(double timestep) {
         
-    const int *DSize = Distribution.getHigh();
-    for (int i=0; i<=DSize[0]; ++i)
-      for (int j=0; j<=DSize[1]; ++j)
-        for (int k=0; k<=DSize[2]; ++k)
-          for (int l=0; l<=DSize[3]; ++l)
-            for (int m=0; m<=DSize[4]; ++m) 
-              TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
-
     InterpolationInitStep(Distribution);
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
@@ -591,7 +738,7 @@ void VlasovSpecies<ForceField>
 
 template<class ForceField>
 void VlasovSpecies<ForceField>
-        ::advanceStepB(VlasovDist &Out, double timestep) {
+        ::advanceStepB(double timestep) {
 
     advanceVel_x(timestep);
     advanceVel_y(timestep);
@@ -600,15 +747,19 @@ void VlasovSpecies<ForceField>
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
     
-    const int *DSize = Distribution.getHigh();
-    for (int i=0; i<=DSize[0]; ++i)
-      for (int j=0; j<=DSize[1]; ++j)
-        for (int k=0; k<=DSize[2]; ++k)
-          for (int l=0; l<=DSize[3]; ++l) 
-            for (int m=0; m<=DSize[4]; ++m) {
-              Out(i,j,k,l,m) = Distribution(i,j,k,l,m)-TempDist(i,j,k,l,m);
-              Distribution(i,j,k,l,m) = TempDist(i,j,k,l,m);
-    }
+}
+
+template<class ForceField>
+void VlasovSpecies<ForceField>
+        ::advanceStepFull(double timestep) {
+
+    advanceVel_x(timestep);
+    advanceVel_y(timestep);
+    advanceVel_z(timestep);
+
+    advanceSpace_x(timestep);
+    advanceSpace_y(timestep);
+    
 }
 
 
@@ -616,6 +767,41 @@ template<class ForceField>
 void VlasovSpecies<ForceField>::InterpolationInitStep(const VlasovDist &Dist) {
     f_infty = 1;
 }
+
+template<class ForceField>
+double VlasovSpecies<ForceField>::densityError() {
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+    double avg = 0;
+
+    for (int i=LBound[0]+2; i<=UBound[0]-2; ++i)
+      for (int j=LBound[1]+2; j<=UBound[1]-2; ++j)
+        for (int k=LBound[2]; k<=UBound[2]; ++k) 
+          for (int l=LBound[3]; l<=UBound[3]; ++l) 
+            for (int m=LBound[4]; m<=UBound[4]; ++m) 
+              avg += Distribution(i,j,k,l,m);
+    
+    avg = avg/double((UBound[0]-LBound[0]-3)*(UBound[1]-LBound[1]-3));
+    
+    cerr << "Partial Error in density: " << avg - 1 << endl;
+
+    avg =  boundary->AvgReduce(avg);
+    cerr << "Total Error in density: " << avg - 1 << endl;
+    return avg;
+}
+
+template<class ForceField>
+void VlasovSpecies<ForceField>::correctDensityError(double err) {
+    const int *UBound = Distribution.getHigh();
+    const int *LBound = Distribution.getLow();
+    for (int i=LBound[0]; i<=UBound[0]; ++i)
+      for (int j=LBound[1]; j<=UBound[1]; ++j)
+        for (int k=LBound[2]; k<=UBound[2]; ++k) 
+          for (int l=LBound[3]; l<=UBound[3]; ++l) 
+            for (int m=LBound[4]; m<=UBound[4]; ++m) 
+              Distribution(i,j,k,l,m) /= err;
+}
+
 
 template<class ForceField>
 double VlasovSpecies<ForceField>::epsilonLeft(double fj, double fjp) {

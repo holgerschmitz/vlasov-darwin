@@ -23,16 +23,5 @@
 
 #include "Vlas2d.h"
 
-// The dimensionality of the simulation
-#define ONE_DIMENSIONAL
-//#define TWO_DIMENSIONAL
-//#define THREE_DIMENSIONAL
-
-// When this is defined, we are compiling for the next version
-
-#define EL 1.602e-19
-#define ELMASS  9.108E-31
-#define EPS0 8.8542e-12
-#define CLIGHT  3.0e+8
 
 #define PI 3.1415926535897932384626433832795029

@@ -21,18 +21,17 @@ Helmholtz::Helmholtz() {
 void Helmholtz::solve( NumMatrix<double,2> &u,
 		               NumMatrix<double,2> &f,
                        NumMatrix<double,2> &lambda) {
-                       
-    NumMatrix<double,2> uold(u);
 
+    NumMatrix<double,2> uold(u);
     normalize(u);
 //    normalize(f);
-    double norm;
+    double error;
     do {
         uold=u;
         mgi(u,f,lambda);
-        norm=distance(uold,u);
-        cout << "Iterating Error = " << norm << " with epsilon = " << epsilon << endl;
-    } while (norm > epsilon);
+        error=distance(uold,u);
+//        cout << "Iterating Error = " << error << " with epsilon = " << epsilon << endl;
+    } while (error > epsilon);
 }
 
 void Helmholtz::mgi( NumMatrix<double,2> &u,
@@ -43,17 +42,17 @@ void Helmholtz::mgi( NumMatrix<double,2> &u,
     int my=u.getHigh(1)-1;
 
     if (ISODD(mx) || ISODD(my)) {
-        double null=1.e-10;
-        double error=2*null;
+        double error;
 
         NumMatrix<double,2> uold(u);
 
 //        normalize(f);
-        while(error > null) {
+        do {
             uold=u;
             gauss(u,f,lambda);
             error=distance(uold,u);
-        }
+        } while(error > epsilon);
+        
     } else {
         NumMatrix<double,2> un(Index::set(0,0),Index::set(mx/2+1,my/2+1));
         NumMatrix<double,2> fn(Index::set(0,0),Index::set(mx/2+1,my/2+1));

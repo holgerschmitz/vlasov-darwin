@@ -32,24 +32,25 @@ void Potential::Init () {
 
     n0 = -1;
 
-    Nx[0] = GlGridSize_x;
-    Nx[1] = GlGridSize_y;
+    LBound = GlGridLow;
+    HBound = GlGridHigh;
+
     dx[0] = GlGridSpace_x;
     dx[1] = GlGridSpace_y;
 
     cerr << "Grid Spacing is " << dx << endl;
-    cerr << "Grid Size is " << Nx << endl;
+    cerr << "Grid Size is " << LBound << " to " << HBound << endl;
 
 
     // resize grid
-	den.resize(Nx.Data());
-    Pot.resize(Nx.Data());
-    Ex.resize(Nx.Data());
+	den.resize(LBound.Data(),HBound.Data());
+    Pot.resize(LBound.Data(),HBound.Data());
+    Ex.resize(LBound.Data(),HBound.Data());
     Ex.clear();
-    Ey.resize(Nx.Data());
+    Ey.resize(LBound.Data(),HBound.Data());
     Ey.clear();
 
-    int gssx = GlGridSize_x+1, gssy = GlGridSize_y+1;
+    int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
     pois = new Poisson;
     pois->resize(
         PositionD(0.0,0.0), 
@@ -59,22 +60,24 @@ void Potential::Init () {
         Poisson::periodic
     );
 
-    PositionI GrSize(gssx,gssy);
-
-    In.resize(GrSize.Data());
+    In.resize(LBound.Data(),HBound.Data());
     
     DiagField.Init(this);
 
-    cerr << "Done Potential " << Nx << endl;
 }
 
-bool Potential::Execute (double timestep) {
+void Potential::Execute (double timestep) {
     
+    int lx0 = LBound[0], lx1 = LBound[0]+1;
+    int ly0 = LBound[1], ly1 = LBound[1]+1;
+    int mx0 = HBound[0], mx1 = HBound[0]-1;
+    int my0 = HBound[1], my1 = HBound[1]-1;
+
 	int i;
 	double dF;
 	ScalarField tmp;
-//    PositionI GS(GlGridSize_x,GlGridSize_y);
-	tmp.resize(Nx.Data());
+
+	tmp.resize(LBound.Data(),HBound.Data());
 	
 	// initialise
 	den.clear();
@@ -89,80 +92,70 @@ bool Potential::Execute (double timestep) {
 		pS->MakeRho();      //request to make particle density...
         
         // ... and get it
-        for (int j=0; j<GlGridSize_y; ++j) 
-            for (int i=0; i<GlGridSize_x; ++i) 
+        for (int j=ly0; j<=my0; ++j) 
+            for (int i=lx0; i<=mx0; ++i) 
 		        tmp(i,j) = dF*pS->Rho()(i,j);    
                 
 		den += tmp;         // and add
 	}
-
-    write_Scalar(den, "den.out");
     
-    for (int j=0; j<GlGridSize_y; ++j) 
-        for (int i=0; i<GlGridSize_x; ++i) { 
+    if(mainproc) write_Scalar(den, "den.out");
+    
+    for (int j=ly0; j<=my0; ++j) 
+        for (int i=lx0; i<=mx0; ++i) {
             In(i,j) = -(den(i,j)+n0);
 //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
         }
 
-//    write_Scalar(In, "In.out");
+    if(mainproc) write_Scalar(In, "In.out");
     
     pois->solve(In,Pot);
     
-    write_Scalar(Pot, "Pot.out");
+    if(mainproc) write_Scalar(Pot, "Pot.out");
 
-	for (int i=1; i<(GlGridSize_x-1); ++i) 
-        for (int j=0; j<GlGridSize_y; ++j) 
+	for (int i=lx1; i<=mx1; ++i) 
+        for (int j=ly0; j<=my0; ++j) 
     	    Ex(i,j) = (Pot(i-1,j) - Pot(i+1,j)) / (2*dx[0]);
 
-	for (int i=0; i<GlGridSize_x; ++i) 
-        for (int j=1; j<(GlGridSize_y-1); ++j) 
+	for (int i=lx0; i<=mx0; ++i) 
+        for (int j=ly1; j<=my1; ++j) 
     	    Ey(i,j) = (Pot(i,j-1) - Pot(i,j+1)) / (2*dx[1]);
 
 
     // Perform wrapping
-    for (int j=0; j<GlGridSize_y; ++j) {
-        Ex(0,j) = Ex(GlGridSize_x-2,j);
-	    Ex(GlGridSize_x-1,j) = Ex(1,j);
+    for (int j=ly0; j<=my0; ++j) {
+        Ex(lx0,j) = Ex(mx1,j);
+        Ex(mx0,j) = Ex(lx1,j);
         
-//          Ey(0,j) = Ey(GlGridSize_x-2,j);
-//  	    Ey(GlGridSize_x-1,j) = Ey(1,j);
     }
 
     // Perform wrapping
-    for (int i=0; i<GlGridSize_x; ++i) {
-//          Ex(i,0) = Ex(i,GlGridSize_y-2);
-//  	    Ex(i,GlGridSize_y-1) = Ex(i,1);
-        
-        Ey(i,0) = Ey(i,GlGridSize_y-2);
-	    Ey(i,GlGridSize_y-1) = Ey(i,1);
+    for (int i=lx0; i<=mx0; ++i) {
+        Ey(i,ly0) = Ey(i,my1);
+        Ey(i,my0) = Ey(i,ly1);
     }
 
-    write_Scalar(Ex, "Ex.out");
-    write_Scalar(Ey, "Ey.out");
+    if(mainproc) write_Scalar(Ex, "Ex.out");
+    if(mainproc) write_Scalar(Ey, "Ey.out");
 
-    DiagField.Execute();
-
-
-//    Task::Execute();
-  	return false;
-    
+    DiagField.Execute();    
 }
 
-void write_Scalar(ScalarField &Field, const char* fname) {
+void write_Scalar(ScalarField &Field, const char* fname, double offset) {
     ofstream O(fname);
-    for (int i=0; i<=Field.getHigh(0); ++i) {
-        for (int j=0; j<=Field.getHigh(1); ++j)
+    for (int i=Field.getLow(0); i<=Field.getHigh(0); ++i) {
+        for (int j=Field.getLow(1); j<=Field.getHigh(1); ++j)
             O   << i << " "  << j << " "  
-                << Field(i,j) << endl;
+                << Field(i,j)-offset << endl;
         O << endl;
     }
 }
 
-void write_Scalar(ScalarField &Field, ostream& O) {
-    for (int i=0; i<=Field.getHigh(0); ++i) {
-        for (int j=0; j<=Field.getHigh(1); ++j)
+void write_Scalar(ScalarField &Field, ostream& O, double offset) {
+    for (int i=Field.getLow(0); i<=Field.getHigh(0); ++i) {
+        for (int j=Field.getLow(1); j<=Field.getHigh(1); ++j)
             O   << i << " "  << j << " "  
-                << Field(i,j) << endl;
+                << Field(i,j)-offset << endl;
         O << endl;
     }
 }

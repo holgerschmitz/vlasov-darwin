@@ -1,3 +1,4 @@
+// -*- C++ -*-
 #include "wrapvlasov.h"
 
 /** @brief Implements the VlasovInitialiser interface to create a two stream
@@ -31,11 +32,10 @@ class VlasovInitialiser {
 
 template<class ForceField>
 class VlasovMaxwellInit : public VlasovInitialiser {
-    protected:
-        double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
-        VelocityD u_stream;  ///< streaming vlocity
-        VelocityD v_th;      ///< thermal velocity
-        PositionI Nx;       ///< Size of the grid
+ protected:
+  double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
+    VelocityD u_stream;  ///< streaming vlocity
+      VelocityD v_th;      ///< thermal velocity
         PositionI k_perturb;
         double n_perturb;
         
@@ -52,11 +52,37 @@ class VlasovMaxwellInit : public VlasovInitialiser {
 };
 
 template<class ForceField>
+class VlasovTwoMaxwellInit : public VlasovInitialiser {
+    protected:
+        double N1;           ///< density in particles\f$m^{-{\rm dim}}\f$
+        double N2;           ///< density in particles\f$m^{-{\rm dim}}\f$
+        VelocityD u_stream1;  ///< streaming vlocity
+        VelocityD u_stream2;  ///< streaming vlocity
+        VelocityD v_th1;      ///< thermal velocity
+        VelocityD v_th2;      ///< thermal velocity
+        PositionI k_perturb1;
+        PositionI k_perturb2;
+        double n_perturb1;
+        double n_perturb2;
+        
+        // pointer to the owning VlasovSpecies class
+        VlasovSpecies<ForceField> *pVlasov; 
+    public:
+		/// Default constructor
+        VlasovTwoMaxwellInit(VlasovSpecies<ForceField> *);
+		/// Destructor
+        virtual ~VlasovTwoMaxwellInit();
+
+        virtual void initialise(VlasovDist &dist,
+                                const VelocityD &VelRange_);
+};
+
+template<class ForceField>
 class VlasovWaveGenInit : public VlasovInitialiser {
     protected:
         double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
         VelocityD v_th;      ///< thermal velocity
-        PositionI Nx;       ///< Size of the grid
+        VelocityD u_stream;  ///< streaming vlocity
         double n_perturb;
         
         // pointer to the owning VlasovSpecies class

@@ -31,7 +31,7 @@
 #include "diaghelper.h"
 #include <vector>
 
-typedef VlasovSpecies<EBFieldForce> ESVlasovSpecies;
+typedef VlasovSpecies<EFieldForce> ESVlasovSpecies;
 
 typedef PtrWrapper<ESVlasovSpecies> WESVlasovSpecies;
 
@@ -45,7 +45,7 @@ typedef PtrWrapper<ESVlasovSpecies> WESVlasovSpecies;
  */
 class Potential {
 	protected:
-		PositionI Nx;    ///< Size of the grid
+		PositionI LBound,HBound;    ///< Size of the grid
 		PositionD dx;        ///< grid spacing
 
 		ScalarField Pot;   ///< The grid containing the potential values
@@ -61,28 +61,30 @@ class Potential {
         ScalarField Ex,Ey;
         
         ES_EFieldEnergy DiagField;
+        bool mainproc;
 	public:  
 		/// Default constructor
-		Potential () {};
+		Potential (bool mainproc_) : mainproc(mainproc_) {}
         /// Destructor
-		virtual ~Potential () {};
+		virtual ~Potential () {}
 
 
         ScalarField &GetEx() { return Ex; }
         ScalarField &GetEy() { return Ey; }
 
         /// Returns the grid size
-		virtual PositionI GetNx () const { return Nx; };
+		virtual const PositionI &GetLBound () const { return LBound; };
+		virtual const PositionI &GetHBound () const { return HBound; };
 
 		virtual void Init ();
-        virtual bool Execute (double timestep);
+        virtual void Execute (double timestep);
 
         void AddSpecies(ESVlasovSpecies* pS);
 
 }; // Potential
 
-void write_Scalar(ScalarField &, const char*);
-void write_Scalar(ScalarField &, ostream&);
+void write_Scalar(ScalarField &, const char*, double offset=0.0);
+void write_Scalar(ScalarField &, ostream&, double offset=0.0);
 
 #endif // POTENTIAL_H
 

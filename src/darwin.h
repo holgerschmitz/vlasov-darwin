@@ -28,6 +28,7 @@
 #include "helmholtz.h"
 #include "wrapvlasov.h"
 #include "diaghelper.h"
+#include "potential.h"
 #include <vector>
 
 typedef VlasovSpecies<EMDarwinForce> DarwinVlasovSpecies;
@@ -39,16 +40,21 @@ typedef PtrWrapper<DarwinVlasovSpecies> WDarwinVlasovSpecies;
  *  Maxwell's equation.
  */
 class Darwin {
-	protected:
-		PositionI Nx;       ///< Size of the grid
-		PositionD dx;       ///< grid spacing
-		double dV;		    ///< Volume of a grid cell in \f${\rm m}^3\f$
+ protected:
+  /// Lower and upper bound of the numerical grid
+  PositionI LBound,HBound;
+  /** @brief grid spacing */
+  PositionD dx;
+  /** @brief A timestep counter */
+  int tstep;
+  /** @brief Volume of a grid cell in \f${\rm m}^3\f$ */
+  double dV;		    ///< Volume of a grid cell in \f${\rm m}^3\
 
-        double n0;          ///< Additional density
+    double n0;          ///< Additional density
         double csc;         ///< the ratio (c_s / c)^2
 
+        /// Container of all the Species that contribute to the charge density
 		vector<WDarwinVlasovSpecies> species;
-        ///< Container of all the Species that contribute to the charge density
         
         ScalarField In, Lambda, Out;            
         Poisson *pois;
@@ -57,38 +63,50 @@ class Darwin {
         /// The grid containing the potential values
 		ScalarField Pot, Az;
         ScalarField Ex, Ey, Ez,  Bx, By, Bz;
+        ScalarField Etx, Ety, Theta, DivEt;
         /** @brief Contains the charge and current densities 
          * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
          */
 		ScalarField den, om2, jx, jy, jz, sx, sy, sz;
         ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
         
+        bool mainproc;
 	public:  
 		/// Default constructor
-		Darwin () {};
+		Darwin (bool mainproc_) : mainproc(mainproc_) {}
         /// Destructor
-		virtual ~Darwin () {};
+		virtual ~Darwin () {}
 
-
+        /// Return the scalar field that stores \f$E_x\f$
         ScalarField &GetEx() { return Ex; }
+        /// Return the scalar field that stores \f$E_y\f$
         ScalarField &GetEy() { return Ey; }
+        /// Return the scalar field that stores \f$E_z\f$
         ScalarField &GetEz() { return Ez; }
 
+        /// Return the scalar field that stores \f$B_x\f$
         ScalarField &GetBx() { return Bx; }
+        /// Return the scalar field that stores \f$B_y\f$
         ScalarField &GetBy() { return By; }
+        /// Return the scalar field that stores \f$B_z\f$
         ScalarField &GetBz() { return Bz; }
 
         /// Returns the grid size
-		virtual PositionI GetNx () const { return Nx; };
+		virtual const PositionI &GetLBound () const { return LBound; };
+		virtual const PositionI &GetHBound () const { return HBound; };
 
+        /// Get parameters Nx and dx and initialize the potential grid
 		virtual void Init ();
+                
         virtual bool Execute (double timestep);
 
         void AddSpecies(DarwinVlasovSpecies* pS);
+    private:
+        Darwin() {}
+        Darwin(Darwin &) {}
+        void clearDiv(ScalarField &Fx, ScalarField &Fy); 
 
 }; // Darwin
-
-void write_Scalar(ScalarField &, const char*);
 
 #endif // POTENTIAL_H
 

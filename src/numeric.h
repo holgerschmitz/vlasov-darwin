@@ -23,6 +23,8 @@
  */
  
 #include <valarray>
+#include <stdlib.h>
+#include "config.h"
  
 #ifndef NUMERIC_H
 #define NUMERIC_H
