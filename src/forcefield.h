@@ -91,6 +91,56 @@ class EBFieldForce : public ForceFieldBase {
       DistMomentRho *getDerivedRho();
 };
 
+/** @brief Implements a forcefield with a constant electric and magnetic
+ *  field for plugging into the VlasovSpecies
+ */
+class ConstEBFieldForce : public ForceFieldBase {
+  public:
+      class VoidPotential {
+        public:
+            VoidPotential(bool) {}
+            //VoidPotential(Boundary*) {}
+            void Init() {}
+            void Execute(double&) {}
+            void AddSpecies(ConstEBFieldForce*) {}
+            /// Returns the lower bound of the numerical grid
+	        const PositionI &GetLBound () const { return GlGridLow; }
+            /// Returns the upper bound of the numerical grid
+	        const PositionI &GetHBound () const { return GlGridHigh; }
+      };
+      typedef VoidPotential FieldType;      
+  protected:
+      /// Pointer to the potential
+      VoidPotential* pPot;
+  private:
+      VelocityD B;
+      VelocityD E;
+      DistMomentVelocities *Veloc;
+      /// Scaling constant
+      double dttx;
+  public:
+      
+      ConstEBFieldForce(SpeciesData &data) : ForceFieldBase(data) {}
+      
+      /** The force at one position given the velocity.
+       *  Actually the displacement in the velocity space is returned.
+       *  The scheme of Boris is used for calculating the acceleration
+       */
+      VelocityD Force(const PositionI &Pos, 
+                      const VelocityD &Vel,
+                      double dt);
+
+       /// Initialises the force field
+      void Init(double dttx_);
+      
+      /// Sets the magnetic field 
+      void setBField(VelocityD B_);
+      /// Sets the magnetic field 
+      void setEField(VelocityD E_);
+      
+      DistMomentVelocities *getDerivedVelocities();
+};
+
 class Darwin;
 
 /** @brief Implements a force field that plugs into the concrete advancers

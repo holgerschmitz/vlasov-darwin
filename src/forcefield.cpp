@@ -121,6 +121,77 @@ DistMomentRho *EBFieldForce::getDerivedRho() {
   return Rho;
 }
 
+// -------------------------------------------------------------------
+// ConstEBFieldForce
+// -------------------------------------------------------------------
+
+void ConstEBFieldForce::Init(double dttx_) {
+    dttx = dttx_;
+    Veloc = new DistMomentVelocities(boundary);
+    derivedFields.add(Veloc);
+}
+
+void ConstEBFieldForce::setEField(VelocityD E_) { E = E_; }
+
+void ConstEBFieldForce::setBField(VelocityD B_) { B = B_; }
+
+VelocityD ConstEBFieldForce::Force(const PositionI &Pos, 
+                                   const VelocityD &Vel,
+                                   double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = Charge*E[0];
+    double Ey = Charge*E[1];
+    double Ez = Charge*E[2];
+
+    double Bx = Charge*B[0];
+    double By = Charge*B[1];
+    double Bz = Charge*B[2];
+
+    // Calculate V-minus
+    double Vmx = vx+0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
+    
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
+    
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
+    
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
+    
+    // c) and finally V-plus
+    double Vpx = Vmx + vpry*sz-vprz*sy;
+    double Vpy = Vmy + vprz*sx-vprx*sz;
+    double Vpz = Vmz + vprx*sy-vpry*sx;
+    
+    // Calculate new velocity minus old velocity
+    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
+    
+   
+    return VelocityD(Vdiffx, Vdiffy, Vdiffz);
+        
+}
+
+DistMomentVelocities *ConstEBFieldForce::getDerivedVelocities() {
+  return Veloc;
+}
 
 
 // -------------------------------------------------------------------
