@@ -320,14 +320,14 @@ typedef GenericEMForceBoris2<
 
 typedef PtrWrapper<ConstEBFieldForce> pConstEBFieldForce;
 
-typedef GenericEMForce<
+typedef GenericEMForceBoris2<
   GenericEMForceBase_FullEM<Darwin>
 > EMDarwinForce;
 
 typedef PtrWrapper<EMDarwinForce> pEMDarwinForce;
 
 class Magnetostatic;
-typedef GenericEMForce<
+typedef GenericEMForceBoris2<
   GenericEMForceBase_FullEM<Magnetostatic>
 > MagnetostaticForce;
 
