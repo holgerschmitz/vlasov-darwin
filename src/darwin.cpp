@@ -299,11 +299,7 @@ bool Darwin::Execute () {
   
   pois->solve(Az,jz, bound.getNumBoundary(Az));
 
-    
-//  for (int i=lx0; i<=mx0; ++i) 
-//    for (int j=ly0; j<=my0; ++j) 
-//      Az(i,j) *= -1;
-           
+               
   /* *************************************
    * ... resulting in Bx and By
    */

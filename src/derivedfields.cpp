@@ -212,6 +212,17 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
           }
     }
   }
+    std::cout << "Velocity Moments:\n"
+      << "  Jx = " << Jx(1,1) << "\n"
+      << "  Jy = " << Jy(1,1) << "\n"
+      << "  Jz = " << Jz(1,1) << "\n"
+      << "  Vxx = " << Vxx(1,1) << "\n"
+      << "  Vxy = " << Vxy(1,1) << "\n"
+      << "  Vxz = " << Vxz(1,1) << "\n"
+      << "  Vyy = " << Vyy(1,1) << "\n"
+      << "  Vyz = " << Vyz(1,1) << "\n"
+      << "  Vzz = " << Vzz(1,1) << "\n";
+    
     
   boundary->ScalarFieldCombine(Jx);
   boundary->ScalarFieldCombine(Jy);
@@ -251,9 +262,9 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     VelocityI vi;
     VelocityD V, Vm, Vp;
     double d, dpx, dmx, dpy, dmy, dpz, dmz;
-    double dpxpy, dpxmy, dmxpy, dmxmy;
-    double dpxpz, dpxmz, dmxpz, dmxmz;
-    double dpypz, dpymz, dmypz, dmymz;
+//    double dpxpy, dpxmy, dmxpy, dmxmy;
+//    double dpxpz, dpxmz, dmxpz, dmxmz;
+//    double dpypz, dpymz, dmypz, dmymz;
     
     Jx.clear();
     Jy.clear();
@@ -278,7 +289,7 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
             for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
               V = vlasov.velocity(vi);
               Vm = (vlasov.velocity(vi-VelocityI(1,1,1)) + V)*0.5;
-              Vp = (vlasov.velocity(vi+VelocityI(1,1,1)) + V)*0.5;
+//              Vp = (vlasov.velocity(vi+VelocityI(1,1,1)) + V)*0.5;
               d = dist(i,j,vi[0],vi[1],vi[2]);
               dpx = (vi[0]<H[2])?dist(i,j,vi[0]+1,vi[1],vi[2]):0;
               dmx = (vi[0]>L[2])?dist(i,j,vi[0]-1,vi[1],vi[2]):0;
@@ -287,47 +298,72 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               dpz = (vi[2]<H[4])?dist(i,j,vi[0],vi[1],vi[2]+1):0;
               dmz = (vi[2]>L[4])?dist(i,j,vi[0],vi[1],vi[2]-1):0;
 
-              dpxpy = ((vi[0]<H[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]+1,vi[1]+1,vi[2]):0;
-              dmxpy = ((vi[0]>L[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]-1,vi[1]+1,vi[2]):0;
-              dpxmy = ((vi[0]<H[2])&&(vi[1]>L[3]))?dist(i,j,vi[0]+1,vi[1]-1,vi[2]):0;
-              dmxmy = ((vi[0]>L[2])&&(vi[1]>L[3]))?dist(i,j,vi[0]-1,vi[1]-1,vi[2]):0;
+//              dpxpy = ((vi[0]<H[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]+1,vi[1]+1,vi[2]):0;
+//              dmxpy = ((vi[0]>L[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]-1,vi[1]+1,vi[2]):0;
+//              dpxmy = ((vi[0]<H[2])&&(vi[1]>L[3]))?dist(i,j,vi[0]+1,vi[1]-1,vi[2]):0;
+//              dmxmy = ((vi[0]>L[2])&&(vi[1]>L[3]))?dist(i,j,vi[0]-1,vi[1]-1,vi[2]):0;
+//
+//              dpxpz = ((vi[0]<H[2])&&(vi[2]<H[4]))?dist(i,j,vi[0]+1,vi[1],vi[2]+1):0;
+//              dmxpz = ((vi[0]>L[2])&&(vi[2]<H[4]))?dist(i,j,vi[0]-1,vi[1],vi[2]+1):0;
+//              dpxmz = ((vi[0]<H[2])&&(vi[2]>L[4]))?dist(i,j,vi[0]+1,vi[1],vi[2]-1):0;
+//              dmxmz = ((vi[0]>L[2])&&(vi[2]>L[4]))?dist(i,j,vi[0]-1,vi[1],vi[2]-1):0;
+//
+//              dpypz = ((vi[1]<H[3])&&(vi[2]<H[4]))?dist(i,j,vi[0],vi[1]+1,vi[2]+1):0;
+//              dmypz = ((vi[1]>L[3])&&(vi[2]<H[4]))?dist(i,j,vi[0],vi[1]-1,vi[2]+1):0;
+//              dpymz = ((vi[1]<H[3])&&(vi[2]>L[4]))?dist(i,j,vi[0],vi[1]+1,vi[2]-1):0;
+//              dmymz = ((vi[1]>L[3])&&(vi[2]>L[4]))?dist(i,j,vi[0],vi[1]-1,vi[2]-1):0;
 
-              dpxpz = ((vi[0]<H[2])&&(vi[2]<H[4]))?dist(i,j,vi[0]+1,vi[1],vi[2]+1):0;
-              dmxpz = ((vi[0]>L[2])&&(vi[2]<H[4]))?dist(i,j,vi[0]-1,vi[1],vi[2]+1):0;
-              dpxmz = ((vi[0]<H[2])&&(vi[2]>L[4]))?dist(i,j,vi[0]+1,vi[1],vi[2]-1):0;
-              dmxmz = ((vi[0]>L[2])&&(vi[2]>L[4]))?dist(i,j,vi[0]-1,vi[1],vi[2]-1):0;
+//  These would be the integration schemes where the primitive of the distribution
+//  has been approximated using 4 or 16 points. However we find that for the current
+//  densities and the mixed moments this is equivalent to the much simpler summation.
+//  Only the non-mixed second order moments have to be evaluated using the higher order
+//  scheme.
+//              Jx(i,j) += d*(0.5*dvx + Vm[0]) + dvx*(dpx-dmx)/24.;
+//              Jy(i,j) += d*(0.5*dvy + Vm[1]) + dvy*(dpy-dmy)/24.;
+//              Jz(i,j) += d*(0.5*dvz + Vm[2]) + dvz*(dpz-dmz)/24.;
+//
+//              Vxy(i,j) += ( 24*Vm[0]*(dvy*(12*d - dmy + dpy) + 24*d*Vm[1]) 
+//                            +dvx*(dvy*(144*d - 12*dmy + 12*dpy - 12*dmx 
+//                                      + dmxmy - dmxpy + 12*dpx - dpxmy +  dpxpy) 
+//                              + 24*(12*d - dmx + dpx)*Vm[1]))/576.;
+//
 
-              dpypz = ((vi[1]<H[3])&&(vi[2]<H[4]))?dist(i,j,vi[0],vi[1]+1,vi[2]+1):0;
-              dmypz = ((vi[1]>L[3])&&(vi[2]<H[4]))?dist(i,j,vi[0],vi[1]-1,vi[2]+1):0;
-              dpymz = ((vi[1]<H[3])&&(vi[2]>L[4]))?dist(i,j,vi[0],vi[1]+1,vi[2]-1):0;
-              dmymz = ((vi[1]>L[3])&&(vi[2]>L[4]))?dist(i,j,vi[0],vi[1]-1,vi[2]-1):0;
+              Jx(i,j) += V[0]*d;
+              Jy(i,j) += V[1]*d;
+              Jz(i,j) += V[2]*d;
 
 
-              Jx(i,j) += 0.25*(Vm[0]*(d+dmx) + Vp[0]*(d+dpx) );
-              Jy(i,j) += 0.25*(Vm[1]*(d+dmy) + Vp[1]*(d+dpy) );
-              Jz(i,j) += 0.25*(Vm[2]*(d+dmz) + Vp[2]*(d+dpz) );
+              Vxy(i,j) += V[0]*V[1]*d;
+              Vxz(i,j) += V[0]*V[2]*d;
+              Vyz(i,j) += V[1]*V[2]*d;
 
-              Vxx(i,j) += 0.25*(Vm[0]*Vm[0]*(d+dmx) + Vp[0]*Vp[0]*(d+dpx) );
-              Vxy(i,j) += 0.0625*(    Vp[1]*Vp[0]*(d+dpx+dpy+dpxpy)
-                                     +Vp[1]*Vm[0]*(d+dmx+dpy+dmxpy)
-                                     +Vm[1]*Vp[0]*(d+dpx+dmy+dpxmy)
-                                     +Vm[1]*Vm[0]*(d+dmx+dmy+dmxmy)
-                                 );
-              Vxz(i,j) += 0.0625*(    Vp[2]*Vp[0]*(d+dpx+dpz+dpxpz)
-                                     +Vp[2]*Vm[0]*(d+dmx+dpz+dmxpz)
-                                     +Vm[2]*Vp[0]*(d+dpx+dmz+dpxmz)
-                                     +Vm[2]*Vm[0]*(d+dmx+dmz+dmxmz)
-                                 );
-              Vyy(i,j) += 0.25*(Vm[1]*Vm[1]*(d+dmy) + Vp[1]*Vp[1]*(d+dpy) );
-              Vyz(i,j) += 0.0625*(    Vp[2]*Vp[1]*(d+dpy+dpz+dpypz)
-                                     +Vp[2]*Vm[1]*(d+dmy+dpz+dmypz)
-                                     +Vm[2]*Vp[1]*(d+dpy+dmz+dpymz)
-                                     +Vm[2]*Vm[1]*(d+dmy+dmz+dmymz)
-                                 );
-              Vzz(i,j) += 0.25*(Vm[2]*Vm[2]*(d+dmz) + Vp[2]*Vp[2]*(d+dpz) );
+//            Only these are higher order schemes
+          
+              Vxx(i,j) += dvx*dvx*(59*d - 7*dmx + 8*dpx)/180. 
+                        + dvx*Vm[0]*(d - dmx/12. + dpx/12.) 
+                        + d*Vm[0]*Vm[0];
+
+              Vyy(i,j) += dvy*dvy*(59*d - 7*dmy + 8*dpy)/180. 
+                        + dvy*Vm[1]*(d - dmy/12. + dpy/12.) 
+                        + d*Vm[1]*Vm[1];
+                        
+              Vzz(i,j) += dvz*dvz*(59*d - 7*dmz + 8*dpz)/180. 
+                        + dvz*Vm[2]*(d - dmz/12. + dpz/12.) 
+                        + d*Vm[2]*Vm[2];
             }
         }
     }
+    
+    std::cout << "Velocity Moments:\n"
+      << "  Jx = " << Jx(1,1) << "\n"
+      << "  Jy = " << Jy(1,1) << "\n"
+      << "  Jz = " << Jz(1,1) << "\n"
+      << "  Vxx = " << Vxx(1,1) << "\n"
+      << "  Vxy = " << Vxy(1,1) << "\n"
+      << "  Vxz = " << Vxz(1,1) << "\n"
+      << "  Vyy = " << Vyy(1,1) << "\n"
+      << "  Vyz = " << Vyz(1,1) << "\n"
+      << "  Vzz = " << Vzz(1,1) << "\n";
     
     boundary->ScalarFieldCombine(Jx);
     boundary->ScalarFieldCombine(Jy);
