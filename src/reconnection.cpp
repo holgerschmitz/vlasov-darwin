@@ -274,7 +274,7 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
 //      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*sin(2*PIl*Xi[1]/Ny);
       double vz_pert = 0;
       
-      double N_pert = vz1*sin(2*PIl*Xi[1]/Ny);
+      double N_pert = vz1*cos(2*PIl*Xi[0]/Nx);
       double N;
       double N1 = (N0-N_pert)*sc1*sc1;
       double N2 = (N0-N_pert)*sc2*sc2;
