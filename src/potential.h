@@ -31,6 +31,9 @@ class Potential {
       /// grid spacing
 		  PositionD dx;
         
+      /** @brief Volume of a grid cell in \f${\rm m}^3\f$ */
+      double dV;       
+
       /// The grid containing the potential values
   		ScalarField Pot;   
 

@@ -24,6 +24,8 @@ void Potential::Init () {
     dx[0] = Parameters::instance().gridSpace_x();
     dx[1] = Parameters::instance().gridSpace_y();
 
+    dV = Parameters::instance().volumeQuant();
+
     std::cout << "Grid Spacing is " << dx << std::endl;
     std::cout << "Grid Size is " << LBound << " to " << HBound << std::endl;
 
@@ -72,22 +74,22 @@ void Potential::Execute () {
 	for (int s = species.size() - 1; s >= 0; s--) {
 		EFieldForce *pS = species[s];
 
-		dF = pS->getCharge();
+		dF = pS->getCharge()/dV;
         
-        DistMomentRho *distRho = pS->getDerivedRho();
+    DistMomentRho *distRho = pS->getDerivedRho();
         
         // ... and get it
-        ScalarField &rho =distRho->getRho();
-        for (int j=ly0; j<=my0; ++j) 
-            for (int i=lx0; i<=mx0; ++i) 
-		        tmp(i,j) = dF*rho(i,j);    
+    ScalarField &rho =distRho->getRho();
+    for (int j=ly0; j<=my0; ++j) 
+      for (int i=lx0; i<=mx0; ++i) 
+		    tmp(i,j) = dF*rho(i,j);    
                 
 		den += tmp;         // and add
 	}
         
-    for (int j=ly0; j<=my0; ++j) 
-        for (int i=lx0; i<=mx0; ++i) {
-            In(i,j) = -(den(i,j)+n0);
+  for (int j=ly0; j<=my0; ++j) 
+    for (int i=lx0; i<=mx0; ++i) {
+      In(i,j) = -(den(i,j)+n0);
 //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
         }
 
