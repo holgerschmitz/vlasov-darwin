@@ -165,9 +165,11 @@ template<
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
     if ( (tstep%20) == 0 ) {
-        double err = densityError();
-        if (densityGoal!=0)
+//        double err = densityError();
+        if (densityGoal!=0) {
+          double err = densityError();
           correctDensityError(err);
+        } 
     }
     tstep++;
     InterpolationInitStep(Distribution);
