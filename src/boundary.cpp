@@ -359,8 +359,18 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     
     int periodic[2] = { true, true};
     
-    dims[0] = int(sqrt(ComSize+0.01));
+    double Lx = High[0]-Low[0]-3;
+    double Ly = High[1]-Low[1]-3;
+    
+    dims[0] = int(sqrt( Lx*(ComSize+0.001) / Ly ));
+    if (dims[0]<1) dims[0]=1;
+    
     dims[1] = int(ComSize/dims[0]);
+    if (dims[1]<1)
+    {
+      dims[1]=1;
+      dims[0]=ComSize;
+    }
     
     MPI_Cart_create(MPI_COMM_WORLD,2,dims,periodic,true,&comm); 
     MPI_Comm_rank(comm,&ComRank);
