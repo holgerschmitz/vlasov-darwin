@@ -2,7 +2,7 @@
 // $Id$
 
 #include "index.h"
-#include <matrix.H>
+#include "matrix.h"
 #include "Vlas2d.h"
 
 /** @file vlasov.h

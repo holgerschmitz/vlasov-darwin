@@ -8,8 +8,8 @@
 // ----------------------------------------------------------------------
 // Potential
 
-void Potential::AddSpecies(ESVlasovSpecies* pS) { 	
-    species.push_back(WESVlasovSpecies(pS));
+void Potential::AddSpecies(EFieldForce* pS) { 	
+    species.push_back(pEFieldForce(pS));
 }
 
 /// Get parameters Nx and dx and initialize the potential grid
@@ -70,17 +70,17 @@ void Potential::Execute (double timestep) {
 
     // iterate through the species
 	for (int s = species.size() - 1; s >= 0; s--) {
-		ESVlasovSpecies* pS = species[s];
+		EFieldForce *pS = species[s];
 
 		dF = pS->getCharge();
         
-//        cerr << "Creating Density\n";
-		pS->MakeRho();      //request to make particle density...
+        DistMomentRho *distRho = pS->getDerivedRho();
         
         // ... and get it
+        ScalarField &rho =distRho->getRho();
         for (int j=ly0; j<=my0; ++j) 
             for (int i=lx0; i<=mx0; ++i) 
-		        tmp(i,j) = dF*pS->Rho()(i,j);    
+		        tmp(i,j) = dF*rho(i,j);    
                 
 		den += tmp;         // and add
 	}

@@ -371,11 +371,10 @@ double PosFluxCons3rdOrder<ForceField>::interpolateY(
                 const PositionI &Xi,
                 const VelocityI &Vi,
                 int j,
-                double alpha,
-                const VlasovDist &Dist) {
-    double fjp = Dist(Xi[0], j+1,Vi[0],Vi[1],Vi[2]);
-    double fj  = Dist(Xi[0], j  ,Vi[0],Vi[1],Vi[2]);
-    double fjm = Dist(Xi[0], j-1,Vi[0],Vi[1],Vi[2]);
+                double alpha) {
+    double fjp = Distribution(Xi[0], j+1,Vi[0],Vi[1],Vi[2]);
+    double fj  = Distribution(Xi[0], j  ,Vi[0],Vi[1],Vi[2]);
+    double fjm = Distribution(Xi[0], j-1,Vi[0],Vi[1],Vi[2]);
     
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
@@ -390,11 +389,10 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVx(
                 const PositionI &Xi,
                 const VelocityI &Vi,
                 int j,
-                double alpha,
-                const VlasovDist &Dist) {
-    double fjp = Dist(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
-    double fj  = Dist(Xi[0],Xi[1],j  ,Vi[1],Vi[2]);
-    double fjm = Dist(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+                double alpha) {
+    double fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+    double fj  = Distribution(Xi[0],Xi[1],j  ,Vi[1],Vi[2]);
+    double fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
@@ -409,11 +407,10 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVy(
                 const PositionI &Xi,
                 const VelocityI &Vi,
                 int j,
-                double alpha,
-                const VlasovDist &Dist) {
-    double fjp = Dist(Xi[0],Xi[1],Vi[0],j+1,Vi[2]);
-    double fj  = Dist(Xi[0],Xi[1],Vi[0],j  ,Vi[2]);
-    double fjm = Dist(Xi[0],Xi[1],Vi[0],j-1,Vi[2]);
+                double alpha) {
+    double fjp = Distribution(Xi[0],Xi[1],Vi[0],j+1,Vi[2]);
+    double fj  = Distribution(Xi[0],Xi[1],Vi[0],j  ,Vi[2]);
+    double fjm = Distribution(Xi[0],Xi[1],Vi[0],j-1,Vi[2]);
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
@@ -428,11 +425,10 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVz(
                 const PositionI &Xi,
                 const VelocityI &Vi,
                 int j,
-                double alpha,
-                const VlasovDist &Dist) {
-    double fjp = Dist(Xi[0],Xi[1],Vi[0],Vi[1],j+1);
-    double fj  = Dist(Xi[0],Xi[1],Vi[0],Vi[1],j  );
-    double fjm = Dist(Xi[0],Xi[1],Vi[0],Vi[1],j-1);
+                double alpha) {
+    double fjp = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j+1);
+    double fj  = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j  );
+    double fjm = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j-1);
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector

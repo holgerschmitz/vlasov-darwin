@@ -1,14 +1,13 @@
 // -*- C++ -*-
 // $Id$
 
-#include "potential.h"
 #include "darwin.h"
 
 // ----------------------------------------------------------------------
 // Darwin
 
-void Darwin::AddSpecies(DarwinVlasovSpecies* pS) { 	
-    species.push_back(WDarwinVlasovSpecies(pS));
+void Darwin::AddSpecies(EMDarwinForce* pS) { 	
+    species.push_back(pEMDarwinForce(pS));
 }
 
 void Darwin::Init () {
@@ -162,23 +161,23 @@ bool Darwin::Execute (double timestep) {
     
   // iterate through the species
   for (int s = species.size() - 1; s >= 0; s--) {
-    DarwinVlasovSpecies* pS = species[s];
+    EMDarwinForce* pS = species[s];
 
     dF = pS->getCharge()/dV;
     dF2 = dF * pS->getCharge();
         
     //        cerr << "Creating Density\n";
-    pS->MakeRho();          //request to make particle density.
-    pS->MakeJs();           //request to make particle current.
-
-        
+    DistMomentRho *distRho = pS->getDerivedRho();
+    DistMomentVelocities *distVel = pS->getDerivedVelocities();
+    
     // ... and get it
+    ScalarField &rho = distRho->getRho();
     for (int j=ly0; j<=my0; ++j) 
       for (int i=lx0; i<=mx0; ++i) {
-	    den(i,j) += dF*pS->Rho()(i,j);
-	    om2(i,j) += dF2*pS->Rho()(i,j);
+	    den(i,j) += dF*rho(i,j);
+	    om2(i,j) += dF2*rho(i,j);
 
-	    jt = pS->getJ(i,j);
+	    jt = distVel->getJ(i,j);
 	    jx(i,j) += dF*jt[0];
 	    jy(i,j) += dF*jt[1];
 	    jz(i,j) += dF*jt[2];
@@ -187,7 +186,7 @@ bool Darwin::Execute (double timestep) {
 	    sy(i,j) += dF2*jt[1];
 	    sz(i,j) += dF2*jt[2];
 
-	    vvt =  pS->getVVTens(i,j);
+	    vvt =  distVel->getVVTens(i,j);
 	    vxx(i,j) +=  dF*vvt[0];
 	    vxy(i,j) +=  dF*vvt[1];
 	    vxz(i,j) +=  dF*vvt[2];
@@ -198,23 +197,23 @@ bool Darwin::Execute (double timestep) {
   }
 
   /// @todo Diagnostic should be moved to separate classes
-  if(mainproc /*&& ((tstep%10)==0)*/) {
-    //if (false) {
-    write_Scalar(den, "den.out");
-    write_Scalar(om2, "om2.out");
-    write_Scalar(jx, "jx.out");
-    write_Scalar(jy, "jy.out");
-    write_Scalar(jz, "jz.out");
-    write_Scalar(sx, "sx.out");
-    write_Scalar(sy, "sy.out");
-    write_Scalar(sz, "sz.out");
-    write_Scalar(vxx, "vxx.out");
-    write_Scalar(vxy, "vxy.out");
-    write_Scalar(vxz, "vxz.out");
-    write_Scalar(vyy, "vyy.out");
-    write_Scalar(vyz, "vyz.out");
-    write_Scalar(vzz, "vzz.out");
-  }
+//   if(mainproc /*&& ((tstep%10)==0)*/) {
+//     //if (false) {
+//     write_Scalar(den, "den.out");
+//     write_Scalar(om2, "om2.out");
+//     write_Scalar(jx, "jx.out");
+//     write_Scalar(jy, "jy.out");
+//     write_Scalar(jz, "jz.out");
+//     write_Scalar(sx, "sx.out");
+//     write_Scalar(sy, "sy.out");
+//     write_Scalar(sz, "sz.out");
+//     write_Scalar(vxx, "vxx.out");
+//     write_Scalar(vxy, "vxy.out");
+//     write_Scalar(vxz, "vxz.out");
+//     write_Scalar(vyy, "vyy.out");
+//     write_Scalar(vyz, "vyz.out");
+//     write_Scalar(vzz, "vzz.out");
+//   }
 
   /* *************************************
    *  With the charge density we can first calculate the 
@@ -233,7 +232,7 @@ bool Darwin::Execute (double timestep) {
   pois->solve(In,Pot);
     
   /// @todo Diagnostic should be moved to separate classes
-  if(mainproc && ((tstep%100)==0)) write_Scalar(Pot, "Pot.out");
+//  if(mainproc && ((tstep%100)==0)) write_Scalar(Pot, "Pot.out");
   //if (false) write_Scalar(Pot, "Pot.out");
 
   for (int i=lx1; i<=mx1; ++i) 
@@ -480,17 +479,17 @@ bool Darwin::Execute (double timestep) {
    */
     
   /// @todo Diagnostic should be moved to separate classes
-  if(mainproc /*&& ((tstep%100)==0)*/)   {
-    //if (false) {
-    write_Scalar(Ex, "Ex.out");
-    write_Scalar(Ey, "Ey.out");
-    write_Scalar(Ez, "Ez.out");
-    write_Scalar(Bx, "Bx.out");
-    write_Scalar(By, "By.out");
-    write_Scalar(Bz, "Bz.out");
-    write_Scalar(Az, "Az.out");
-    write_Scalar(Pot,"Phi.out");
-  }
+//   if(mainproc /*&& ((tstep%100)==0)*/)   {
+//     //if (false) {
+//     write_Scalar(Ex, "Ex.out");
+//     write_Scalar(Ey, "Ey.out");
+//     write_Scalar(Ez, "Ez.out");
+//     write_Scalar(Bx, "Bx.out");
+//     write_Scalar(By, "By.out");
+//     write_Scalar(Bz, "Bz.out");
+//     write_Scalar(Az, "Az.out");
+//     write_Scalar(Pot,"Phi.out");
+//   } 
 
   //    Task::Execute();
   return false;

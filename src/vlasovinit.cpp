@@ -1,12 +1,13 @@
 // -*- C++ -*-
 // $Id$
 
+#include "vlasovinit.h"
+
 //=========================================================================
 //===============   VlasovMaxwellInit  ====================================
 //=========================================================================
 
-template<class ForceField>
-VlasovMaxwellInit<ForceField>::VlasovMaxwellInit(VlasovMaxwellInitData<ForceField> &data) {
+VlasovMaxwellInit::VlasovMaxwellInit(VlasovMaxwellInitData &data) {
   pVlasov = data.vlasov;
   
   u_stream[0] = data.InitStream_vx;
@@ -26,8 +27,7 @@ VlasovMaxwellInit<ForceField>::VlasovMaxwellInit(VlasovMaxwellInitData<ForceFiel
   cout << "VlasovMaxwellInit::Init (" << u_stream << ") (" <<  v_th << ") ";
 }
 
-template<class ForceField>
-VlasovMaxwellInit<ForceField>::~VlasovMaxwellInit() {}
+VlasovMaxwellInit::~VlasovMaxwellInit() {}
 
 
 /** @brief Do the initialisation
@@ -36,8 +36,7 @@ VlasovMaxwellInit<ForceField>::~VlasovMaxwellInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-template<class ForceField>
-void VlasovMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
   
@@ -124,8 +123,7 @@ void VlasovMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD
 //===============   VlasovTwoMaxwellInit  =================================
 //=========================================================================
 
-template<class ForceField>
-VlasovTwoMaxwellInit<ForceField>::VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData<ForceField> &data) {
+VlasovTwoMaxwellInit::VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData &data) {
   pVlasov = data.vlasov;
     
   u_stream1[0] = data.InitStream_vx;
@@ -162,8 +160,7 @@ VlasovTwoMaxwellInit<ForceField>::VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData<
     v_th2 << ")\n";
 }
 
-template<class ForceField>
-VlasovTwoMaxwellInit<ForceField>::~VlasovTwoMaxwellInit() {}
+VlasovTwoMaxwellInit::~VlasovTwoMaxwellInit() {}
 
 
 /** @brief Do the initialisation
@@ -172,8 +169,7 @@ VlasovTwoMaxwellInit<ForceField>::~VlasovTwoMaxwellInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-template<class ForceField>
-void VlasovTwoMaxwellInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovTwoMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
 
@@ -277,8 +273,7 @@ void VlasovTwoMaxwellInit<ForceField>::initialise(VlasovDist &dist, const Veloci
 //===============   VlasovWaveGenInit   ===================================
 //=========================================================================
 
-template<class ForceField>
-VlasovWaveGenInit<ForceField>::VlasovWaveGenInit(VlasovMaxwellInitData<ForceField> &data) {
+VlasovWaveGenInit::VlasovWaveGenInit(VlasovMaxwellInitData &data) {
   pVlasov = data.vlasov;
   
   u_stream[0] = data.InitStream_vx;
@@ -296,8 +291,7 @@ VlasovWaveGenInit<ForceField>::VlasovWaveGenInit(VlasovMaxwellInitData<ForceFiel
 
 }
 
-template<class ForceField>
-VlasovWaveGenInit<ForceField>::~VlasovWaveGenInit() {}
+VlasovWaveGenInit::~VlasovWaveGenInit() {}
 
 
 /** @brief Do the initialisation
@@ -306,8 +300,7 @@ VlasovWaveGenInit<ForceField>::~VlasovWaveGenInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-template<class ForceField>
-void VlasovWaveGenInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovWaveGenInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
 
@@ -394,8 +387,7 @@ void VlasovWaveGenInit<ForceField>::initialise(VlasovDist &dist, const VelocityD
 // //===============   VlasovCurrentSheetInit ================================
 // //=========================================================================
 // 
-// template<class ForceField>
-// VlasovCurrentSheetInit<ForceField>::VlasovCurrentSheetInit(VlasovSpecies<ForceField>* pVlasov_) {
+// VlasovCurrentSheetInit::VlasovCurrentSheetInit(VlasovSpecies<ForceField>* pVlasov_) {
 //   pVlasov = pVlasov_;
 //   
 //   u_stream[0] = InitStream_vx;

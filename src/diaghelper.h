@@ -28,7 +28,7 @@ class ES_EFieldEnergy {
       /// The value of the total ES energy
       double Energy;
       /// The output file stream to diagnose into
-      ofstream Output;
+      std::ofstream Output;
   public:
       /// Initialize the local values
 	  void Init (Potential *pPot_);

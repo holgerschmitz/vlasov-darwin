@@ -32,9 +32,8 @@ class VlasovInitialiser {
                                 const VelocityD &VelRange_)=0;
 };
 
-template<class ForceField>
 struct VlasovMaxwellInitData {
-  VlasovSpecies<ForceField> *vlasov;
+  ForceFieldBase *vlasov;
   double InitStream_vx;
   double InitStream_vy;
   double InitStream_vz;
@@ -53,7 +52,6 @@ struct VlasovMaxwellInitData {
  *  Additionally the density can be perturbed by some value n_perturb.
  *  The wave vector of the perturbation is k_perturb.
  */
-template<class ForceField>
 class VlasovMaxwellInit : public VlasovInitialiser {
   protected:
       /// density in particles\f$m^{-{\rm dim}}\f$
@@ -68,10 +66,10 @@ class VlasovMaxwellInit : public VlasovInitialiser {
       double n_perturb;
         
       /// pointer to the owning VlasovSpecies class
-      VlasovSpecies<ForceField> *pVlasov; 
+      ForceFieldBase *pVlasov; 
   public:
 	  /// Default constructor
-      VlasovMaxwellInit(VlasovMaxwellInitData<ForceField> &data);
+      VlasovMaxwellInit(VlasovMaxwellInitData &data);
 	  /// Destructor
       virtual ~VlasovMaxwellInit();
 
@@ -83,9 +81,8 @@ class VlasovMaxwellInit : public VlasovInitialiser {
                               const VelocityD &VelRange_);
 };
 
-template<class ForceField>
 struct VlasovTwoMaxwellInitData {
-  VlasovSpecies<ForceField> *vlasov;
+  ForceFieldBase *vlasov;
   double InitStream_vx;
   double InitStream_vy;
   double InitStream_vz;
@@ -115,7 +112,6 @@ struct VlasovTwoMaxwellInitData {
  *  Additionally the densities can be perturbed by some value n_perturb.
  *  The wave vector of the perturbations are k_perturb.
  */
-template<class ForceField>
 class VlasovTwoMaxwellInit : public VlasovInitialiser {
   protected:
       /// density of first population in particles\f$m^{-{\rm dim}}\f$
@@ -140,10 +136,10 @@ class VlasovTwoMaxwellInit : public VlasovInitialiser {
       double n_perturb2;
 
       /// pointer to the owning VlasovSpecies class
-      VlasovSpecies<ForceField> *pVlasov; 
+      ForceFieldBase *pVlasov; 
   public:
 	  /// Default constructor
-      VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData<ForceField> &data);
+      VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData &data);
 	  /// Destructor
       virtual ~VlasovTwoMaxwellInit();
 
@@ -160,7 +156,6 @@ class VlasovTwoMaxwellInit : public VlasovInitialiser {
  *  spectrum. The thermal velocity and a streaming velocity
  *  of the distributions can be supplied by global variables.
  */
-template<class ForceField>
 class VlasovWaveGenInit : public VlasovInitialiser {
   protected:
       /// density in particles\f$m^{-{\rm dim}}\f$
@@ -173,10 +168,10 @@ class VlasovWaveGenInit : public VlasovInitialiser {
       double n_perturb;
 
       /// pointer to the owning VlasovSpecies class
-      VlasovSpecies<ForceField> *pVlasov; 
+      ForceFieldBase *pVlasov; 
   public:
    /// Default constructor
-      VlasovWaveGenInit(VlasovMaxwellInitData<ForceField> &data);
+      VlasovWaveGenInit(VlasovMaxwellInitData &data);
    /// Destructor
       virtual ~VlasovWaveGenInit();
 
@@ -195,7 +190,6 @@ class VlasovWaveGenInit : public VlasovInitialiser {
 //  *  The thermal velocity and a streaming velocity
 //  *  of the distributions can be supplied by global variables.
 //  */
-// template<class ForceField>
 // class VlasovCurrentSheetInit : public VlasovInitialiser {
 //   protected:
 //       /// density in particles\f$m^{-{\rm dim}}\f$
@@ -209,7 +203,7 @@ class VlasovWaveGenInit : public VlasovInitialiser {
 //       VlasovSpecies<ForceField> *pVlasov; 
 //   public:
 // 	  /// Default constructor
-//       VlasovCurrentSheetInit(VlasovSpecies<ForceField> *);
+//       VlasovCurrentSheetInit(VlasovSpecies *);
 // 	  /// Destructor
 //       virtual ~VlasovCurrentSheetInit();
 // 
@@ -221,7 +215,5 @@ class VlasovWaveGenInit : public VlasovInitialiser {
 //                               const VelocityD &VelRange_);
 // };
 
-
-#include "vlasovinit_temp.cpp"
 
 #endif

@@ -205,7 +205,7 @@ class FixedArray {
 /** @brief Write a FixedArray to the output stream
  */
 template<class T, int rank>
-ostream &operator<<(ostream &O, FixedArray<T,rank> A) {
+std::ostream &operator<<(std::ostream &O, FixedArray<T,rank> A) {
     O << A[0];
     for (int i=1; i<rank; ++i) O << ", " << A[i];
     return O;

@@ -13,14 +13,10 @@
 #include "stlpwrapper.h"
 #include "poisson.h"
 #include "helmholtz.h"
-#include "wrapvlasov.h"
+#include "forcefield.h"
 #include "diaghelper.h"
-#include "potential.h"
+#include "forcefield.h"
 #include <vector>
-
-typedef VlasovSpecies<EMDarwinForce> DarwinVlasovSpecies;
-
-typedef PtrWrapper<DarwinVlasovSpecies> WDarwinVlasovSpecies;
 
 
 /** @brief Class that implements the Darwin approximation for 
@@ -49,7 +45,7 @@ class Darwin {
       double csc; 
 
       /// Container of all the Species that contribute to the charge density
-      vector<WDarwinVlasovSpecies> species;
+      vector<pEMDarwinForce> species;
 
       /// Temporary fields needed for the Poisson and Helmholtz solvers
       ScalarField In, Lambda, Out;
@@ -133,7 +129,7 @@ class Darwin {
        *  The charge and current densities have to be summed over
        *  all species
        */
-      void AddSpecies(DarwinVlasovSpecies* pS);
+      void AddSpecies(EMDarwinForce* pS);
   private:
       /// Make default constructor private
       Darwin() {}

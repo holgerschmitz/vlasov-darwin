@@ -6,14 +6,14 @@
 #include "wrapvlasov.h"
 #include "boundary.h"
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <list>
 
 //typedef EFieldForce ForceField;
 typedef EMDarwinForce ForceField;
 
-typedef VlasovSpecies<ForceField> *pVlasov;
+typedef VlasovSpecies<ForceField,LeapFrogAdvance,PosFluxCons3rdOrder> *pVlasov;
 
 int argc;
 char **argv;
@@ -50,10 +50,12 @@ void readBoundary(istream &In) {
   In >> token;
   if (token=="single-periodic") 
     bound = new SinglePeriodicBoundary;
+#ifndef SINGLE_PROCESSOR
   else if (token=="mpi-x-periodic") 
     bound = new MPIPeriodicSplitXBoundary(argc,argv);
   else if (token=="mpi-xy-periodic") 
     bound = new MPIPeriodicSplitXYBoundary(argc,argv);
+#endif // single processor
   else
     cerr << "Unrecognised token " << token << endl;
 
@@ -63,7 +65,7 @@ void readBoundary(istream &In) {
 
 VlasovInitialiser *readMaxwellInit(istream &In, pVlasov spec) {
   string token;
-  VlasovMaxwellInitData<ForceField> data;
+  VlasovMaxwellInitData data;
   
   while (true) {
     In >> token;
@@ -82,12 +84,12 @@ VlasovInitialiser *readMaxwellInit(istream &In, pVlasov spec) {
       cerr << "Unrecognised token " << token << endl;
   }
   data.vlasov = spec;
-  return new VlasovMaxwellInit<ForceField>(data);
+  return new VlasovMaxwellInit(data);
 }
 
 VlasovInitialiser *readTwoMaxwellInit(istream &In, pVlasov spec) {
   string token;
-  VlasovTwoMaxwellInitData<ForceField> data;
+  VlasovTwoMaxwellInitData data;
 
     while (true) {
     In >> token;
@@ -116,12 +118,12 @@ VlasovInitialiser *readTwoMaxwellInit(istream &In, pVlasov spec) {
       cerr << "Unrecognised token " << token << endl;
   }
   data.vlasov = spec;
-  return new VlasovTwoMaxwellInit<ForceField>(data);
+  return new VlasovTwoMaxwellInit(data);
 }
 
 VlasovInitialiser *readWaveGenInit(istream &In, pVlasov spec) {
   string token;
-  VlasovMaxwellInitData<ForceField> data;
+  VlasovMaxwellInitData data;
   
   while (true) {
     In >> token;
@@ -138,13 +140,14 @@ VlasovInitialiser *readWaveGenInit(istream &In, pVlasov spec) {
       cerr << "Unrecognised token " << token << endl;
   }
   data.vlasov = spec;
-  return new VlasovWaveGenInit<ForceField>(data);
+  return new VlasovWaveGenInit(data);
 }
 
 
 void readInitialise(istream &In, SpeciesData &data) {
   string token;
-  pVlasov spec = new VlasovSpecies<ForceField>(data);
+  pVlasov spec 
+      = new VlasovSpecies<ForceField,LeapFrogAdvance,PosFluxCons3rdOrder>(data);
   spec->setForceField(field);
   spec->Init();
   

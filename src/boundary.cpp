@@ -1,7 +1,7 @@
 // -*- C++ -*-
 // $Id$
 
-#include <strstream>
+#include <sstream>
 #include <fstream>
 #include "vlasov.h"
 #include "boundary.h"
@@ -89,6 +89,15 @@ PhasePositionI &SinglePeriodicBoundary::DistHigh() {
     return GlDistHigh;
 }
 
+PositionI &SinglePeriodicBoundary::ScalarLow() {
+    return GlGridLow;
+}
+
+PositionI &SinglePeriodicBoundary::ScalarHigh() {
+    return GlGridHigh;
+}
+
+#ifndef SINGLE_PROCESSOR
 
 /* **************************************************************
  *                 MPIPeriodicSplitXBoundary                    *
@@ -262,6 +271,14 @@ PhasePositionI &MPIPeriodicSplitXBoundary::DistHigh() {
     return High;
 }
 
+PositionI &MPIPeriodicSplitXBoundary::ScalarLow() {
+    return GlGridLow;
+}
+
+PositionI &MPIPeriodicSplitXBoundary::ScalarHigh() {
+    return GlGridHigh;
+}
+
 double MPIPeriodicSplitXBoundary::AvgReduce(double val) {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_SUM, comm);
@@ -329,7 +346,7 @@ MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary(int argc, char **argv) :
     
     char fname[20];
     
-    ostrstream S(fname,20);
+    std::ostringstream S(fname,20);
     S << "boundary"<<ComRank<<".dat"<<char(0);
     ofstream O(fname);
     O << "Coord: " << mycoord[0] << " " << mycoord[1] << "\n";
@@ -506,5 +523,15 @@ PhasePositionI &MPIPeriodicSplitXYBoundary::DistHigh() {
     return High;
 }
 
+PositionI &MPIPeriodicSplitXYBoundary::ScalarLow() {
+    return GlGridLow;
+}
+
+PositionI &MPIPeriodicSplitXYBoundary::ScalarHigh() {
+    return GlGridHigh;
+}
+
+
+#endif
 
 

@@ -16,11 +16,8 @@
 #include "poisson.h"
 #include "wrapvlasov.h"
 #include "diaghelper.h"
+#include "forcefield.h"
 #include <vector>
-
-typedef VlasovSpecies<EFieldForce> ESVlasovSpecies;
-
-typedef PtrWrapper<ESVlasovSpecies> WESVlasovSpecies;
 
 
 /** @brief The class for calculating the electrostatic potential.
@@ -44,7 +41,7 @@ class Potential {
 		ScalarField den;
         
         /// Container of all the Species that contribute to the charge density   
-		vector<WESVlasovSpecies> species;
+		vector<pEFieldForce> species;
            
         /// A temporary field used for the poisson solver              
         ScalarField In;
@@ -95,7 +92,7 @@ class Potential {
         /** @brief Adds a species to the list of species that need 
          *  contribute to the charge density
          */
-        void AddSpecies(ESVlasovSpecies* pS);
+        void AddSpecies(EFieldForce* pS);
 
 }; // Potential
 

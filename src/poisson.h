@@ -4,7 +4,7 @@
 #ifndef POISSON_H
 #define POISSON_H
 
-#include <matrix.H>
+#include "matrix.h"
 #include "index.h"
 #include "vlasov.h"
 

@@ -5,7 +5,10 @@
 #define BOUNDARY_H
 
 #include "numeric.h"
+#include "vlasov.h"
+#ifndef SINGLE_PROCESSOR
 #include <mpi.h>
+#endif
 
 /** @brief Interface for wrapping and exchanging boundaries.
  *
@@ -49,6 +52,12 @@ class Boundary {
       /// Return the upper bound of the distribution function
       virtual PhasePositionI &DistHigh() = 0;
 
+      /// Return the lower bound of scalar fields
+      virtual PositionI &ScalarLow() = 0;
+
+      /// Return the upper bound of scalar fields
+      virtual PositionI &ScalarHigh() = 0;
+
       /// Return true if this is the master process and false otherwise
       virtual bool master() = 0;
 
@@ -74,11 +83,17 @@ class SinglePeriodicBoundary : public Boundary {
       PhasePositionI &DistLow();
       /// Returns the global upper bound of the distribution function
       PhasePositionI &DistHigh();
+      /// Return the lower bound of scalar fields
+      virtual PositionI &ScalarLow();
+      /// Return the upper bound of scalar fields
+      virtual PositionI &ScalarHigh();
       /// There is only one process, so master always returns true
       bool master() { return true; }
       /// The process number is always zero
       int procnum() { return 0; }
 };
+
+#ifndef SINGLE_PROCESSOR
 
 /** @brief Implements Boudary to supply a periodic system running on
  *  a single processor
@@ -155,6 +170,12 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       /// Returns the global upper bound of the distribution function
       virtual PhasePositionI &DistHigh();
       
+      /// Return the lower bound of scalar fields
+      virtual PositionI &ScalarLow();
+      
+      /// Return the upper bound of scalar fields
+      virtual PositionI &ScalarHigh();
+
       /// The process with the rank zero is designated master process
       bool master() { return ComRank==0; }
       
@@ -247,11 +268,18 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       /// Returns the global upper bound of the distribution function
       virtual PhasePositionI &DistHigh();
       
+      /// Return the lower bound of scalar fields
+      virtual PositionI &ScalarLow();
+      
+      /// Return the upper bound of scalar fields
+      virtual PositionI &ScalarHigh();
+      
       /// The process with the rank zero is designated master process
       bool master() { return ComRank==0; }
       
       /// Returns the comm rank as given by mpi
       int procnum() { return ComRank; }
 };
+#endif // single processor
 
 #endif

@@ -1,14 +1,13 @@
 // -*- C++ -*-
 // $Id$
 
+#include "vlasovbase.h"
+
 #ifndef SCHEME_H
 #define SCHEME_H
 
 template<class ForceField>
 class PosFluxCons3rdOrder : public ForceField {
-  protected:
-      /// The distribution function
-      VlasovDist Distribution;
   protected:
       /// the size of the numerical grid in the space direction
       PositionD GridSize;
@@ -75,6 +74,8 @@ class PosFluxCons3rdOrder : public ForceField {
       int bound_plus()   { return 1;}
       /// The number of boundary cells needed to the left
       int bound_minus()  { return 1;}
+  public:
+      PosFluxCons3rdOrder(SpeciesData &data) : ForceField(data) {}
 };
 
 #include "scheme_temp.cpp"

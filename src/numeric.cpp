@@ -46,7 +46,7 @@ void gser(double &gamser, double a, double x, double &gln)
 	gln=gammln(a);
 	if (x <= 0.0) {
 		if (x < 0.0) {
-            cerr << "x less than 0 in routine GSER" << endl;
+            std::cerr << "x less than 0 in routine GSER" << std::endl;
             exit(-1);
         }
 		gamser=0.0;
@@ -63,7 +63,7 @@ void gser(double &gamser, double a, double x, double &gln)
 				return;
 			}
 		}
-        cerr << "a too large, ITMAX too small in routine GSER" << endl;
+        std::cerr << "a too large, ITMAX too small in routine GSER" << std::endl;
         exit(-1);
 		return;
 	}
@@ -95,7 +95,7 @@ void gcf(double &gammcf, double a, double x, double &gln)
 			gold=g;
 		}
 	}
-    cerr << "a too large, ITMAX too small in routine GCF" << endl;
+    std::cerr << "a too large, ITMAX too small in routine GCF" << std::endl;
     exit(-1);
 }
 
@@ -107,7 +107,7 @@ double gammp(double a, double x)
 	double gamser,gammcf,gln;
 
 	if (x < 0.0 || a <= 0.0) {
-        cerr << "Invalid arguments in routine GAMMP" << endl;
+        std::cerr << "Invalid arguments in routine GAMMP" << std::endl;
         exit(-1);
     }
 	if (x < (a+1.0)) {

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 // $Id$
 
-#include <matrix.H>
+#include "matrix.h"
 
 /** @brief Solves Helmholtz equation using a multigrid method.
  *
