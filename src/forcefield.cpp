@@ -18,8 +18,8 @@ ScalarField &EFieldForce::GetEy() { return pPot->GetEy(); }
 VelocityD EFieldForce::Force(const PositionI &Pos, 
                              const VelocityD &Vel,
                              double dt) {
-    double Fx = Charge*GetEx()(Pos[0],Pos[1]);
-    double Fy = Charge*GetEy()(Pos[0],Pos[1]);
+    double Fx = Charge*GetEx()(Pos[0],Pos[1])/Mass;
+    double Fy = Charge*GetEy()(Pos[0],Pos[1])/Mass;
     return VelocityD(dttx*dt*Fx, dttx*dt*Fy, 0.0);
         
 }
@@ -72,8 +72,8 @@ VelocityD EBFieldForce::Force(const PositionI &Pos,
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx()(Pos[0],Pos[1]);
-    double Ey = Charge*GetEy()(Pos[0],Pos[1]);
+    double Ex = Charge*GetEx()(Pos[0],Pos[1])/Mass;
+    double Ey = Charge*GetEy()(Pos[0],Pos[1])/Mass;
     double Ez = 0;
 
     double Bx = Charge*B[0];
@@ -142,13 +142,13 @@ VelocityD ConstEBFieldForce::Force(const PositionI &Pos,
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*E[0];
-    double Ey = Charge*E[1];
-    double Ez = Charge*E[2];
+    double Ex = Charge*E[0]/Mass;
+    double Ey = Charge*E[1]/Mass;
+    double Ez = Charge*E[2]/Mass;
 
-    double Bx = Charge*B[0];
-    double By = Charge*B[1];
-    double Bz = Charge*B[2];
+    double Bx = Charge*B[0]/Mass;
+    double By = Charge*B[1]/Mass;
+    double Bz = Charge*B[2]/Mass;
 
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -221,13 +221,13 @@ VelocityD EMDarwinForce::Force(const PositionI &Pos,
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx()(Pos[0],Pos[1]);
-    double Ey = Charge*GetEy()(Pos[0],Pos[1]);
-    double Ez = Charge*GetEz()(Pos[0],Pos[1]);
+    double Ex = Charge*GetEx()(Pos[0],Pos[1])/Mass;
+    double Ey = Charge*GetEy()(Pos[0],Pos[1])/Mass;
+    double Ez = Charge*GetEz()(Pos[0],Pos[1])/Mass;
 
-    double Bx = Charge*GetBx()(Pos[0],Pos[1]);
-    double By = Charge*GetBy()(Pos[0],Pos[1]);
-    double Bz = Charge*GetBz()(Pos[0],Pos[1]);
+    double Bx = Charge*GetBx()(Pos[0],Pos[1])/Mass;
+    double By = Charge*GetBy()(Pos[0],Pos[1])/Mass;
+    double Bz = Charge*GetBz()(Pos[0],Pos[1])/Mass;
 
 //    Ex = 0; Ey = 0; Ez = 0;
 //    Bx = 0; By = 0; Bz = 1;
