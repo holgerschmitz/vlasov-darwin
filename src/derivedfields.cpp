@@ -224,21 +224,21 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
   boundary->ScalarFieldCombine(Vyz);
   boundary->ScalarFieldCombine(Vzz);
   
-  static int cnt=1;
-  ostringstream fname;
-  fname << "Gz"<<cnt++<<".out";
-  ofstream GzStream(fname.str().c_str());
-
-  const Boundary& boundary = Process::instance().getBoundary();
-  
-  const PositionI &LBound = boundary.scalarLow();
-  const PositionI &HBound = boundary.scalarHigh();
-
-  for (int i=LBound[0]; i<=HBound[0]; ++i) 
-    for (int j=LBound[1]; j<=HBound[1]; ++j) 
-      GzStream << i << " " << j << " " << Jz(i,j) << "\n";
-      
-  GzStream.close();
+//  static int cnt=1;
+//  ostringstream fname;
+//  fname << "Gz"<<cnt++<<".out";
+//  ofstream GzStream(fname.str().c_str());
+//
+//  const Boundary& boundary = Process::instance().getBoundary();
+//  
+//  const PositionI &LBound = boundary.scalarLow();
+//  const PositionI &HBound = boundary.scalarHigh();
+//
+//  for (int i=LBound[0]; i<=HBound[0]; ++i) 
+//    for (int j=LBound[1]; j<=HBound[1]; ++j) 
+//      GzStream << i << " " << j << " " << Jz(i,j) << "\n";
+//      
+//  GzStream.close();
 }
 
 

@@ -270,7 +270,7 @@ bool Darwin::Execute () {
 
   for (int j=ly0; j<=my0; ++j) 
     for (int i=lx0; i<=mx0; ++i) { 
-      In(i,j) = csc*(den(i,j)+n0);
+      In(i,j) = (den(i,j)+n0)/csc;
       //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
     }
     
@@ -313,9 +313,9 @@ bool Darwin::Execute () {
 //      AzStream << i << " " << j << " " << Az(i,j) << "\n";
 //  AzStream.close();
     
-//  for (int i=lx0; i<=mx0; ++i) 
-//    for (int j=ly0; j<=my0; ++j) 
-//      Az(i,j) *= -csc;
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j) 
+      Az(i,j) *= -1;
            
   /* *************************************
    * ... resulting in Bx and By
@@ -347,8 +347,8 @@ bool Darwin::Execute () {
 
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) 
-      In(i,j) = -(jy(i+1,j) - jy(i-1,j)) / (2*dx[0])
-		     + (jx(i,j+1) - jx(i,j-1)) / (2*dx[1]);
+      In(i,j) = (jy(i+1,j) - jy(i-1,j)) / (2*dx[0])
+		     - (jx(i,j+1) - jx(i,j-1)) / (2*dx[1]);
 
   In.setParity(ScalarField::EvenParity);
   In.setComponent(ScalarField::ZComponent); 
@@ -494,8 +494,8 @@ void Darwin::clearDiv(ScalarField &Fx, ScalarField &Fy) {
     
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j)  
-      DivEt(i,j) = (Fx(i+1,j) - Fx(i-1,j) ) /(2*dx[0])
-	    +(Fy(i,j+1) - Fy(i,j-1) ) /(2*dx[1]);
+      DivEt(i,j) = -(Fx(i+1,j) - Fx(i-1,j) ) /(2*dx[0])
+	    -(Fy(i,j+1) - Fy(i,j-1) ) /(2*dx[1]);
      
   const Boundary &bound = Process::instance().getBoundary();
   bound.ScalarFieldReduce(DivEt);

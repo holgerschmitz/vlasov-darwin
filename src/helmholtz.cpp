@@ -20,7 +20,7 @@ Helmholtz::Helmholtz() {
     boundary = NULL;
 }
 
-// solves -laplace u = f
+// solves -laplace u + lambda u = f
 void Helmholtz::solve( NumMatrix<double,2> &u,
 		                   NumMatrix<double,2> &f,
                        NumMatrix<double,2> &lambda,
