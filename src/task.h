@@ -24,6 +24,7 @@ class Rebuildable {
 
     protected:
         virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
+        virtual void finalize() {};
     public:
         /** @brief Rebuilds the task from the setup. This normally does not need 
          *  to be overwritten.

@@ -19,5 +19,7 @@ std::string ParameterRebuild<Type,BaseType>::Rebuild (std::istream& in) {
   std::string strToken;
   in >> strToken;
   if ((strToken != "{") || in.eof()) return strToken;
-  return (*value)->Rebuild(in);
+  std::string nextToken = (*value)->Rebuild(in);
+  (*value)->finalize();
+  return nextToken;
 }
