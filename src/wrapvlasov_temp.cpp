@@ -81,6 +81,7 @@ void VlasovSpecies<ForceField>::Init() {
 //    VlasovMaxwellInit<ForceField> TheInit(this);
 //    VlasovTwoMaxwellInit<ForceField> TheInit(this);
     VlasovWaveGenInit<ForceField> TheInit(this);
+//    VlasovCurrentSheetInit<ForceField> TheInit(this);
     cerr << "Executing initializer " << endl;
     
     TheInit.initialise(Distribution, VRange);
@@ -154,25 +155,27 @@ void VlasovSpecies<ForceField>::writeYVySlice(int x,int vx,int vz, string fname)
     Slice.close();
 }
 
-/** @brief Calls the advance method of the Advancer base class.
- * then calls Task::Execute to execute sub-Tasks
- */
 template<class ForceField>
-void VlasovSpecies<ForceField>::Execute () {
-    if ( (t%100) == 0) {
-        double err = densityError();
-        correctDensityError(err);
-    }
-    t++;
-
-//    cerr << "Potential("<<t<<")\n";
-    pPot->Execute(dt);
+void VlasovSpecies<ForceField>::writeVxVySlice(int t, int x, int y, int vz, ostream &Slice) 
+{
+    const int *L = Distribution.getLow();
+    const int *H = Distribution.getHigh();
+    if (   (x<L[0]+2) || (x>H[0]-2) 
+        || (y<L[1]+2) || (y>H[1]-2)
+        || (vz<L[4]) || (vz>H[4]))  return;
     
-//    cerr << "Advancing("<<t<<")\n";
-    advance(dt);
-//    cerr << "Done Advancing("<<t<<")\n";
-
-//    write_Distribution(Distribution,"Advanced.out");
+    
+    for (int j=L[2]; j<=H[2]; ++j) 
+    {
+        for (int k=L[3]; k<=H[3]; ++k)
+        {
+            Slice << t << " " << j << " " << k << " " 
+                << Distribution(x,y,j,k,vz) << endl;
+        }
+        Slice << endl;
+    }
+          
+    
 }
 
 
@@ -464,8 +467,8 @@ void VlasovSpecies<ForceField>
 //                cerr << " - " << Vi[0] <<  " - " << Vi[1] <<  " - " << Vi[2] <<  " - " 
 //                    << Xi[0] <<  " - " << Xi[1] << "\n";
                 VelocityD Vel = velocity(Vi);
-                VelocityD F = Force(Xi,Vel);
-                double deltavx = -timestep*F[0]/deltaVx();
+                VelocityD F = Force(Xi,Vel,timestep);
+                double deltavx = -F[0]/deltaVx();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
@@ -538,15 +541,15 @@ void VlasovSpecies<ForceField>
             for (Vi[1] = lvx; Vi[1] < bvx; ++Vi[1]) {
             
                 VelocityD Vel = velocity(Vi);
-                VelocityD F = Force(Xi,Vel);
-                double deltavx = -timestep*F[1]/deltaVy();
+                VelocityD F = Force(Xi,Vel,timestep);
+                double deltavx = -F[1]/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
                 int j = Vi[1]+deltaI;
                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vy: deltaI out of bounds:" << deltaI << endl;
 
                 Dj(Vi[1]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
@@ -610,15 +613,15 @@ void VlasovSpecies<ForceField>
             for (Vi[2] = lvx; Vi[2] < bvx; ++Vi[2]) {
             
                 VelocityD Vel = velocity(Vi);
-                VelocityD F = Force(Xi,Vel);
-                double deltavx = -timestep*F[2]/deltaVy();
+                VelocityD F = Force(Xi,Vel,timestep);
+                double deltavx = -F[2]/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
                 int j = Vi[2]+deltaI;
                 
-                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+                if ( (deltaI<0) || (deltaI>1) ) cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
 
                 Dj(Vi[2]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
@@ -654,113 +657,78 @@ void VlasovSpecies<ForceField>
 
 template<class ForceField>
 void VlasovSpecies<ForceField>::advance(double timestep) {
-    switch (RKState) {
-        case -2: RKState = -1;
-                 break;
-        case -1: RKState = 0;
-                advanceStepA(timestep); 
-                break;
-        case 0: advanceStepFull(timestep); 
-                break;
-    }
-//     const int *UBound = Distribution.getHigh();
-//     const int *LBound = Distribution.getLow();
+  switch (RKState) {
+      case -2: RKState = -1;
+               break;
+      case -1: RKState = 0;
+              advanceStepA(timestep); 
+              break;
+      case 0: advanceStepFull(timestep); 
+              break;
+  }
+//    const int *UBound = Distribution.getHigh();
+//    const int *LBound = Distribution.getLow();
 // 
-//     switch (RKState) {
-//         case -2: RKState = -1;
-//                  break;
-//         case -1: RKState = 0;
-//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
-//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
-//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
-//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
-//                         for (int m=LBound[4]; m<=UBound[4]; ++m)
-//                           TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
-//                 advanceStepA(timestep/3.); 
+//    switch (RKState) {
+//        case -2: RKState = -1;
 //                 break;
-//         case 0: advanceStepB(timestep/3.);         // Distribution = c0 = d1
+//        case -1: RKState = 0;
+//                for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                  for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                    for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                      for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                        for (int m=LBound[4]; m<=UBound[4]; ++m)
+//                          TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+//                advanceStepA(timestep/3.); 
+//                break;
+//        case 0: advanceStepB(timestep/3.);         // Distribution = c0 = d1
 // 
-//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
-//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
-//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
-//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
-//                         for (int m=LBound[4]; m<=UBound[4]; ++m)
-//                           T1(i,j,k,l,m) = Distribution(i,j,k,l,m);
+//                for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                  for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                    for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                      for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                        for (int m=LBound[4]; m<=UBound[4]; ++m)
+//                          T1(i,j,k,l,m) = Distribution(i,j,k,l,m);
 // 
 // 
-//                 advanceStepA(2*timestep/3.); 
-//                 RKState = 1;
-//                 break;
-//         case 1: advanceStepB(2*timestep/3.);        // Distribution = c1
+//                advanceStepA(2*timestep/3.); 
+//                RKState = 1;
+//                break;
+//        case 1: advanceStepB(2*timestep/3.);        // Distribution = c1
 // 
-//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
-//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
-//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
-//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
-//                         for (int m=LBound[4]; m<=UBound[4]; ++m) {
-//                           Distribution(i,j,k,l,m) 
-//                             = Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m);
-//                           T2(i,j,k,l,m) = Distribution(i,j,k,l,m); // = d2
-//                         }
-//                 advanceStepA(3*timestep/4.);
+//                for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                  for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                    for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                      for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                        for (int m=LBound[4]; m<=UBound[4]; ++m) {
+//                          Distribution(i,j,k,l,m) 
+//                            = Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m);
+//                          T2(i,j,k,l,m) = Distribution(i,j,k,l,m); // = d2
+//                        }
+//                advanceStepA(3*timestep/4.);
 // 
-//                 RKState = 2;
-//                 break;
-//         case 2: advanceStepB(3*timestep/4.);      // Distribution = c2
-//                 for (int i=LBound[0]; i<=UBound[0]; ++i)
-//                   for (int j=LBound[1]; j<=UBound[1]; ++j)
-//                     for (int k=LBound[2]; k<=UBound[2]; ++k)
-//                       for (int l=LBound[3]; l<=UBound[3]; ++l) 
-//                         for (int m=LBound[4]; m<=UBound[4]; ++m) {
-//                           Distribution(i,j,k,l,m) 
-//                               =  (1/4.)*TempDist(i,j,k,l,m) 
-//                                + (3/4.)*T1(i,j,k,l,m) 
-//                                +  Distribution(i,j,k,l,m)
-//                                - T2(i,j,k,l,m); 
-//                           TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
-//                         } 
-//                 advanceStepA(timestep/3.); 
-//                 RKState = 0;
-//                 break;
-//     }
+//                RKState = 2;
+//                break;
+//        case 2: advanceStepB(3*timestep/4.);      // Distribution = c2
+//                for (int i=LBound[0]; i<=UBound[0]; ++i)
+//                  for (int j=LBound[1]; j<=UBound[1]; ++j)
+//                    for (int k=LBound[2]; k<=UBound[2]; ++k)
+//                      for (int l=LBound[3]; l<=UBound[3]; ++l) 
+//                        for (int m=LBound[4]; m<=UBound[4]; ++m) {
+//                          Distribution(i,j,k,l,m) 
+//                              =  (1/4.)*TempDist(i,j,k,l,m) 
+//                               + (3/4.)*T1(i,j,k,l,m) 
+//                               +  Distribution(i,j,k,l,m)
+//                               - T2(i,j,k,l,m); 
+//                          TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+//                        } 
+//                advanceStepA(timestep/3.); 
+//                RKState = 0;
+//                break;
+//    }
 }
 
 
-
-template<class ForceField>
-void VlasovSpecies<ForceField>
-        ::advanceStepA(double timestep) {
-        
-    InterpolationInitStep(Distribution);
-    advanceSpace_x(0.5*timestep);
-    advanceSpace_y(0.5*timestep);
-}
-
-template<class ForceField>
-void VlasovSpecies<ForceField>
-        ::advanceStepB(double timestep) {
-
-    advanceVel_x(timestep);
-    advanceVel_y(timestep);
-    advanceVel_z(timestep);
-
-    advanceSpace_x(0.5*timestep);
-    advanceSpace_y(0.5*timestep);
-    
-}
-
-template<class ForceField>
-void VlasovSpecies<ForceField>
-        ::advanceStepFull(double timestep) {
-
-    advanceVel_x(timestep);
-    advanceVel_y(timestep);
-    advanceVel_z(timestep);
-
-    advanceSpace_x(timestep);
-    advanceSpace_y(timestep);
-    
-}
 
 
 template<class ForceField>
@@ -926,3 +894,69 @@ double VlasovSpecies<ForceField>::interpolateVz(
                 +(1/6.)*alpha*(alpha + 1)*epsl*(-fj+fjp)
                 -(1/6.)*alpha*(alpha - 2)*epsr*(-fjm+fj));
 }
+
+
+template<class ForceField>
+void VlasovSpecies<ForceField>
+        ::advanceStepA(double timestep) {
+        
+    InterpolationInitStep(Distribution);
+    advanceSpace_x(0.5*timestep);
+    advanceSpace_y(0.5*timestep);
+}
+
+template<class ForceField>
+void VlasovSpecies<ForceField>
+        ::advanceStepB(double timestep) {
+
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_z(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
+
+    advanceSpace_x(0.5*timestep);
+    advanceSpace_y(0.5*timestep);
+    
+}
+
+template<class ForceField>
+void VlasovSpecies<ForceField>
+        ::advanceStepFull(double timestep) {
+
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_z(timestep);
+    advanceVel_x(0.25*timestep);
+    advanceVel_y(0.5*timestep);
+    advanceVel_x(0.25*timestep);
+
+    advanceSpace_x(timestep);
+    advanceSpace_y(timestep);
+    
+}
+
+/** @brief Calls the advance method of the Advancer base class.
+ * then calls Task::Execute to execute sub-Tasks
+ */
+template<class ForceField>
+void VlasovSpecies<ForceField>::Execute () {
+    if ( (t%200) == 0) {
+        double err = densityError();
+        correctDensityError(err);
+    }
+    t++;
+
+//    cerr << "Potential("<<t<<")\n";
+    pPot->Execute(dt);
+    
+//    cerr << "Advancing("<<t<<")\n";
+    advance(dt);
+//    cerr << "Done Advancing("<<t<<")\n";
+
+//    write_Distribution(Distribution,"Advanced.out");
+}
+

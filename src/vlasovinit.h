@@ -97,6 +97,25 @@ class VlasovWaveGenInit : public VlasovInitialiser {
                                 const VelocityD &VelRange_);
 };
 
+template<class ForceField>
+class VlasovCurrentSheetInit : public VlasovInitialiser {
+    protected:
+        double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
+        VelocityD v_th;      ///< thermal velocity
+        VelocityD u_stream;  ///< streaming vlocity
+        
+        // pointer to the owning VlasovSpecies class
+        VlasovSpecies<ForceField> *pVlasov; 
+    public:
+		/// Default constructor
+        VlasovCurrentSheetInit(VlasovSpecies<ForceField> *);
+		/// Destructor
+        virtual ~VlasovCurrentSheetInit();
+
+        virtual void initialise(VlasovDist &dist,
+                                const VelocityD &VelRange_);
+};
+
 #include "vlasovinit_temp.cpp"
 
 #endif

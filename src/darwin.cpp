@@ -18,7 +18,6 @@
 
 
 #include "potential.h"
-#include "diaghelper.h"
 #include "darwin.h"
 
 // ----------------------------------------------------------------------
@@ -193,29 +192,29 @@ bool Darwin::Execute (double timestep) {
     // ... and get it
     for (int j=ly0; j<=my0; ++j) 
       for (int i=lx0; i<=mx0; ++i) {
-	den(i,j) += dF*pS->Rho()(i,j);
-	om2(i,j) += dF2*pS->Rho()(i,j);
-                
-	jt = pS->getJ(i,j);
-	jx(i,j) += dF*jt[0];
-	jy(i,j) += dF*jt[1];
-	jz(i,j) += dF*jt[2];
-                
-	sx(i,j) += dF2*jt[0];
-	sy(i,j) += dF2*jt[1];
-	sz(i,j) += dF2*jt[2];
-                
-	vvt =  pS->getVVTens(i,j);
-	vxx(i,j) +=  dF*vvt[0];
-	vxy(i,j) +=  dF*vvt[1];
-	vxz(i,j) +=  dF*vvt[2];
-	vyy(i,j) +=  dF*vvt[3];
-	vyz(i,j) +=  dF*vvt[4];
-	vzz(i,j) +=  dF*vvt[5];
+	    den(i,j) += dF*pS->Rho()(i,j);
+	    om2(i,j) += dF2*pS->Rho()(i,j);
+
+	    jt = pS->getJ(i,j);
+	    jx(i,j) += dF*jt[0];
+	    jy(i,j) += dF*jt[1];
+	    jz(i,j) += dF*jt[2];
+
+	    sx(i,j) += dF2*jt[0];
+	    sy(i,j) += dF2*jt[1];
+	    sz(i,j) += dF2*jt[2];
+
+	    vvt =  pS->getVVTens(i,j);
+	    vxx(i,j) +=  dF*vvt[0];
+	    vxy(i,j) +=  dF*vvt[1];
+	    vxz(i,j) +=  dF*vvt[2];
+	    vyy(i,j) +=  dF*vvt[3];
+	    vyz(i,j) +=  dF*vvt[4];
+	    vzz(i,j) +=  dF*vvt[5];
       }
   }
 
-  if(mainproc && ((tstep%100)==0)) {
+  if(mainproc /*&& ((tstep%10)==0)*/) {
     //if (false) {
     write_Scalar(den, "den.out");
     write_Scalar(om2, "om2.out");
@@ -232,7 +231,7 @@ bool Darwin::Execute (double timestep) {
     write_Scalar(vyz, "vyz.out");
     write_Scalar(vzz, "vzz.out");
   }
-    
+
   /* *************************************
    *  With the charge density we can first calculate the 
    *  scalar potential Pot. 
@@ -290,7 +289,7 @@ bool Darwin::Execute (double timestep) {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) 
-      Az(i,j) *= csc;
+      Az(i,j) *= -csc;
             
   /* *************************************
    * ... resulting in Bx and By
@@ -333,30 +332,76 @@ bool Darwin::Execute (double timestep) {
     In(mx0,j) = In(lx1,j);
   }
 
+  double rotjzsum = 0;
+  for (int i=lx1; i<=mx1; ++i) 
+    for (int j=ly1; j<=my1; ++j) {
+      rotjzsum += In(i,j);
+  }
+  rotjzsum /= double( (mx0-lx1)*(my0-ly1) );
+  
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j) {
+      In(i,j) -= rotjzsum;
+  }
+
   pois->solve(In,Bz);
     
+  double Bzsum = 0;
+  for (int i=lx1; i<=mx1; ++i) 
+    for (int j=ly1; j<=my1; ++j) {
+      Bzsum += Bz(i,j);
+  }
+  Bzsum /= double( (mx0-lx1)*(my0-ly1) );
+  
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j) {
+      Bz(i,j) -= Bzsum;
+      //==================
+      // ACHTUNG TEST
+      //==================
+      //Bz(i,j) = 0;
+  }
+  
+  /* *************************************
+   *  Finally we add the global magnetic fields
+   *  to the solution for B
+   */
+ 
+  for (int i=lx0; i<=mx0; ++i) {
+    for (int j=ly0; j<=my0; ++j) {
+      Bx(i,j) += Gl_B0x;
+      By(i,j) += Gl_B0y;
+      Bz(i,j) += Gl_B0z;
+    }
+  }
+     
   /* *************************************
    *  The transverse electric field has to be calculated individually
    *  for each component. 
    */
     
   // This is the same for every component
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) 
+  for (int i=lx0; i<=mx0; ++i) {
+    for (int j=ly0; j<=my0; ++j) {
       Lambda(i,j) = csc*om2(i,j);
+    }
+  }
            
   // x-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) 
+  for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
       In(i,j) = csc*(
-		     (    vxx(i+1,j) - vxx(i-1,j)
-			  +vxy(i+1,j) - vxy(i-1,j)
-			  +vxz(i+1,j) - vxz(i-1,j)
-			  ) / (2*dx[0])                       /// grad (rho <vv>)
+		    //  -( vxx(i+1,j) - vxx(i-1,j)
+			//  +vxy(i+1,j) - vxy(i-1,j)
+			//  +vxz(i+1,j) - vxz(i-1,j)
+			//  ) / (2*dx[0])                       /// -grad (rho <vv>)
+		     -(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
+			 -(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
 		     +om2(i,j)*Ex(i,j)                   /// om2*E
 		     +sy(i,j)*Bz(i,j)-sz(i,j)*By(i,j)    /// q rho <v> x B
 		     );
     }
+  }
     
   for (int i=lx0; i<=mx0; ++i) {
     In(i,ly0) = In(i,my1);
@@ -372,16 +417,18 @@ bool Darwin::Execute (double timestep) {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) 
-      Etx(i,j) = Out(i,j);
+      Etx(i,j) = -Out(i,j);
     
   // y-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
       In(i,j) = csc*(
-		     (    vxy(i,j+1) - vxy(i,j-1)
-			  +vyy(i,j+1) - vyy(i,j-1)
-			  +vyz(i,j+1) - vyz(i,j-1)
-			  ) / (2*dx[1])                       /// grad (rho <vv>)
+		     //-( vxy(i,j+1) - vxy(i,j-1)
+			 // +vyy(i,j+1) - vyy(i,j-1)
+			 // +vyz(i,j+1) - vyz(i,j-1)
+			 // ) / (2*dx[1])                       /// -grad (rho <vv>)
+		     -(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
+			 -(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
 		     +om2(i,j)*Ey(i,j)                   /// om2*E
 		     +sz(i,j)*Bx(i,j)-sx(i,j)*Bz(i,j)    /// q rho <v> x B
 		     );
@@ -400,14 +447,18 @@ bool Darwin::Execute (double timestep) {
   helmh->solve(Out,In,Lambda);
     
   for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) 
-      Ety(i,j) = Out(i,j);
+    for (int j=ly0; j<=my0; ++j) {
+      Ety(i,j) = -Out(i,j);
+    }
     
   // z-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = csc*(sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j));/// q rho <v> x B
-        }
+      In(i,j) = csc*(
+		     -(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
+			 -(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+             +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j));/// q rho <v> x B
+    }
     
   for (int i=lx0; i<=mx0; ++i) {
     In(i,ly0) = In(i,my1);
@@ -421,10 +472,15 @@ bool Darwin::Execute (double timestep) {
 
   helmh->solve(Out,In,Lambda);
     
+  //==================
+  // ACHTUNG TEST
+  //==================
   for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) 
-      Ez(i,j) = Out(i,j);
-            
+    for (int j=ly0; j<=my0; ++j) {
+      Ez(i,j) = -Out(i,j);
+      //Ez(i,j) = 0;
+    }
+           
   clearDiv(Etx, Ety);
 
   for (int i=lx0; i<=mx0; ++i) 
@@ -434,23 +490,11 @@ bool Darwin::Execute (double timestep) {
     }
         
   /* *************************************
-   *  Finally we add the global magnetic fields
-   *  to the solution for B
-   */
- 
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) {
-      Bx(i,j) += Gl_B0x;
-      By(i,j) += Gl_B0y;
-      Bz(i,j) += Gl_B0z;
-    }
-     
-  /* *************************************
    *  This should be it!
    *  Now we can write out the diagnostics
    */
     
-  if(mainproc && ((tstep%100)==0))   {
+  if(mainproc /*&& ((tstep%100)==0)*/)   {
     //if (false) {
     write_Scalar(Ex, "Ex.out");
     write_Scalar(Ey, "Ey.out");
@@ -461,8 +505,6 @@ bool Darwin::Execute (double timestep) {
     write_Scalar(Az, "Az.out");
     write_Scalar(Pot,"Phi.out");
   }
-  //    DiagField.Execute();
-
 
   //    Task::Execute();
   return false;

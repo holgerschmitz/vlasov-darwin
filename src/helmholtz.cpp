@@ -23,8 +23,6 @@ void Helmholtz::solve( NumMatrix<double,2> &u,
                        NumMatrix<double,2> &lambda) {
 
     NumMatrix<double,2> uold(u);
-    normalize(u);
-//    normalize(f);
     double error;
     do {
         uold=u;
@@ -46,7 +44,6 @@ void Helmholtz::mgi( NumMatrix<double,2> &u,
 
         NumMatrix<double,2> uold(u);
 
-//        normalize(f);
         do {
             uold=u;
             gauss(u,f,lambda);

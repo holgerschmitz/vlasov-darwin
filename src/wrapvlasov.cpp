@@ -14,10 +14,12 @@ void EFieldForce::Init(double dttx_, double vnorm, Potential *pPot_) {
 ScalarField &EFieldForce::GetEx() { return pE->GetEx(); }
 ScalarField &EFieldForce::GetEy() { return pE->GetEy(); }
 
-VelocityD EFieldForce::Force(const PositionI &Pos, const VelocityD &Vel) {
+VelocityD EFieldForce::Force(const PositionI &Pos, 
+                             const VelocityD &Vel,
+                             double dt) {
     double Fx = pE->GetEx()(Pos[0],Pos[1]);
     double Fy = pE->GetEy()(Pos[0],Pos[1]);
-    return VelocityD(dttx*Fx, dttx*Fy, 0.0);
+    return VelocityD(dttx*dt*Fx, dttx*dt*Fy, 0.0);
         
 }
 
@@ -57,7 +59,9 @@ ScalarField &EBFieldForce::GetEx() { return pPot->GetEx(); }
 ScalarField &EBFieldForce::GetEy() { return pPot->GetEy(); }
 
 
-VelocityD EBFieldForce::Force(const PositionI &Pos, const VelocityD &Vel) {
+VelocityD EBFieldForce::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
     double Ex = pPot->GetEx()(Pos[0],Pos[1]);
     double Ey = pPot->GetEy()(Pos[0],Pos[1]);
     const double Ez = 0;
@@ -105,7 +109,7 @@ VelocityD EBFieldForce::Force(const PositionI &Pos, const VelocityD &Vel) {
     double Fy = Epary - vperp*( 0.5*eperpy*BMag2*dttx + enormy*BMag );
     double Fz = Eparz - vperp*( 0.5*eperpz*BMag2*dttx + enormz*BMag );
     
-    return VelocityD(dttx*Fx, dttx*Fy, dttx*Fz);
+    return VelocityD(dttx*dt*Fx, dttx*dt*Fy, dttx*dt*Fz);
         
 }
 
@@ -128,60 +132,60 @@ ScalarField &EMDarwinForce::GetBy() { return pFields->GetBy(); }
 ScalarField &EMDarwinForce::GetBz() { return pFields->GetBz(); }
 
 
-VelocityD EMDarwinForce::Force(const PositionI &Pos, const VelocityD &Vel) {
-    double Ex = pFields->GetEx()(Pos[0],Pos[1]);
-    double Ey = pFields->GetEy()(Pos[0],Pos[1]);
-    double Ez = pFields->GetEz()(Pos[0],Pos[1]);
-
-    VelocityD B;
-    B[0] = pFields->GetBx()(Pos[0],Pos[1]);
-    B[1] = pFields->GetBy()(Pos[0],Pos[1]);
-    B[2] = pFields->GetBz()(Pos[0],Pos[1]);
+VelocityD EMDarwinForce::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
     
-    double BMag2 = B[0]*B[0]+B[1]*B[1]+B[2]*B[2];
-    double BMag = sqrt(BMag2);
-    double ebx = B[0]/BMag;
-    double eby = B[1]/BMag;
-    double ebz = B[2]/BMag;
-    
-    double Epar = ebx*Ex+eby*Ey+ebz*Ez;
-    double Eparx = Epar*ebx;
-    double Epary = Epar*eby;
-    double Eparz = Epar*ebz;
-
     // normalizing velocity
-    double vx = Vel[0]/vnorm;
-    double vy = Vel[1]/vnorm;
-    double vz = Vel[2]/vnorm;
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = GetEx()(Pos[0],Pos[1]);
+    double Ey = GetEy()(Pos[0],Pos[1]);
+    double Ez = GetEz()(Pos[0],Pos[1]);
 
-    double vpar = ebx*vx+eby*vy+ebz*vz;
-    double vparx = vpar*ebx;
-    double vpary = vpar*eby;
-    double vparz = vpar*ebz;
+    double Bx = GetBx()(Pos[0],Pos[1]);
+    double By = GetBy()(Pos[0],Pos[1]);
+    double Bz = GetBz()(Pos[0],Pos[1]);
+
+//    Ex = 0; Ey = 0; Ez = 0;
+//    Bx = 0; By = 0; Bz = 1;
     
-    double vdrx = Ey*B[2]-Ez*B[1];
-    double vdry = Ez*B[0]-Ex*B[2];
-    double vdrz = Ex*B[1]-Ey*B[0];
+    // Calculate V-minus
+    double Vmx = vx+0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
     
-    double vperpx = vx - vparx - vdrx;
-    double vperpy = vy - vpary - vdry;
-    double vperpz = vz - vparz - vdrz;
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
     
-    double vperp = sqrt(vperpx*vperpx + vperpy*vperpy + vperpz*vperpz);
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
     
-    double eperpx = vperpx/vperp;
-    double eperpy = vperpy/vperp;
-    double eperpz = vperpz/vperp;
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
     
-    double enormx = eby*eperpz - ebz*eperpy;
-    double enormy = ebz*eperpx - ebx*eperpz;
-    double enormz = ebx*eperpy - eby*eperpx;
+    // c) and finally V-plus
+    double Vpx = Vmx + vpry*sz-vprz*sy;
+    double Vpy = Vmy + vprz*sx-vprx*sz;
+    double Vpz = Vmz + vprx*sy-vpry*sx;
     
-    double Fx = Eparx - vperp*( 0.5*eperpx*BMag2*dttx + enormx*BMag );
-    double Fy = Epary - vperp*( 0.5*eperpy*BMag2*dttx + enormy*BMag );
-    double Fz = Eparz - vperp*( 0.5*eperpz*BMag2*dttx + enormz*BMag );
+    // Calculate new velocity minus old velocity
+    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
     
-    return VelocityD(dttx*Fx, dttx*Fy, dttx*Fz);
+   
+    return VelocityD(Vdiffx, Vdiffy, Vdiffz);
         
 }
 

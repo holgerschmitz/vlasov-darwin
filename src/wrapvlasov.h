@@ -122,7 +122,8 @@ public:
   void resize(PhasePositionI &low, PhasePositionI &high);
 
   void write(ostream &);
-  void writeYVySlice(int x,int vx,int vz, string fname);
+  void writeYVySlice(int x,int vx, int vz, string fname);
+  void writeVxVySlice(int t, int x, int y, int vz, ostream &Slice);
 
   VelocityD getJ(int i, int j);
   FixedArray<double,6> getVVTens(int i, int j);
@@ -210,7 +211,9 @@ public:
         
   ScalarField &FieldEnergy();
 
-  VelocityD Force(const PositionI &Pos, const VelocityD &Vel);
+  VelocityD Force(const PositionI &Pos, 
+                  const VelocityD &Vel,
+                  double dt);
   void Init(double dttx_, double vnorm_, Potential* pPot_);
         
   typedef Potential FieldType;
@@ -234,7 +237,9 @@ public:
   ScalarField &GetEx();
   ScalarField &GetEy();
         
-  VelocityD Force(const PositionI &Pos, const VelocityD &Vel);
+  VelocityD Force(const PositionI &Pos, 
+                  const VelocityD &Vel,
+                  double dt);
   void Init(double dttx_, double vnorm_, Potential* pPot_);
   void setBField(VelocityD B_);
 
@@ -250,7 +255,7 @@ class Darwin;
  *  method to work together with the VlasovSpecies.
  */
 class EMDarwinForce {
-private:
+public:
   Darwin* pFields;
   double dttx;
   double vnorm;
@@ -267,7 +272,9 @@ public:
         
   ScalarField &FieldEnergy();
         
-  VelocityD Force(const PositionI &Pos, const VelocityD &Vel);
+  VelocityD Force(const PositionI &Pos, 
+                  const VelocityD &Vel,
+                  double dt);
   void Init(double dttx_, double vnorm_, Darwin* pFields_);
 
   typedef Darwin FieldType;

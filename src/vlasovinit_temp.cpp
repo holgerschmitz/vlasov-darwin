@@ -323,55 +323,63 @@ void VlasovWaveGenInit<ForceField>::initialise(VlasovDist &dist, const VelocityD
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
         
-      double PP = 0;
-      for (int kx=1; kx<(GlGridX/2); ++kx) 
-	PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
+//      double PP = cos( 2*PI*(Xi[0]/double(GlGridX)));
+//      double PZ = sin( 2*PI*(Xi[0]/double(GlGridX)));
+      double PP=0;
+      double PZ=0;
+      for (int kx=1; kx<(GlGridX/2); ++kx)  {
+//      for (int kx=1; kx<2; ++kx)  {
+	    PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
+	    PZ += sin( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
+	    //PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)));
+	    //PZ += sin( 2*PI*kx*(Xi[0]/double(GlGridX)));
+        
+      }
         
       //        for (int ky=1; ky<Ny/2; ++kx) 
       //            PP += cos( 2*PI*ky*Xi[0]/double(Ny)) / double(ky);
 
-      //        PP *= 0.5;
+      PP *= 0.01;
+      PZ *= 0.01;
         
       double NPert = 1.0;
-      double VPert = PP;
         
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	    for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	      for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
 
-	    VelocityD V( pVlasov->velocity(Vi) );
-	    VelocityD Vm( 
-			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-			 );
-	    VelocityD Vp( 
-			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-			 );
-                                
-                
-	    UStream[0] = u_stream[0]*PP;
-	    UStream[1] = u_stream[1]*PP;
-	    UStream[2] = u_stream[2]*PP;
-                
-	    VelocityD vd1m((Vm-UStream)/VTh);
+	        VelocityD V( pVlasov->velocity(Vi) );
+	        VelocityD Vm( 
+			     (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			     );
+	        VelocityD Vp( 
+			     (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			     );
 
-	    VelocityD vd1p((Vp-UStream)/VTh);
 
-	    VelocityD F1;
-                
-	    for (int j=0; j<3; ++j) {
-	      if (Vi[j]==0) {
-		F1[j] = 0.5*(erf(vd1p[j]) + 1);
-	      } else if (Vi[j]==dist.getHigh(j+2)) {
-		F1[j] = 0.5*(1 - erf(vd1m[j]));
-	      } else {
-		F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+	        UStream[0] = u_stream[0]*PP;
+	        UStream[1] = u_stream[1]*PP;
+	        UStream[2] = u_stream[2]*PZ;
 
-	      }
-	    }
-                
-                
-	    double F = N*NPert*F1.product();
-	    dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+	        VelocityD vd1m((Vm-UStream)/VTh);
+
+	        VelocityD vd1p((Vp-UStream)/VTh);
+
+	        VelocityD F1;
+
+	        for (int j=0; j<3; ++j) {
+	          if (Vi[j]==0) {
+		        F1[j] = 0.5*(erf(vd1p[j]) + 1);
+	          } else if (Vi[j]==dist.getHigh(j+2)) {
+		        F1[j] = 0.5*(1 - erf(vd1m[j]));
+	          } else {
+		        F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+	          }
+	        }
+
+
+	        double F = N*NPert*F1.product();
+	        dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
 	  }
       state = (state==0)?1:0;
 
@@ -379,3 +387,121 @@ void VlasovWaveGenInit<ForceField>::initialise(VlasovDist &dist, const VelocityD
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 
 }
+
+//=========================================================================
+//===============   VlasovCurrentSheetInit ================================
+//=========================================================================
+
+template<class ForceField>
+VlasovCurrentSheetInit<ForceField>::VlasovCurrentSheetInit(VlasovSpecies<ForceField>* pVlasov_) {
+  pVlasov = pVlasov_;
+  
+  u_stream[0] = InitStream_vx;
+  u_stream[1] = InitStream_vy;
+  u_stream[2] = InitStream_vz;
+  
+  v_th[0] = InitTherm_vx;
+  v_th[1] = InitTherm_vy;
+  v_th[2] = InitTherm_vz;
+  
+  N = Init_N0;
+    
+  cout << "VlasovMaxwellInit::Init (" << u_stream << ") (" <<  v_th << ") ";
+}
+
+template<class ForceField>
+VlasovCurrentSheetInit<ForceField>::~VlasovCurrentSheetInit() {}
+
+
+/** @brief Do the initialisation
+ *   
+ *  Iterate through the whole distribution function and assign the appropriate
+ *  phase space density to every point in phase space. The Phase space density 
+ *  is calculated as a Maxwellian distribution.
+ */
+template<class ForceField>
+void VlasovCurrentSheetInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+  
+  double Nx = GlDistHigh[0]-GlDistLow[0]-3;
+  double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+  
+  int currup = (GlDistHigh[0]-GlDistLow[0]-3)/4;
+  int curdown = (3*(GlDistHigh[0]-GlDistLow[0]-3))/4;
+  
+  PositionI Xi;
+  VelocityI Vi;
+  VelocityD UStream(u_stream[0],u_stream[1],u_stream[2]);
+  VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
+      
+      
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	    for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	      for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	    
+	        VelocityD V( pVlasov->velocity(Vi) );
+	        VelocityD Vm( 
+			     (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			     );
+	        VelocityD Vp( 
+			     (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			     );
+
+
+	        VelocityD vd1m,vd1p;
+            if ( (Xi[0] == currup) ) {
+              vd1m = (Vm - UStream)/VTh;
+              vd1p = (Vp - UStream)/VTh;
+            } else if ( (Xi[0] == curdown) ) {
+              vd1m = (Vm + UStream)/VTh;
+              vd1p = (Vp + UStream)/VTh;
+            } else {
+              vd1m = Vm/VTh;
+              vd1p = Vp/VTh;
+            }
+
+	        VelocityD F1;
+
+	        for (int j=0; j<3; ++j) {
+	          if (Vi[j]==L[j+2]) {
+		    F1[j] = 0.5*(erf(vd1p[j]) + 1);
+	          } else if (Vi[j]==H[j+2]) {
+		    F1[j] = 0.5*(1 - erf(vd1m[j]));
+	          } else {
+		    F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+
+	          }
+	        }
+
+
+	        double F = N*F1.product();
+	        dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+	  }
+        
+      // Set all the boundaries to zero
+        
+/*      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	    for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
+	      dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
+	      dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
+        }
+           
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+	    for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	      dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+	      dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+        }
+      
+      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	    for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	      dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+	      dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+        }*/
+    } 
+  //    std::cout << "Initialized " << Xi[0] << std::endl;
+}
+

@@ -31,9 +31,9 @@ void Poisson::do_resize(const PositionD &pMiN_, const PositionD &pMaX_,
     
     if (WorkArray) delete[] WorkArray;
     
-    WorkArray = new double[ 4*(steps[0]+1) + 
-                            (13 + int(log2(double(steps[0]+1))))
-                                *(steps[1]+1)
+    WorkArray = new double[ (4*(steps[1]+2) + 
+                            (13 + int(log2(double(steps[1]+2))))
+                                *(steps[0]+2))
                           ];
 }
 
@@ -113,11 +113,11 @@ void Poisson::solve(ScalarField &In, ScalarField &Out) {
                     - (
                         Out(iP,j) + Out(i,jP) + Out(iM,j) + Out(i,jM)
                     )
-                )/(12*dx*dx);
+                )/(12*dx*dy);
         }
     
 //    cerr << "Poisson solving step 3\n";
-    solve_step(ResIn,ResOut);
+    solve_step(ResIn,ResOut); 
     
 //    cerr << "Poisson solving step 4\n";
     
@@ -176,7 +176,7 @@ void Poisson::solve_step(ScalarField &In, ScalarField &Out) {
             &pMiN[1], &pMaX[1], &nstep[1], &boundary[1], NULL, NULL,
             &lambda, Temp.data(), &idimf,
             &perturb, &ierror, WorkArray);
-            
+    
     if (ierror != 0) {
         cerr << "Error "<<ierror<<" in Poisson" << endl;
         cerr << "Params are:"<< endl;
