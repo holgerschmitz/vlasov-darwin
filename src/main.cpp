@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 
+bool VlasovDiagnostic = false;
 
 list<pVlasov> species;
 

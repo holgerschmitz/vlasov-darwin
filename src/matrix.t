@@ -44,8 +44,8 @@ Matrix<T, rank>::Matrix(const Matrix<T, rank>& _matr)
 
   newData(_matr.lo, _matr.hi);
 
-  for (int i = 0; i < size; i++)
-    matr[i] = _matr.matr[i];
+  for (int i = 0; i < size; i++)    
+    matr[i] = checkValue(_matr.matr[i]);
 }
  
 template<class T, int rank> 
@@ -109,7 +109,7 @@ Matrix<T, rank>& Matrix<T, rank>::operator=(const Matrix<T, rank>& _matr)
   }
 
   for (int i = 0; i < size; i++)
-    matr[i] = _matr.matr[i];
+    matr[i] = checkValue(_matr.matr[i]);
   return *this;
 }
  
@@ -216,7 +216,7 @@ ostream& operator<<(ostream& os, const Matrix<T, 2>& matr)
   {
     for (int j = matr.lo[1]; j<= matr.hi[1]; ++j)
     {
-      os << i << " " << j << " " << matr(i,j) << "\n";
+      os << i << " " << j << " " << matr(i,j)<< "\n";
     }
     os << std::endl;
   }

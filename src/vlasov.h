@@ -34,6 +34,8 @@ typedef FixedArray<double,3> VelocityD;
 
 typedef NumMatrix<double, DIMENSION+3> VlasovDist;
 
+extern bool VlasovDiagnostic;
+
 #endif
 
 /** @page indices Array indices
