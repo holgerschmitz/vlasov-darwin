@@ -183,6 +183,7 @@ void Matrix<T, rank>::newData(const int* l, const int* h)
     size *= dims[d];
   }
   matr = new T[size];
+  if (matr==NULL) std::cerr << "Could not allocate memory!\n";
   int p = -lo[rank-1];
 
   for (d = rank-2; d >= 0 ; d--) {
