@@ -16,7 +16,7 @@ void Potential::AddSpecies(EFieldForce* pS) {
 void Potential::Init () {
 
 //    n0 = -1;
-    n0 = 0;
+    n0 = Parameters::instance().bgDensity();
 
     LBound = Process::instance().getBoundary().scalarLow();
     HBound = Process::instance().getBoundary().scalarHigh();
@@ -24,12 +24,12 @@ void Potential::Init () {
     dx[0] = Parameters::instance().gridSpace_x();
     dx[1] = Parameters::instance().gridSpace_y();
 
-    cerr << "Grid Spacing is " << dx << endl;
-    cerr << "Grid Size is " << LBound << " to " << HBound << endl;
+    std::cout << "Grid Spacing is " << dx << std::endl;
+    std::cout << "Grid Size is " << LBound << " to " << HBound << std::endl;
 
 
     // resize grid
-	den.resize(LBound.Data(),HBound.Data());
+    den.resize(LBound.Data(),HBound.Data());
     Pot.resize(LBound.Data(),HBound.Data());
     Ex.resize(LBound.Data(),HBound.Data());
     Ex.clear();

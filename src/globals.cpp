@@ -1,6 +1,8 @@
 // -*- C++ -*-
 // $Id$
 #include "globals.h"
+#include "darwin.h"
+#include "potential.h"
 
 Parameters *Parameters::globals;
 
@@ -27,6 +29,8 @@ PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
   (*pm)["Bx"] = WParameter(new ParameterValue<double>(&BField[0],0));
   (*pm)["By"] = WParameter(new ParameterValue<double>(&BField[1],0));
   (*pm)["Bz"] = WParameter(new ParameterValue<double>(&BField[2],0));
+  
+  (*pm)["bg-density"] = WParameter(new ParameterValue<double>(&BgDensity,0));
 
   (*pm)["mg-nu1"] = WParameter(new ParameterValue<int>(&MGNu1,1));
   (*pm)["mg-nu2"] = WParameter(new ParameterValue<int>(&MGNu2,1));
@@ -37,11 +41,12 @@ PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
 
 std::string Parameters::Rebuild(std::istream& in) 
 {
-  Rebuildable::Rebuild(in);
+  std::string strToken = Rebuildable::Rebuild(in);
   GridLow = PositionI(0,0);
   GridHigh = PositionI(GridX+1,GridY+1);
   DistLow = PhasePositionI(-1,-1,0,0,0);
   DistHigh = PhasePositionI(GridX+2,GridY+2,VelRes+1,VelRes+1,VelRes+1);
+  return strToken;
 }
 
 Boundary **BoundaryKeeper::ppboundary;

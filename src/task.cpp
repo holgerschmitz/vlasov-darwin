@@ -51,8 +51,10 @@ std::string Rebuildable::Rebuild (std::istream& in) {
 				else // nur den Namen des Parameters ausgeben, es koennte ein richtiger kommen
 				  std::cerr << "Unknown Parameter " << strParam << std::endl;
       }
-      else
-        strToken = (((Parameter*)(*pm)[strToken])->Rebuild(in));
+      else {
+        Parameter *par = (Parameter*)(*pm)[strToken];
+        strToken = par->Rebuild(in);
+      }
     }
   }
   if (strToken == "}") in >> strToken;

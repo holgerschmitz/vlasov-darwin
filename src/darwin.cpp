@@ -29,8 +29,8 @@ void Darwin::Init () {
   
   dV = Parameters::instance().volumeQuant();
 	
-  cerr << "Grid Spacing is " << dx << endl;
-  cerr << "Grid Size is " << LBound << " to " << HBound << endl;
+  std::cout << "Grid Spacing is " << dx << endl;
+  std::cout << "Grid Size is " << LBound << " to " << HBound << endl;
     
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
@@ -113,7 +113,7 @@ void Darwin::Init () {
   Lambda.resize(LBound.Data(),HBound.Data());
   Out.resize(LBound.Data(),HBound.Data());
 
-  cerr << "Done Darwin: Size=( " << LBound << "),(" << HBound<< ")" << endl;
+  std::cout << "Done Darwin: Size=( " << LBound << "),(" << HBound<< ")" << endl;
 }
 
 bool Darwin::Execute () {
@@ -132,7 +132,7 @@ bool Darwin::Execute () {
 
   tmp.resize(LBound.Data(),HBound.Data());
   
-  //    cerr << "Initialising Density\n";
+  //    std::cout << "Initialising Density\n";
   // initialise
     
   /* *************************************

@@ -2,11 +2,17 @@
 #include "scheme.h"
 #include "forcefield.h"
 
+#ifdef SIM_ELECTROSTATIC
+typedef EFieldForce ForceField;
+#endif
 
-//typedef EFieldForce ForceField;
-//typedef EMDarwinForce ForceField;
+#ifdef SIM_DARWIN
+typedef EMDarwinForce ForceField;
+#endif
 
+#ifdef SIM_CONSTFIELD
 typedef ConstEBFieldForce ForceField;
+#endif
 
 template<
   class ForceField, 

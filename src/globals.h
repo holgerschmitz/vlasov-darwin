@@ -16,6 +16,7 @@ class Parameters : public Rebuildable {
       double GridSpace_x;
       double GridSpace_y;
       double Dt;
+      double BgDensity;
       
       int TotalTime;
 
@@ -53,6 +54,7 @@ class Parameters : public Rebuildable {
       double gridSpace_y() { return GridSpace_y; }
       double volumeQuant() { return 1; }
       double dt() { return Dt; }
+      double bgDensity() { return BgDensity; }
       int totalTime() { return TotalTime; }
       double velocityRatio() { return VelocityRatio; }
       

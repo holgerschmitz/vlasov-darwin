@@ -3,9 +3,14 @@
 #include "boundary.h"
 #include "derivedfields.h"
 #include "parameter.h"
+#include "diagnostic.h"
+#include "hdfstream.h"
 
 #ifndef VLASOVBASE_H
 #define VLASOVBASE_H
+
+typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
+
 
 class VlasovInitialiser;
 
@@ -16,6 +21,7 @@ struct SpeciesData {
   double GridRange_vy;
   double GridRange_vz;
   VlasovInitialiser *init;
+  PhaseDiag *phasediag;
 };
 
 
@@ -56,8 +62,14 @@ class ForceFieldBase {
        */
       Boundary *boundary;
       
+      /// A pointer to the initialiser
+      VlasovInitialiser *init;
+      
       /// The timestep
       int tstep;
+      
+      /// The diagnostic for the distribution function
+      PhaseDiag *phasediag;
       
       DerivedFieldsContainer derivedFields;
   public:
@@ -66,7 +78,7 @@ class ForceFieldBase {
       virtual ~ForceFieldBase ();
 
       /// Initialises the distribution function with a given initialiser
-      void initialise(VlasovInitialiser *init);
+      void initialise();
                         
       /** Resizes the grid of the distribution function
        *  (and the distribution function temporaries)

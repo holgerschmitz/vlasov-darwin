@@ -11,30 +11,35 @@ ForceFieldBase::ForceFieldBase(SpeciesData &data)
     VRange[0] = data.GridRange_vx;
     VRange[1] = data.GridRange_vy;
     VRange[2] = data.GridRange_vz;
+    
+    init = data.init;
+    phasediag = data.phasediag;
 }
 
 
 ForceFieldBase::~ForceFieldBase() {
-    cerr << "Destructing Vlasov Species\n";
+    std::cout << "Destructing Vlasov Species\n";
     delete boundary;
 }
 
 
-void ForceFieldBase::initialise(VlasovInitialiser *init) {
-    cerr << "Executing initializer " << endl;
+void ForceFieldBase::initialise() {
+    std::cout << "Executing initializer " << std::endl;
     
     init->initialise(this);
     
-    cerr << "Boundary Exchange " << endl;
+    std::cout << "Boundary Exchange " << std::endl;
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
 
-    cerr << "DONE INITIALIZING Vlasov Species" << endl;
+    if (NULL != phasediag) phasediag->setField(&Distribution);
+
+    std::cout << "DONE INITIALIZING Vlasov Species" << std::endl;    
 }
 
 
 void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
-    cerr << "RISIZING Vlasov Advancer Base " << low << " " << high << endl;
+    std::cout << "RISIZING Vlasov Advancer Base " << low << " " << high << std::endl;
     
     Distribution.resize(low.Data(),high.Data());
 
@@ -49,6 +54,6 @@ void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
                 
     VelSizeH = (VelSize-1.0) / 2.0;
 
-    cerr << "RISIZING Finite Volume Advancer" << endl;
-    cerr << "VelSize = " << VelSize << "  VelSizeH = " << VelSizeH << "\n";
+    std::cout << "RISIZING Finite Volume Advancer" << std::endl;
+    std::cout << "VelSize = " << VelSize << "  VelSizeH = " << VelSizeH << "\n";
 }

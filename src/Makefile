@@ -1,8 +1,8 @@
 include $(HOME)/src/makeinclude/include.mak
 
-OFLAGS  = $(X_OFLAGS) -DNDEBUG
+OFLAGS  = $(X_OFLAGS) -DNDEBUG -g
 
-CXXFLAGS = $(OFLAGS) -I. $(X_INC) $(X_NO_AUTO_INCLUDE)
+BASE_CXXFLAGS = $(OFLAGS) -I. $(X_INC) $(X_NO_AUTO_INCLUDE)
 
 VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 		vlasovinit.cpp wrapvlasov.cpp diaghelper.cpp main.cpp \
@@ -32,8 +32,20 @@ BINARY_PREFIX = $(X_ROOT_DIR)/bin/$(X_OSTYPE)
 
 all: vlasov
 
-vlasov:  $(OBJECTS)
+vlasov:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_DARWIN
+vlasov: $(OBJECTS) 
 	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ ~/bin/$(X_OSTYPE)
+
+vlasov_es:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC
+vlasov_es: $(OBJECTS) 
+	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ ~/bin/$(X_OSTYPE)
+
+vlasov_const:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_CONSTFIELD
+vlasov_const: $(OBJECTS) 
+	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ ~/bin/$(X_OSTYPE)
 
 test_helmholtz:  helmholtz.o Vlas2d.o test_helmholtz.o
 	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
@@ -45,6 +57,6 @@ test_helmholtz:  helmholtz.o Vlas2d.o test_helmholtz.o
 	$(COMPILE) -c $<
 
 clean:
-	-rm -f *.o core vlasov
+	-rm -f *.o core vlasov vlasov_es vlasov_const
 
 

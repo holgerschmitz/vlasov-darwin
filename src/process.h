@@ -54,7 +54,7 @@ class BoundaryRebuild : public Rebuildable {
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:
       BoundaryRebuild();
-      Boundary *getBoundary() { return boundary; }
+      Boundary *getBoundary();
 };
 
 class VlasovInitRebuild;
@@ -64,8 +64,6 @@ class VlasovRebuild : public Rebuildable {
       SpeciesData vlasovData;
       VlasovInitRebuild *initRebuild;
       static RebuildList slist;
-      typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
-      PhaseDiag *phasediag;
     protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:

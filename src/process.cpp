@@ -33,6 +33,7 @@ void Process::run() {
       (*it)->Execute();
     }
     field->Execute();
+    DiagnosticManager::instance().execute();
   }
 }
 
@@ -50,8 +51,20 @@ PARAMETERMAP* ProcessRebuild::MakeParamMap (PARAMETERMAP* pm) {
 
 std::string ProcessRebuild::Rebuild(std::istream& in)
 {
+  std::cerr << "Rebuilding Process!\n";
   Rebuildable::Rebuild(in);
+  if (NULL == boundary) {
+    std::cerr << "No boundary specified! Must exit!\n";
+    exit(-1);
+  }
+  if (NULL == globals) {
+    std::cerr << "No globals specified! Must exit!\n";
+    exit(-1);
+  }
+  std::cerr << "Making Process!\n";
   makeProcess();
+  std::cerr << "Making Process! done\n";
+  return "";
 }
 
 void ProcessRebuild::makeProcess()
@@ -61,6 +74,14 @@ void ProcessRebuild::makeProcess()
 
 BoundaryRebuild::BoundaryRebuild() {
   BoundaryKeeper::setBoundary(&boundary);
+}
+
+Boundary *BoundaryRebuild::getBoundary() { 
+  if (NULL == boundary) {
+    std::cerr << "No boundary type specified inside boundary! Must exit!\n";
+    exit(-1);
+  }
+  return boundary; 
 }
 
 PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
@@ -111,7 +132,7 @@ PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
       new ParameterRebuild<VlasovInitRebuild, VlasovInitRebuild>(&initRebuild)
   );
   (*pm)["phase-space"] = WParameter(
-      new ParameterRebuild<PhaseDiag, PhaseDiag>(&phasediag)
+      new ParameterRebuild<PhaseDiag, PhaseDiag>(&vlasovData.phasediag)
   );
   return pm;
 }

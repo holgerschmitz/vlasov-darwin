@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: $
+// $Id: diagnostic.t,v 1.2 2003/12/11 10:40:10 hs Exp $
 
 
 template<class Type, class StreamType>
@@ -18,4 +18,10 @@ template<class Type, class StreamType>
 void SimpleDiagnostic<Type,StreamType>::close()
 {
   output.close();
+}
+
+template<class Type, class StreamType>
+void SimpleDiagnostic<Type,StreamType>::setField(Type *fld)
+{
+  field = fld;
 }

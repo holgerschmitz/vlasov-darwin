@@ -31,20 +31,21 @@ template<
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
 
-  pPot = Parameters::instance().getField();
-  pPot->AddSpecies(this);
-
-  cerr << "INITIALIZING Vlasov Species" << endl;
+  std::cout << "INITIALIZING Vlasov Species" << std::endl;
 
   PhasePositionI Size;
   PositionI Lowx = Process::instance().getBoundary().scalarLow();
   PositionI Highx = Process::instance().getBoundary().scalarHigh();
     
-  cerr << "Resizing" << endl;
+  std::cout << "Resizing" << std::endl;
     
   resize(boundary->DistLow(),boundary->DistHigh());
+  ForceFieldBase::initialise();
     
-  cerr << "Resizing fields" << endl;
+  pPot = Parameters::instance().getField();
+  pPot->AddSpecies(this);
+
+  std::cout << "Resizing fields" << std::endl;
     
 	EKin.resize(Lowx.Data(),Highx.Data());
 
@@ -54,10 +55,10 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
     
   for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-3)*dx[i];
     
-  cerr << "Init Base " << BoxRange << " " << VRange << endl;
+  std::cout << "Init Base " << BoxRange << " " << VRange << std::endl;
        
        
-  cerr << "Init Field " << Charge/Mass << " " << VRange << endl;
+  std::cout << "Init Field " << Charge/Mass << " " << VRange << std::endl;
   ForceField::Init(dx[0]/dt);
 }
 
@@ -134,61 +135,6 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::writeVxVySlice(int t, int x, int
     
 }
 
-
-
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-ScalarField &VlasovSpecies<ForceField,Advancer,Scheme>::KineticEnergy () {
-    const int *L = Distribution.getLow();
-    const int *H = Distribution.getHigh();
-
-    VelocityI vi;
-    VelocityD V;
-    double d;
-
-    EKin.clear();
-
-    for (int i=L[0]+2; i<=H[0]-2; ++i) 
-      for (int j=L[1]+2; j<=H[1]-2; ++j)
-
-        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
-          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
-            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
-                V = velocity(vi);
-                d = Distribution(i,j,vi[0],vi[1],vi[2]);
-                EKin(i,j) += (V[0]*V[0]+V[1]*V[1]+V[2]*V[2])*d;
-    }
-    
-    boundary->ScalarFieldReduce(EKin);
-    return EKin;
-}
-
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-double VlasovSpecies<ForceField,Advancer,Scheme>::TotalEnergy () {
-    ScalarField &kin = KineticEnergy();
-    ScalarField &fld = FieldEnergy();
-    const int *L = kin.getLow();
-    const int *H = kin.getHigh();
-    
-    double ETot = 0;
-    double dxdy = dx[0]*dx[1];
-    
-    
-    for (int i=L[0]+1; i<=H[0]-1; ++i) 
-        for (int j=L[1]+1; j<=H[1]-1; ++j) {
-            ETot += kin(i,j)+ fld(i,j);
-    }
-    return ETot;
-}
-
-
 template<
   class ForceField, 
   template<class, template<class> class> class Advancer,
@@ -218,10 +164,10 @@ double VlasovSpecies<ForceField,Advancer,Scheme>::densityError() {
     
     avg = avg/double((UBound[0]-LBound[0]-3)*(UBound[1]-LBound[1]-3));
     
-    cerr << "Partial Error in density: " << avg - 1 << endl;
+    std::cout << "Partial Error in density: " << avg - 1 << std::endl;
 
     avg =  boundary->AvgReduce(avg);
-    cerr << "Total Error in density: " << avg - 1 << endl;
+    std::cout << "Total Error in density: " << avg - 1 << std::endl;
     return avg;
 }
 

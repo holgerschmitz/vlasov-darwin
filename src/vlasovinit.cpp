@@ -184,7 +184,7 @@ void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
         
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
-      cerr << "X pos " << Xi << endl;
+//      cerr << "X pos " << Xi << endl;
       double NPert1 = (
 		       1+n_perturb1*cos(
 					2*PI*k_perturb1[0]*Xi[0]/Nx

@@ -33,10 +33,10 @@ int main (int argc_, char** argv_) {
   
   ProcessRebuild().Rebuild(setupfile);
   
-  cout << "MAIN: initializing";
+  cout << "MAIN: initializing\n";
   Process::instance().init();
   
-  cout << "MAIN: running";
+  cout << "MAIN: running\n";
   Process::instance().run();
       
   return 0;

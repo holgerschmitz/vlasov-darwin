@@ -94,17 +94,6 @@ class VlasovSpecies
        */
       void writeVxVySlice(int t, int x, int y, int vz, ostream &Slice);      
       
-      /** @brief Integrates the kinetic energy depending on the 
-       *  position and returns it in a scalar field
-       */
-      ScalarField &KineticEnergy();
-      
-      /** @brief Adds the kinetic energy and the field energy
-       *  (from the ForceField) and integrates over the whole 
-       *  simulation box.
-       */
-      double TotalEnergy();
-
   private:
       /** Returns the density error.
        *  The value returned is actually the density itself.
