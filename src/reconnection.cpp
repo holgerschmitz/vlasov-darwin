@@ -272,34 +272,25 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       double sc2 = sech( (Xi[1]-Ysheet2)/lambda_norm );
 
 //      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*sin(2*PIl*Xi[1]/Ny);
-      double vz_pert = 0;
       
       double N_pert = vz1*cos(2*PIl*Xi[0]/Nx);
       double N;
       double N1 = (N0-N_pert)*sc1*sc1;
       double N2 = (N0+N_pert)*sc2*sc2;
-      double N01 = N0*sc1*sc1;
-      double N02 = N0*sc2*sc2;
       
       if ( (Xi[1]>(GlLow[1]+1)) && (Xi[1]<GlMid) )
       {
-        N = Ninf + N1;
-        if (NInf>0)
-          UStream[2] =  vz0*sc1*sc1/(Ninf + N01) + vz_pert;
-        else
-          UStream[2] =  vz0 + vz_pert;
+        N = N1;
+        UStream[2] =  vz0;
           
       } else if (  (Xi[1]>GlMid) && (Xi[1]<(GlHigh[1]-2)) )
       {
-        N = Ninf + N2;
-        if (NInf>0)
-          UStream[2] =  -vz0*sc2*sc2/(Ninf + N02) + vz_pert;
-        else
-          UStream[2] =  -vz0 + vz_pert;
+        N = N2;
+        UStream[2] =  -vz0;
       } else 
       {
-        N = Ninf;
-        UStream[2] =  vz_pert;
+        N = 0;
+        UStream[2] =  0;
       }   
                   
       if (boundary.master())
@@ -336,6 +327,27 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
                 
             double F = N*F1.product();
             dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+
+
+            VelocityD vd0m(Vm/VTh);
+
+            VelocityD vd0p(Vp/VTh);
+            
+            VelocityD F0;
+            
+            for (int j=0; j<3; ++j) {
+              if (Vi[j]==L[j+2]) {
+                F0[j] = 0.5*(erf(vd0p[j]) + 1);
+              } else if (Vi[j]==H[j+2]) {
+                F0[j] = 0.5*(1 - erf(vd0m[j]));
+              } else {
+                F0[j] = 0.5*(erf(vd0p[j]) - erf(vd0m[j]));
+              }
+            }
+                
+            F = Ninf*F0.product();
+            dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) += F;
+
           }
         
     }
