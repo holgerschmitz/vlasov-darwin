@@ -295,4 +295,232 @@ double GenericEMForce<FieldType>
 //}
 
 
+template<class FieldType>
+VelocityD GenericEMForceBoris2<FieldType>
+                       ::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = Charge*GetEx(Pos)/Mass;
+    double Ey = Charge*GetEy(Pos)/Mass;
+    double Ez = Charge*GetEz(Pos)/Mass;
+
+    double Bx = Charge*GetBx(Pos)/Mass;
+    double By = Charge*GetBy(Pos)/Mass;
+    double Bz = Charge*GetBz(Pos)/Mass;
+
+    // Calculate V-minus
+    double Vmx = vx+0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
+    
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
+    
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
+    
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
+    
+    // c) and finally V-plus
+    double Vpx = Vmx + vpry*sz-vprz*sy;
+    double Vpy = Vmy + vprz*sx-vprx*sz;
+    double Vpz = Vmz + vprx*sy-vpry*sx;
+    
+    // Calculate new velocity minus old velocity
+    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
+    
+   
+    return VelocityD(Vdiffx, Vdiffy, Vdiffz);
+        
+}
+
+template<class FieldType>
+double GenericEMForceBoris2<FieldType>
+                       ::ForceX(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = Charge*GetEx(Pos)/Mass;
+    double Ey = Charge*GetEy(Pos)/Mass;
+    double Ez = Charge*GetEz(Pos)/Mass;
+
+    double Bx = Charge*GetBx(Pos)/Mass;
+    double By = Charge*GetBy(Pos)/Mass;
+    double Bz = Charge*GetBz(Pos)/Mass;
+    
+    // Calculate V-minus
+    double Vmx = vx+0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
+    
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
+    
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sy = sfact*ty;
+    double sz = sfact*tz;
+    
+    // b) now v-prime
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
+    
+    // c) and finally V-plus
+    double Vpx = Vmx + vpry*sz-vprz*sy;
+    
+    // Calculate new velocity minus old velocity
+    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    
+   
+    return Vdiffx;
+        
+}
+
+template<class FieldType>
+double GenericEMForceBoris2<FieldType>
+                       ::ForceY(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = Charge*GetEx(Pos)/Mass;
+    double Ey = Charge*GetEy(Pos)/Mass;
+    double Ez = Charge*GetEz(Pos)/Mass;
+
+    double Bx = Charge*GetBx(Pos)/Mass;
+    double By = Charge*GetBy(Pos)/Mass;
+    double Bz = Charge*GetBz(Pos)/Mass;
+
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
+    
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
+
+    // Here we assume that vx is actually given at time t+1
+    // so we first have to calculate Vmx from it
+
+    // Calculate V-minus
+    double Vpx = vx-0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
+    
+    double Ax = 1-sy*ty-sz*tz;
+    double Vmx = (Vpx - Vmy*(sz+sy*tx) - Vmz*(sy-sz*tx)) / Ax;
+    
+    // Rotate
+    
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
+    
+    // c) and finally V-plus
+    double Vpy = Vmy + vprz*sx-vprx*sz;
+    
+    // Calculate new velocity minus old velocity
+    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    
+   
+    return Vdiffy;
+        
+}
+
+template<class FieldType>
+double GenericEMForceBoris2<FieldType>
+                       ::ForceZ(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = Charge*GetEx(Pos)/Mass;
+    double Ey = Charge*GetEy(Pos)/Mass;
+    double Ez = Charge*GetEz(Pos)/Mass;
+
+    double Bx = Charge*GetBx(Pos)/Mass;
+    double By = Charge*GetBy(Pos)/Mass;
+    double Bz = Charge*GetBz(Pos)/Mass;
+
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
+    
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
+    
+    // Here we assume that vx and vy are actually given at time t+1
+    // so we first have to replace them with the old values
+
+    // Calculate V-minus
+    double Vpx = vx-0.5*Ex*dt;
+    double Vpy = vy-0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
+    
+    double ax = 1-sy*ty-sz*tz;
+    double ay = 1-sx*tx-sz*tz;
+    double bx = sz + sy*tx;
+    double by = sz - sx*ty;
+    double cx = Vpx + (sy-sz*tx)*Vpx;
+    double cy = Vpx - (sx+sz*ty)*Vpx;
+    double S = (ax*ay+bx*by);
+    
+    double Vmx = (ay*cx-bx*cy)/S;
+    double Vmy = (by*cx+ax*cy)/S;    
+
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    
+    // c) and finally V-plus
+    double Vpz = Vmz + vprx*sy-vpry*sx;
+    
+    // Calculate new velocity minus old velocity
+    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
+    
+   
+    return Vdiffz;
+        
+}
 

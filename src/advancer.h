@@ -67,7 +67,7 @@ class SimpleLeapFrogAdvanceBase  : public Scheme<ForceField> {
       void advanceStepFull(double timestep);
     
   public:
-      LeapFrogAdvanceBase(SpeciesData &data) : Scheme<ForceField>(data) {}
+      SimpleLeapFrogAdvanceBase(SpeciesData &data) : Scheme<ForceField>(data) {}
 };
 
 template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>

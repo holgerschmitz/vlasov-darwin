@@ -36,7 +36,7 @@ class VlasovSpecies;
 //    PosFluxCons3rdOrder
 //    PParabolicScheme
 
-typedef VlasovSpecies<ForceField,RungeKuttaAdvance,PParabolicScheme> Vlasov;
+typedef VlasovSpecies<ForceField,SimpleLeapFrogAdvance,PosFluxCons3rdOrder> Vlasov;
 typedef Vlasov* pVlasov;
 
 

@@ -382,32 +382,35 @@ void PosFluxCons3rdOrder<ForceField>
 //    CheckDensity(Distribution,"VZDone");
 
 }
-
+/** @todo The epsilon limiters do not go well with the Runge Kutta integration.
+ *  Find a solution that does not involve commenting lines.
+ *  @todo Spend some time thinking about and checking the limiter, (velocity dependent force, large timesteps, boundary)
+ */
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-    double fdiff = fjp-fj;
+/*    double fdiff = fjp-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
-    else if (2*fj<fdiff)
+    else if (fabs(2*fj)<fdiff)
         return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
+    else if (fabs(fexc) < (-fdiff) )
         return fexc/(-fdiff);
-    else 
+    else */
         return 1.;
 }
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-    double fdiff = fjm-fj;
+/*    double fdiff = fjm-fj;
     double fexc = 2*(f_infty-fj);
     if (fexc<0) 
         return 0;
-    else if (2*fj<fdiff)
+    else if (fabs(2*fj)<fdiff)
         return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
+    else if (fabs(fexc) < (-fdiff) )
         return fexc/(-fdiff);
-    else 
+    else */
         return 1.;
 }
 
