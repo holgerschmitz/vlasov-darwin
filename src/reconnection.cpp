@@ -158,7 +158,7 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       double N = Ninf + N0*sc*sc;
       
-      double vz_pert = -vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
+      double vz_pert = -vz1*cos(2*PIl*Xi[0]/Nx)*sin(PIl*Xi[1]/Ny);
       
       UStream[2] = sc*sc*vz0/N + vz_pert;
 
@@ -287,7 +287,7 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       double sc1 = sech( (Xi[1]-Ysheet1)/lambda_norm );
       double sc2 = sech( (Xi[1]-Ysheet2)/lambda_norm );
 
-      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
+      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*sin(2*PIl*Xi[1]/Ny);
       
       double N;
       double N1 = N0*sc1*sc1;

@@ -44,6 +44,7 @@ class VlasovSpecies
   protected:      
       /// The timestep (in s)
       double dt;
+      double densityGoal;
   protected:
   
       /// contains the kinetic energy when calculated

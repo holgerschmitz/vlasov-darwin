@@ -173,6 +173,7 @@ struct SpeciesData {
   double GridRange_vx;
   double GridRange_vy;
   double GridRange_vz;
+  double densityGoal;
   VlasovInitialiser *init;
   PhaseDiag *phasediag;
 };

@@ -153,6 +153,7 @@ PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
   (*pm)["vx-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vx, 10));
   (*pm)["vy-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vy, 10));
   (*pm)["vz-range"] = WParameter(new ParameterValue<double>(&vlasovData.GridRange_vz, 10));
+  (*pm)["density"] = WParameter(new ParameterValue<double>(&vlasovData.densityGoal, 0));
   (*pm)["init"] = WParameter(
       new ParameterRebuild<VlasovInitRebuild, VlasovInitRebuild>(&initRebuild)
   );
