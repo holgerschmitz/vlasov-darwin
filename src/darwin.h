@@ -17,6 +17,7 @@
 #include "diaghelper.h"
 #include "forcefield.h"
 #include <vector>
+#include <string>
 
 
 /** @brief Class that implements the Darwin approximation for 
@@ -104,6 +105,7 @@ class Darwin {
       /// Return the scalar field that stores the field component \f$B_z\f$
       ScalarField &GetBz() { return Bz; }
 
+      ScalarField &GetByName(const std::string&);
       /** @brief Initialize all the physical quantities and allocate
        *  the scalar fields
        */

@@ -118,6 +118,15 @@ void Potential::Execute () {
     DiagField.Execute();    
 }
 
+ScalarField &Potential::GetByName(const std::string& name) {
+  if ("Pot"==name)
+    return Pot; 
+  else  if ("Ex"==name)
+    return Ex; 
+  else
+    return Ey;
+}
+
 void write_Scalar(ScalarField &Field, const char* fname, double offset) {
     ofstream O(fname);
     for (int i=Field.getLow(0); i<=Field.getHigh(0); ++i) {

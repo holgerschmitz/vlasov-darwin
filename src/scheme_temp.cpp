@@ -129,7 +129,7 @@ void PosFluxCons3rdOrder<ForceField>
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
              
-            for (Vi[0] = lvx; Vi[0] <= bvx; ++Vi[0]) {
+            for (Vi[0] = lvx; Vi[0] < bvx; ++Vi[0]) {
 //                cerr << " - " << Vi[0] <<  " - " << Vi[1] <<  " - " << Vi[2] <<  " - " 
 //                    << Xi[0] <<  " - " << Xi[1] << "\n";
                 VelocityD Vel = velocity(Vi);

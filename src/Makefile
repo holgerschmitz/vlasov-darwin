@@ -19,7 +19,8 @@ VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
 		potential.o poisson.o wrapvlasov.o main.o \
 		vlasovinit.o vlasovbase.o forcefield.o process.o\
-		derivedfields.o hdfstream.o task.o globals.o diagnostic.o
+		derivedfields.o hdfstream.o task.o globals.o diagnostic.o \
+		fielddiag.o
 
 HEADERS = $(VLASOV_HEADERS)
 

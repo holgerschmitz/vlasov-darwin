@@ -18,7 +18,8 @@ Parameters::Parameters() {
 
 void Parameters::init()
 {
-  if (FieldDiag) FieldDiag->init();
+  if (FieldDiag) FieldDiag->init(Field);
+  initialized = true;
 }
 
 PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {

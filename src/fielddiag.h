@@ -7,35 +7,27 @@
 #include "forcefield.h"
 #include "diagnostic.h"
 
-template<class Field> 
-class FieldDiagnostic { 
- public:
-    PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm);
-    void init();
-};
 
-template<>
-class FieldDiagnostic<Potential> : public Rebuildable
+class EFieldDiagnostic : public Rebuildable
 {
     typedef SimpleDiagnostic<ScalarField,std::ofstream> DiagType;
     DiagType *Ex_diag;
     DiagType *Ey_diag;
+    DiagType *Pot_diag;
   public:
-    FieldDiagnostic();
+    EFieldDiagnostic();
     PARAMETERMAP* MakeParamMap(PARAMETERMAP* pm);
-    void init();
+    void init(ForceField::FieldType *);
 };
 
-template<>
-class FieldDiagnostic<VoidPotential> : public Rebuildable
+class VoidFieldDiagnostic : public Rebuildable
 {
   public:
     PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm) { return pm; }
-    void init() {}
+    void init(ForceField::FieldType *) {}
 };
 
-template<>
-class FieldDiagnostic<Darwin> : public Rebuildable
+class EBFieldDiagnostic : public Rebuildable
 {
     typedef SimpleDiagnostic<ScalarField,std::ofstream> DiagType;
     DiagType *Ex_diag;
@@ -45,12 +37,10 @@ class FieldDiagnostic<Darwin> : public Rebuildable
     DiagType *By_diag;
     DiagType *Bz_diag;
   public:
-    FieldDiagnostic();
+    EBFieldDiagnostic();
     PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm);
-    void init();
+    void init(ForceField::FieldType *);
 };
-
-#include "fielddiag.t"
 
 #endif
 

@@ -297,7 +297,6 @@ inline  T Matrix<T, rank>::operator ()(int i, int j) const
   assert(rank == 2);
   assert((i >= lo[0]) && (i <= hi[0]));
   assert((j >= lo[1]) && (j <= hi[1]));
-  cerr << "()" << i+dims[0]*j << endl;
   return matr_fast[i + dims[0] * j];
 }
 

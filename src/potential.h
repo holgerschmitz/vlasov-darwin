@@ -18,7 +18,7 @@
 #include "diaghelper.h"
 #include "forcefield.h"
 #include <vector>
-
+#include <string>
 
 /** @brief The class for calculating the electrostatic potential.
  *  At the moment only completely periodic boundary conditions 
@@ -67,6 +67,8 @@ class Potential {
       ScalarField &GetEx() { return Ex; }
       /// Returns a reference to the electric y-field
       ScalarField &GetEy() { return Ey; }
+
+      ScalarField &GetByName(const std::string &);
 
       /** @brief Perform initialization. Setting all the field sizes
        *  and clearing the values

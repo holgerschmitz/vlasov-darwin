@@ -6,8 +6,9 @@
 
 class Potential;
 
-template<class Field>
-class FieldDiagnostic;
+class EFieldDiagnostic;
+class VoidFieldDiagnostic;
+class EBFieldDiagnostic;
 
 
 /** @brief Implements the electrostatic force for plugging into the 
@@ -16,7 +17,7 @@ class FieldDiagnostic;
 class EFieldForce : public ForceFieldBase {
   public:
       typedef Potential FieldType;
-      typedef FieldDiagnostic<FieldType> DiagnosticType;      
+      typedef EFieldDiagnostic DiagnosticType;      
   protected:
       /// Pointer to the potential
       Potential* pPot;
@@ -58,7 +59,7 @@ typedef PtrWrapper<EFieldForce> pEFieldForce;
 class EBFieldForce : public ForceFieldBase {
   public:
       typedef Potential FieldType;
-      typedef FieldDiagnostic<FieldType> DiagnosticType; 
+      typedef EFieldDiagnostic DiagnosticType; 
   protected:
       /// Pointer to the potential
       Potential* pPot;
@@ -101,6 +102,7 @@ class VoidPotential {
       void Init() {}
       void Execute() {}
       void AddSpecies(ConstEBFieldForce*) {}
+      ScalarField &GetByName(const std::string&) {}
 };
 
 /** @brief Implements a forcefield with a constant electric and magnetic
@@ -109,7 +111,7 @@ class VoidPotential {
 class ConstEBFieldForce : public ForceFieldBase {
   public:
       typedef VoidPotential FieldType;
-      typedef FieldDiagnostic<FieldType> DiagnosticType; 
+      typedef VoidFieldDiagnostic DiagnosticType; 
   protected:
       /// Pointer to the potential
       VoidPotential* pPot;
@@ -148,7 +150,7 @@ class Darwin;
 class EMDarwinForce : public ForceFieldBase {
   public:
       typedef Darwin FieldType;
-      typedef FieldDiagnostic<FieldType> DiagnosticType; 
+      typedef EBFieldDiagnostic DiagnosticType; 
   protected:
       /// Pointer to the darwin field solver
       Darwin* pPot;
