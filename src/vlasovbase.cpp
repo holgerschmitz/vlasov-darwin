@@ -51,7 +51,7 @@ void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
       GridSizeI[pi] = high[Pi]-low[Pi]-3;     
     }         
     for (int vi = 0; vi < VelSize.length(); ++vi, ++Pi) 
-      VelSize[vi] = high[Pi]-low[Pi]; 
+      VelSize[vi] = high[Pi]-low[Pi]-1; 
                 
     VelSizeH = (VelSize-1.0) / 2.0;
 

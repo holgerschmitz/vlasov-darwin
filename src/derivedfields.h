@@ -49,6 +49,11 @@ class DistMomentRhoBase : public DistributionDerivedField {
       ScalarField& getField(std::string name);
 };
 
+/** The density integral in first order. Note that the density is
+ *  obtained simply by summing over the distribution. Since not the 
+ *  distribution itself but the INTEGRAL over one cell is stored, this
+ *  first order summation is actually EXACT!
+ */
 class DistMomentRhoOne : public DistMomentRhoBase {
   public:
       DistMomentRhoOne(Boundary *boundary_) 

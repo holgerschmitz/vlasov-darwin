@@ -333,31 +333,31 @@ bool Darwin::Execute () {
   In.setComponent(ScalarField::ZComponent); 
   bound.ScalarFieldReduce(In);
 
-  double rotjzsum = 0;
-  for (int i=lx1; i<=mx1; ++i) 
-    for (int j=ly1; j<=my1; ++j) {
-      rotjzsum += In(i,j);
-  }
-  rotjzsum /= double( (mx0-lx1)*(my0-ly1) );
-  
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) {
-      In(i,j) -= rotjzsum;
-  }
+//  double rotjzsum = 0;
+//  for (int i=lx1; i<=mx1; ++i) 
+//    for (int j=ly1; j<=my1; ++j) {
+//      rotjzsum += In(i,j);
+//  }
+//  rotjzsum /= double( (mx0-lx1)*(my0-ly1) );
+//  
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j) {
+//      In(i,j) -= rotjzsum;
+//  }
 
   pois->solve(Bz,In,bound.getNumBoundary(Bz));
     
-  double Bzsum = 0;
-  for (int i=lx1; i<=mx1; ++i) 
-    for (int j=ly1; j<=my1; ++j) {
-      Bzsum += Bz(i,j);
-  }
-  Bzsum /= double( (mx0-lx1)*(my0-ly1) );
-  
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) {
-      Bz(i,j) -= Bzsum;
-  }
+//  double Bzsum = 0;
+//  for (int i=lx1; i<=mx1; ++i) 
+//    for (int j=ly1; j<=my1; ++j) {
+//      Bzsum += Bz(i,j);
+//  }
+//  Bzsum /= double( (mx0-lx1)*(my0-ly1) );
+//  
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j) {
+//      Bz(i,j) -= Bzsum;
+//  }
   
   /* *************************************
    *  Finally we add the global magnetic fields

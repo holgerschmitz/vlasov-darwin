@@ -53,7 +53,7 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
 	dx[0] = Parameters::instance().gridSpace_x();
   dx[1] = Parameters::instance().gridSpace_y();
     
-  for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-3)*dx[i];
+  for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-1)*dx[i];
     
   std::cout << "Init Base " << BoxRange << " " << VRange << std::endl;
        

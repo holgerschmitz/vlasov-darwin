@@ -60,7 +60,7 @@ class Parameters : public Rebuildable {
 //      int velRes() { return VelRes; }
       double gridSpace_x() { return GridSpace_x; }
       double gridSpace_y() { return GridSpace_y; }
-      double volumeQuant() { return 1; }
+      double volumeQuant() { return GridSpace_x*GridSpace_y; }
       double dt() { return Dt; }
       double bgDensity() { return BgDensity; }
       int totalTime() { return TotalTime; }
