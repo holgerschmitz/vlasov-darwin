@@ -11,6 +11,9 @@
 #include "scheme.h"
 #include "advancer.h"
 
+#include "parameter.h"
+#include "task.h"
+
 #ifndef WRAPVLASOV_H
 #define WRAPVLASOV_H
 
@@ -37,7 +40,10 @@ template<
   template<class,template<class> class> class Advancer = LeapFrogAdvance,
   template<class> class Scheme = PosFluxCons3rdOrder
 >
-class VlasovSpecies : public Advancer<ForceField,Scheme> {
+class VlasovSpecies 
+  : public Advancer<ForceField,Scheme>,
+    public Task 
+{
   protected:
       
       /// A maximum value of the distribution function
@@ -53,6 +59,7 @@ class VlasovSpecies : public Advancer<ForceField,Scheme> {
   public:
       /// Default constructor
       VlasovSpecies (SpeciesData &data);
+      virtual ~VlasovSpecies() {}
 
       /// Sets the force field and registers the species with it
       void setForceField(typename ForceField::FieldType *pField_);
@@ -114,9 +121,8 @@ class VlasovSpecies : public Advancer<ForceField,Scheme> {
       
       /// Initialisation before a timestep
       void InterpolationInitStep(const VlasovDist &Dist);
-
-
-
+  protected:
+      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 }; // VlasovSpecies
 
 

@@ -2,6 +2,7 @@
 #include "numeric.h"
 #include "boundary.h"
 #include "derivedfields.h"
+#include "parameter.h"
 
 #ifndef VLASOVBASE_H
 #define VLASOVBASE_H
@@ -145,7 +146,8 @@ class ForceFieldBase {
       int procnum() {
         return boundary->procnum();
       }
-
+  protected:
+      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm);
 };
 
 #endif

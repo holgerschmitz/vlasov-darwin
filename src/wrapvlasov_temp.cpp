@@ -267,3 +267,13 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
     derivedFields.update(*this);
 }
 
+template<
+  class ForceField, 
+  template<class, template<class> class> class Advancer,
+  template<class> class Scheme
+>
+PARAMETERMAP* VlasovSpecies<ForceField,Advancer,Scheme>::MakeParamMap (PARAMETERMAP* pm)
+{
+  pm = Task::MakeParamMap(pm);
+  return Advancer<ForceField,Scheme>::MakeParamMap(pm);
+}

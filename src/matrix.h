@@ -11,12 +11,6 @@ using namespace std;
 // ---------------------------------------------------------
 // declarations
 
-template<class T, int rank>
-class Matrix;
-
-template<class T, int rank>
-ostream& operator<< (ostream&, const Matrix<T, rank>&);
-
 /** An elementary matrix class */
 template<class T, int rank>
 class Matrix {
@@ -138,6 +132,9 @@ class Matrix {
     /** */
     virtual void newData(const int* l, const int* h);
 };
+
+template<class T, int rank>
+ostream& operator<< (ostream&, const Matrix<T, rank>&);
 
 // ---------------------------------------------------------
 

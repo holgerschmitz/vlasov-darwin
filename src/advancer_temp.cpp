@@ -50,7 +50,6 @@ void LeapFrogAdvanceBase<ForceField,Scheme>
     
 }
 
-
 template<
   class ForceField, 
   template<class> class Scheme

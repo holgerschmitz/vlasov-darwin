@@ -7,17 +7,17 @@ CXXFLAGS = $(OFLAGS) -I. $(X_INC) $(X_NO_AUTO_INCLUDE)
 VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 		vlasovinit.cpp wrapvlasov.cpp diaghelper.cpp main.cpp \
 		poisson.cpp Vlas2d.cpp vlasovinit.cpp  vlasovbase.cpp \
-		derivedfields.cpp forcefield.cpp hdfstream.cpp
+		derivedfields.cpp forcefield.cpp hdfstream.cpp task.cpp
 
 VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 		parameter.h poisson.h potential.h stlpwrapper.h Vlas2d.h \
 		vlasov.h vlasovinit.h vlasovbase.h wrapvlasov.h scheme.h \
-		derivedfields.h forcefield.h hdfstream.h
+		derivedfields.h forcefield.h hdfstream.h task.h parameter.h
 
 OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
 		potential.o poisson.o wrapvlasov.o main.o \
 		Vlas2d.o vlasovinit.o vlasovbase.o forcefield.o\
-		derivedfields.o hdfstream.o
+		derivedfields.o hdfstream.o task.o
 
 HEADERS = $(VLASOV_HEADERS)
 

@@ -13,6 +13,16 @@ ForceFieldBase::ForceFieldBase(SpeciesData &data)
     VRange[2] = data.GridRange_vz;
 }
 
+PARAMETERMAP* ForceFieldBase::MakeParamMap (PARAMETERMAP* pm) {
+  (*pm)["mass"] = WParameter(new ParameterValue<double>(&Mass, 1));
+  (*pm)["charge"] = WParameter(new ParameterValue<double>(&Charge, 1));
+  (*pm)["single-periodic-boundary"] = WParameter(new ParameterTask<SinglePeriodicBoundary, Boundary>(&boundary));
+#ifndef SINGLE_PROCESSOR
+  (*pm)["mpi-periodic-split-x-boundary"] = WParameter(new ParameterTask<MPIPeriodicSplitXBoundary, Boundary>(&boundary));
+  (*pm)["mpi-periodic-split-xy-boundary"] = WParameter(new ParameterTask<MPIPeriodicSplitXYBoundary, Boundary>(&boundary));
+#endif
+}
+
 ForceFieldBase::~ForceFieldBase() {
     cerr << "Destructing Vlasov Species\n";
     delete boundary;

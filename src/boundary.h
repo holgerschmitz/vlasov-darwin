@@ -6,6 +6,9 @@
 
 #include "numeric.h"
 #include "vlasov.h"
+#include "parameter.h"
+#include "task.h"
+
 #ifndef SINGLE_PROCESSOR
 #include <mpi.h>
 #endif
@@ -19,7 +22,7 @@
  *  See the page @ref indices for a discussion on the numerical
  *  ranges of the fields
  */
-class Boundary {
+class Boundary : public Task {
   public:
       /** @brief We need a virtual destructor because the class has 
        *  virtual methods
