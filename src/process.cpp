@@ -104,10 +104,11 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
   return pm;
 }
 
-VlasovRebuild::RebuildList VlasovRebuild::slist;
+//VlasovRebuild::RebuildList VlasovRebuild::slist;
+SpeciesList VlasovRebuild::spList;
 
 VlasovRebuild::VlasovRebuild() {
-  slist.push_back(this);
+//  slist.push_back(this);
 }
 
 pVlasov VlasovRebuild::getVlasovInstance() {
@@ -127,17 +128,22 @@ pVlasov VlasovRebuild::getVlasovInstance() {
   return vl;
 }
 
+void VlasovRebuild::finalize() {
+  spList.push_back(getVlasovInstance());
+}
+
 SpeciesList VlasovRebuild::getSpeciesList() {
-  SpeciesList list;
-  for (
-    RebuildList::iterator it=slist.begin();
-    it !=slist.end();
-    ++it
-  )
-  {
-    list.push_back((*it)->getVlasovInstance());
-  }
-  return list; 
+  return spList;
+//  SpeciesList list;
+//  for (
+//    RebuildList::iterator it=slist.begin();
+//    it !=slist.end();
+//    ++it
+//  )
+//  {
+//    list.push_back((*it)->getVlasovInstance());
+//  }
+//  return list; 
 }
 
 PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {

@@ -62,16 +62,19 @@ class BoundaryRebuild : public Rebuildable {
 class VlasovInitRebuild;
 class VlasovRebuild : public Rebuildable {
     private:
-      typedef std::list<VlasovRebuild*> RebuildList;
+//      typedef std::list<VlasovRebuild*> RebuildList;
+      static SpeciesList spList;
       SpeciesData vlasovData;
       VlasovInitRebuild *initRebuild;
-      static RebuildList slist;
+//      static RebuildList slist;
     protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:
       VlasovRebuild();
       pVlasov getVlasovInstance();
       static SpeciesList getSpeciesList();
+
+      void finalize();
 };
 
 class VlasovInitRebuild : public Rebuildable {
