@@ -414,7 +414,7 @@ bool Darwin::Execute () {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) 
-      Etx(i,j) = -Out(i,j);
+      Etx(i,j) = Out(i,j);
     
   // y-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
@@ -433,7 +433,7 @@ bool Darwin::Execute () {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
-      Ety(i,j) = -Out(i,j);
+      Ety(i,j) = Out(i,j);
     }
     
   // z-component of transverse electric field
@@ -452,7 +452,7 @@ bool Darwin::Execute () {
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
-      Ez(i,j) = -Out(i,j);
+      Ez(i,j) = Out(i,j);
 //      Ez(i,j) = 0;
     }
            
