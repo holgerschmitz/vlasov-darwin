@@ -58,8 +58,8 @@ void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov) {
       
       double NPert = (
 		      1+n_perturb*cos(
-				      2*PI*k_perturb[0]*Xi[0]/Nx
-				      +2*PI*k_perturb[1]*Xi[1]/Ny
+				      2*M_PIl*k_perturb[0]*Xi[0]/Nx
+				      +2*M_PIl*k_perturb[1]*Xi[1]/Ny
 				      )
 		      );
       
@@ -187,16 +187,16 @@ void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
 //      cerr << "X pos " << Xi << endl;
       double NPert1 = (
 		       1+n_perturb1*cos(
-					2*PI*k_perturb1[0]*Xi[0]/Nx
-					+2*PI*k_perturb1[1]*Xi[1]/Ny
+					2*M_PIl*k_perturb1[0]*Xi[0]/Nx
+					+2*M_PIl*k_perturb1[1]*Xi[1]/Ny
 					)
 		       );
         
         
       double NPert2 = (
 		      1+n_perturb2*cos(
-					 2*PI*k_perturb2[0]*Xi[0]/Nx
-					 +2*PI*k_perturb2[1]*Xi[1]/Ny
+					 2*M_PIl*k_perturb2[0]*Xi[0]/Nx
+					 +2*M_PIl*k_perturb2[1]*Xi[1]/Ny
           )
 		       );
         
@@ -314,22 +314,22 @@ void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
         
-//      double PP = cos( 2*PI*(Xi[0]/double(gx)));
-//      double PZ = sin( 2*PI*(Xi[0]/double(gx)));
+//      double PP = cos( 2*M_PIl*(Xi[0]/double(gx)));
+//      double PZ = sin( 2*M_PIl*(Xi[0]/double(gx)));
       double PP=0;
       double PZ=0;
       double gx = Parameters::instance().gridX();
       for (int kx=1; kx<(gx/2); ++kx)  {
 //      for (int kx=1; kx<2; ++kx)  {
-        PP += cos( 2*PI*kx*(Xi[0]/gx-kx/15.0));
-        PZ += sin( 2*PI*kx*(Xi[0]/gx-kx/15.0));
-        //PP += cos( 2*PI*kx*(Xi[0]/gx));
-        //PZ += sin( 2*PI*kx*(Xi[0]/gx));
+        PP += cos( 2*M_PIl*kx*(Xi[0]/gx-kx/15.0));
+        PZ += sin( 2*M_PIl*kx*(Xi[0]/gx-kx/15.0));
+        //PP += cos( 2*M_PIl*kx*(Xi[0]/gx));
+        //PZ += sin( 2*M_PIl*kx*(Xi[0]/gx));
         
       }
         
       //        for (int ky=1; ky<Ny/2; ++kx) 
-      //            PP += cos( 2*PI*ky*Xi[0]/double(Ny)) / double(ky);
+      //            PP += cos( 2*M_PIl*ky*Xi[0]/double(Ny)) / double(ky);
 
       PP *= 0.01;
       PZ *= 0.01;
