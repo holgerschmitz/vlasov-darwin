@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include "vlasovinit.h"
 #include "potential.h"
 #include "darwin.h"
