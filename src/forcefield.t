@@ -502,8 +502,8 @@ double GenericEMForceBoris2<FieldType>
     double ay = 1-sx*tx-sz*tz;
     double bx = sz + sy*tx;
     double by = sz - sx*ty;
-    double cx = Vpx + (sy-sz*tx)*Vpx;
-    double cy = Vpx - (sx+sz*ty)*Vpx;
+    double cx = Vpx + (sy-sz*tx)*Vmz;
+    double cy = Vpy - (sx+sz*ty)*Vmz;
     double S = (ax*ay+bx*by);
     
     double Vmx = (ay*cx-bx*cy)/S;
