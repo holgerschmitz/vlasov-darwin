@@ -36,18 +36,18 @@ all: vlasov
 
 vlasov:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_DARWIN
 vlasov: $(OBJECTS) 
-	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
-	cp $@ ~/bin/$(X_OSTYPE)
+	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 
 vlasov_es:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC
 vlasov_es: $(OBJECTS) 
-	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
-	cp $@ ~/bin/$(X_OSTYPE)
+	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 
 vlasov_const:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_CONSTFIELD
 vlasov_const: $(OBJECTS) 
-	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
-	cp $@ ~/bin/$(X_OSTYPE)
+	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 
 test_helmholtz:  helmholtz.o Vlas2d.o test_helmholtz.o
 	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)

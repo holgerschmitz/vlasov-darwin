@@ -93,6 +93,8 @@ const NumBoundary& SimpleReconnectionBoundary::getNumBoundary(ScalarField &field
       return oddBound;
 }
 
+#endif // SINGLE_PROCESSOR
+
 //=========================================================================
 //===============   VlasovReconnectionInit  ====================================
 //=========================================================================
@@ -152,8 +154,8 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       double vz_pert = -vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
       
-      UStream[2] = sc*sc*vz0/(N0*sc*sc+Ninf) + vz_pert;
-              
+      UStream[2] = sc*sc*vz0/N + vz_pert;
+
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
           for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
@@ -206,11 +208,129 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
           dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
           dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
         }
-	
+ 
+    }
+  //    std::cout << "Initialized " << Xi[0] << std::endl;
+}
+
+//=========================================================================
+//===============   VlasovPeriodicReconnectionInit  ====================================
+//=========================================================================
+
+VlasovPeriodicReconnectionInit::VlasovPeriodicReconnectionInit() {}
+
+PARAMETERMAP* VlasovPeriodicReconnectionInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["vz0"] = WParameter(new ParameterValue<double>(&vz0, 0));
+  (*pm)["vz1"] = WParameter(new ParameterValue<double>(&vz1, 0));
+  (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
+  (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
+  (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
+  (*pm)["N0"] = WParameter(new ParameterValue<double>(&N0, 0));
+  (*pm)["Ninf"] = WParameter(new ParameterValue<double>(&Ninf, 1));
+  (*pm)["lambda"] = WParameter(new ParameterValue<double>(&lambda, 10));
+   return pm;
+}
+
+VlasovPeriodicReconnectionInit::~VlasovPeriodicReconnectionInit() {}
+
+
+/** @brief Do the initialisation
+ *   
+ *  Iterate through the whole distribution function and assign the appropriate
+ *  phase space density to every point in phase space. The Phase space density 
+ *  is calculated as a Maxwellian distribution.
+ */
+void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
+  VlasovDist &dist = pVlasov->getDistribution();
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+  
+  PhasePositionI GlLow  = Parameters::instance().distLow();
+  PhasePositionI GlHigh = Parameters::instance().distHigh();
+  
+  double Nx = GlHigh[0]-GlLow[0]-3;
+  double Ny = GlHigh[1]-GlLow[1]-3;
+  double Ysheet1 = 0.75*GlLow[1]+0.25*GlHigh[1];
+  double Ysheet2 = 0.25*GlLow[1]+0.75*GlHigh[1];
+  
+  double dx = Parameters::instance().gridSpace_x();
+  double lambda_norm = lambda/dx; 
+  
+  PositionI Xi;
+  VelocityI Vi;
+
+  VelocityD VTh(v_th[0],v_th[1],v_th[2]);
+  VelocityD UStream(0,0,0);
+  
+  for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
+    for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
+      
+      double sc1 = sech( (Xi[1]-Ysheet1)/lambda_norm );
+      double sc2 = sech( (Xi[1]-Ysheet2)/lambda_norm );
+      
+      double N = Ninf + N0*(sc1*sc1 + sc2*sc2);
+      
+      double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
+      
+      UStream[2] =  vz0*(sc1*sc1 - sc2*sc2)/N 
+                  + vz_pert;
+            
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+        for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+          for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+     
+            VelocityD V( pVlasov->velocity(Vi) );
+            VelocityD Vm( 
+              (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+            );
+            VelocityD Vp( 
+             (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+            );
+     
+                
+            VelocityD vd1m((Vm - UStream)/VTh);
+
+            VelocityD vd1p((Vp - UStream)/VTh);
+
+            VelocityD F1;
+                
+            for (int j=0; j<3; ++j) {
+              if (Vi[j]==L[j+2]) {
+                F1[j] = 0.5*(erf(vd1p[j]) + 1);
+              } else if (Vi[j]==H[j+2]) {
+                F1[j] = 0.5*(1 - erf(vd1m[j]));
+              } else {
+                F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+              }
+            }
+                
+            double F = N*F1.product();
+            dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+          }
+        
+      // Set all the boundaries to zero
+        
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+        for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
+          dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
+          dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
+        }
+        
+      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
+        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+          dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+          dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+        }
+      
+      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+          dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+          dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+        }
+ 
     }
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 }
 
 
-
-#endif // SINGLE_PROCESSOR

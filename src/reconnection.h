@@ -4,7 +4,6 @@
 #ifndef RECONNECTION_H
 #define RECONNECTION_H
 
-#ifndef SINGLE_PROCESSOR
 
 #include "numeric.h"
 #include "vlasov.h"
@@ -13,6 +12,8 @@
 #include "boundary.h"
 #include "numboundary.h"
 #include "wrapvlasov.h"
+
+#ifndef SINGLE_PROCESSOR
 
 #include <mpi.h>
 
@@ -61,6 +62,8 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
       const NumBoundary& getNumBoundary(ScalarField &field) const;
 };
 
+#endif // SINGLE_PROCESSOR
+
 /** @brief Initialises the Vlasov distribution function with a
  *  current sheet. The thermal velocity and a streaming velocity
  *  of the distribution can be supplied.
@@ -106,8 +109,58 @@ class VlasovReconnectionInit : public VlasovInitialiser {
       PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
+/** @brief Initialises the Vlasov distribution function with two opposing
+ *  current sheets. The thermal velocity and a streaming velocity
+ *  of the distribution can be supplied.
+ *
+ *  The density is given by
+ *  \f$$n(y) = n_0\left( 
+ *          \text{sech}^2((y-L/4)/\lambda) + 
+ *          \text{sech}^2((y+L/4)/\lambda)
+ *      \right) + n_{\infty}$\f$
+ *  and the velocity by
+ * \f$$v_z(y) = v_{z0}\frac{\left( 
+ *          \text{sech}^2((y-L/4)/\lambda) - 
+ *          \text{sech}^2((y+L/4)/\lambda)
+ *      \right)}{n(y)}$\f$
+ *  where \f$v_{z0}\f$ is specified and should be 
+ *  \f$$v_{z0} = -\frac{m}{\sum m} \frac{B_0}{q\mu_0\lambda}$\f$
+ */
+class VlasovPeriodicReconnectionInit : public VlasovInitialiser {
+  protected:
+      /** density in particles\f$m^{-{\rm dim}}\f$ at infinity and 
+       *  the perturbation in the current sheet
+       */
+      double Ninf, N0;
+      /// The thickness of the current sheet
+      double lambda;
+      
+      /// The velocity carrying the sheet current
+      double vz0;
+      /// The initial perturbation of the current to start the reconnection
+      double vz1;
+      
+      /// thermal velocity
+      VelocityD v_th;
+      
+      /// pointer to the owning VlasovSpecies class
+      ForceFieldBase *pVlasov; 
+  public:
+      /// Default constructor
+      VlasovPeriodicReconnectionInit();
+      /// Destructor
+      virtual ~VlasovPeriodicReconnectionInit();
 
-#endif // SINGLE_PROCESSOR
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      void initialise(ForceFieldBase *pVlasov);
+    protected:
+      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
+};
+
+
 
 #endif // RECONNECTION_H
 

@@ -170,9 +170,9 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovGaussTempInit, VlasovInitialiser>(&initialiser));
   (*pm)["hdfrestart"] 
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
-#ifndef SINGLE_PROCESSOR
   (*pm)["reconnection"] 
       = WParameter(new ParameterRebuild<VlasovReconnectionInit, VlasovInitialiser>(&initialiser));
-#endif
+  (*pm)["periodic-reconnection"] 
+      = WParameter(new ParameterRebuild<VlasovPeriodicReconnectionInit, VlasovInitialiser>(&initialiser));
   return pm;
 }

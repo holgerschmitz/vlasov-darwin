@@ -29,14 +29,18 @@ void Poisson::solve( NumMatrix<double,2> &u,
 
     boundary = &boundary_;
 
+    normalize(f);
+    normalize(u);
+    
     NumMatrix<double,2> uold(u);
     double error;
     do {
 //    	cerr << "Poisson step\n";
         uold=u;
         mgi(u,f);
+        normalize(u);
         error=distance(uold,u);
-//        cerr << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon << endl;
+        cerr << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon << endl;
     } while (error > epsilon);
     
     boundary = NULL;
@@ -58,8 +62,9 @@ void Poisson::mgi( NumMatrix<double,2> &u,
         do {
             uold=u;
             gauss(u,f);
-	    if (norm || boundary->normalize()) normalize(u);
             error=distance(uold,u);
+//            cout << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon 
+//                 <<"("<<mx<<","<<my<<")"<< endl;
         } while(error > epsilon);
         
     } else {
@@ -180,7 +185,7 @@ void Poisson::defect( NumMatrix<double,2> &u,
 
 
 double Poisson::distance( NumMatrix<double,2> &uold,
-                            NumMatrix<double,2> &u) 
+                          NumMatrix<double,2> &u) 
 {
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;

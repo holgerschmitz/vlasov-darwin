@@ -66,13 +66,13 @@ PARAMETERMAP* EBFieldDiagnostic::MakeParamMap (PARAMETERMAP* pm)
       new ParameterRebuild<DiagType, DiagType>(&Ez_diag)
   );
   (*pm)["bx"] = WParameter(
-      new ParameterRebuild<DiagType, DiagType>(&Ex_diag)
+      new ParameterRebuild<DiagType, DiagType>(&Bx_diag)
   );
   (*pm)["by"] = WParameter(
-      new ParameterRebuild<DiagType, DiagType>(&Ey_diag)
+      new ParameterRebuild<DiagType, DiagType>(&By_diag)
   );
   (*pm)["bz"] = WParameter(
-      new ParameterRebuild<DiagType, DiagType>(&Ez_diag)
+      new ParameterRebuild<DiagType, DiagType>(&Bz_diag)
   );
   return pm;
 }
