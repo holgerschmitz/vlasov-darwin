@@ -9,6 +9,7 @@
 #ifndef DARWIN_H
 #define DARWIN_H
 
+#include "scalarfield.h"
 #include "numeric.h"
 #include "stlpwrapper.h"
 #include "poisson.h"

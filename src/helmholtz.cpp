@@ -16,14 +16,17 @@ Helmholtz::Helmholtz() {
     // dx
     dx[0] = Parameters::instance().gridSpace_x();
     dx[1] = Parameters::instance().gridSpace_y();
-
-
+    
+    boundary = NULL;
 }
 
 // solves -laplace u = f
 void Helmholtz::solve( NumMatrix<double,2> &u,
-		               NumMatrix<double,2> &f,
-                       NumMatrix<double,2> &lambda) {
+		                   NumMatrix<double,2> &f,
+                       NumMatrix<double,2> &lambda,
+                       const NumBoundary &boundary_) {
+
+    boundary = &boundary_;
 
     NumMatrix<double,2> uold(u);
     double error;
@@ -33,6 +36,8 @@ void Helmholtz::solve( NumMatrix<double,2> &u,
         error=distance(uold,u);
 //        cout << "Iterating Error = " << error << " with epsilon = " << epsilon << endl;
     } while (error > epsilon);
+    
+    boundary = NULL;
 }
 
 void Helmholtz::mgi( NumMatrix<double,2> &u,
@@ -78,7 +83,7 @@ void Helmholtz::mgi( NumMatrix<double,2> &u,
 
 
 void Helmholtz::gauss( NumMatrix<double,2> &u,
-		               NumMatrix<double,2> &f,
+		                   NumMatrix<double,2> &f,
                        NumMatrix<double,2> &lambda) {
     int	i,j;
     int mx=u.getHigh(0)-1;
@@ -104,7 +109,7 @@ void Helmholtz::gauss( NumMatrix<double,2> &u,
         }
     }
 
-    boundary(u);
+    boundary->apply(u);
 
     //   odd block
 
@@ -124,7 +129,7 @@ void Helmholtz::gauss( NumMatrix<double,2> &u,
         }
     }
 
-    boundary(u);
+    boundary->apply(u);
 }
 
 void Helmholtz::defect( NumMatrix<double,2> &u,
@@ -147,12 +152,12 @@ void Helmholtz::defect( NumMatrix<double,2> &u,
         for(i = 1; i <= mx; i++) {
             d(i,j)=2. * (invdx2+invdy2+0.5*lambda(i,j)) * u(i,j)
                         -invdy2*(u(i,j+1)+u(i,j-1))
-	                    -invdx2*(u(i+1,j)+u(i-1,j))
+	                      -invdx2*(u(i+1,j)+u(i-1,j))
                         -f(i,j);
         }
     }
 
-    boundary(d);
+    boundary->apply(d);
 
     //   restriction
     int ih,jh;
@@ -172,7 +177,8 @@ void Helmholtz::defect( NumMatrix<double,2> &u,
 
 
 double Helmholtz::distance( NumMatrix<double,2> &uold,
-			                NumMatrix<double,2> &u) {
+			                      NumMatrix<double,2> &u) 
+{
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
 
@@ -189,6 +195,9 @@ double Helmholtz::distance( NumMatrix<double,2> &uold,
 
 
 void Helmholtz::normalize(NumMatrix<double,2> &u) {
+
+    if (!boundary->normalize()) return;
+
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
 
@@ -214,7 +223,7 @@ void Helmholtz::normalize(NumMatrix<double,2> &u) {
 }
 
 void Helmholtz::prolongate( NumMatrix<double,2> &u,
-			                NumMatrix<double,2> &un) {
+			                      NumMatrix<double,2> &un) {
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
 
@@ -231,22 +240,6 @@ void Helmholtz::prolongate( NumMatrix<double,2> &u,
 
     u -= w;
 
-    boundary(u);
+    boundary->apply(u);
 }
 
-void Helmholtz::boundary(NumMatrix<double,2> &u) {
-    int mx=u.getHigh(0)-1;
-    int my=u.getHigh(1)-1;
-
-    int i,j;
-
-    for(i = 1; i <= mx; i++) {
-        u(i,0   ) = u(i,my);
-        u(i,my+1) = u(i,1 );
-    }
-    for(j = 0; j <= my+1; j++) {
-        u(0,j   ) = u(mx,j);
-        u(mx+1,j) = u(1,j);
-    }
-
-}

@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include "numeric.h"
+#include "scalarfield.h"
 #include "boundary.h"
 #include "derivedfields.h"
 #include "parameter.h"

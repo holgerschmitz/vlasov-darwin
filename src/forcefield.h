@@ -1,3 +1,4 @@
+#include "scalarfield.h"
 #include "vlasovbase.h"
 
 #ifndef FORCEFIELD_H

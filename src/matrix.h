@@ -140,9 +140,6 @@ class Matrix {
 
 // ---------------------------------------------------------
 
-template<class T, int rank>
-class NumBoundary;
-
 /** An matrix class which can do 
     elementary mathematical operations */
 template<class T, int rank>
@@ -202,11 +199,6 @@ public:
   NumMatrix<T, rank> operator*(T) const;
   /** */
   NumMatrix<T, rank> operator/(T) const;
-
-  /** */
-  NumMatrix<T, rank>& operator+=(const NumBoundary<T, rank>&);
-  /** */
-  NumMatrix<T, rank>& operator-=(const NumBoundary<T, rank>&);
 };
 
 // -------------------------------------------------------------

@@ -48,7 +48,9 @@ DistMomentRhoBase::DistMomentRhoBase(Boundary *boundary_)
   PositionI Lowx = boundary->scalarLow();
   PositionI Highx = boundary->scalarHigh();
   
-  Rho.resize(Lowx.Data(),Highx.Data());  
+  Rho.resize(Lowx.Data(),Highx.Data());
+  Rho.setComponent(ScalarField::ScalarComponent);
+  Rho.setParity(ScalarField::EvenParity);
 }
     
 ScalarField& DistMomentRhoBase::getField(std::string name) {
@@ -90,15 +92,35 @@ DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   Jx.resize(Lowx.Data(),Highx.Data());
+  Jx.setComponent(ScalarField::XComponent);
+  Jx.setParity(ScalarField::OddParity);
+  
   Jy.resize(Lowx.Data(),Highx.Data());
+  Jy.setComponent(ScalarField::YComponent);
+  Jy.setParity(ScalarField::OddParity);
+  
   Jz.resize(Lowx.Data(),Highx.Data());
+  Jz.setComponent(ScalarField::ZComponent);
+  Jz.setParity(ScalarField::OddParity);
 
   Vxx.resize(Lowx.Data(),Highx.Data());
+  Vxx.setComponent(ScalarField::ScalarComponent);
+  Vxx.setParity(ScalarField::EvenParity);
   Vxy.resize(Lowx.Data(),Highx.Data());
+  Vxy.setComponent(ScalarField::ScalarComponent);
+  Vxy.setParity(ScalarField::EvenParity);
   Vxz.resize(Lowx.Data(),Highx.Data());
+  Vxz.setComponent(ScalarField::ScalarComponent);
+  Vxz.setParity(ScalarField::EvenParity);
   Vyy.resize(Lowx.Data(),Highx.Data());
+  Vyy.setComponent(ScalarField::ScalarComponent);
+  Vyy.setParity(ScalarField::EvenParity);
   Vyz.resize(Lowx.Data(),Highx.Data());
+  Vyz.setComponent(ScalarField::ScalarComponent);
+  Vyz.setParity(ScalarField::EvenParity);
   Vzz.resize(Lowx.Data(),Highx.Data());
+  Vzz.setComponent(ScalarField::ScalarComponent);
+  Vzz.setParity(ScalarField::EvenParity);
 }
     
 
@@ -265,6 +287,8 @@ DistMomentHeatFluxBase::DistMomentHeatFluxBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   HFluxX.resize(Lowx.Data(),Highx.Data());  
+  HFluxX.setComponent(ScalarField::XComponent);
+  HFluxX.setParity(ScalarField::OddParity);
 }
     
 ScalarField& DistMomentHeatFluxBase::getField(std::string name) {

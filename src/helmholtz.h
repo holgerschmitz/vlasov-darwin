@@ -1,7 +1,10 @@
 // -*- C++ -*-
 // $Id$
+#ifndef HELMHOLTZ_H
+#define HELMHOLTZ_H
 
 #include "matrix.h"
+#include "numboundary.h"
 
 /** @brief Solves Helmholtz equation using a multigrid method.
  *
@@ -24,6 +27,8 @@ class Helmholtz {
         
         /// The error to reach.
         double epsilon;
+        
+        const NumBoundary *boundary;
     public:
         /** @brief The default constructor reads the attributes from
          *  global variables
@@ -35,8 +40,9 @@ class Helmholtz {
          *  The solution is returned in the first parameter.
          */
         void solve(   NumMatrix<double,2> &u,
-	                  NumMatrix<double,2> &f,
-                      NumMatrix<double,2> &lambda);
+	                    NumMatrix<double,2> &f,
+                      NumMatrix<double,2> &lambda,
+                      const NumBoundary &boundary_);
 
         /// The grid spacing in x-direction
         double Dx() { 
@@ -50,7 +56,7 @@ class Helmholtz {
     private:
         /// Perform one Gauss-Seidel red-black iteration
         void gauss( NumMatrix<double,2> &u,     
-	                NumMatrix<double,2> &f,
+	                  NumMatrix<double,2> &f,
                     NumMatrix<double,2> &lambda);   
                      
         /** @brief Calculates the defect and stores the new
@@ -68,14 +74,14 @@ class Helmholtz {
          *  the finer grid resolution.
          */                              
         void prolongate(NumMatrix<double,2> &u,
-	                    NumMatrix<double,2> &un);
+	                      NumMatrix<double,2> &un);
         
         /** @brief One single multigrid step.
          *  This method calls itself recursively on coarser
          *  and coarser grids
          */
         void mgi(   NumMatrix<double,2> &u,     
-	                NumMatrix<double,2> &f,
+	                  NumMatrix<double,2> &f,
                     NumMatrix<double,2> &lambda);    
         
         /** @brief Normalizes a scalar field.
@@ -85,11 +91,9 @@ class Helmholtz {
         
         /// Calculates the maximum norm between two scalar fields
         double distance(NumMatrix<double,2> &u,
-	                    NumMatrix<double,2> &f);
+	                      NumMatrix<double,2> &f);
         
-        /** @brief Performs periodic wrapping of the boundaries
-         *  @todo This is geometry dependent and should be supplied
-         *  by a special boundary object
-         */
-        void boundary(NumMatrix<double,2> &u);
 };
+
+
+#endif

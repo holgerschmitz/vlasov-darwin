@@ -1,7 +1,7 @@
 // -*- C++ -*-
 // $Id$
 
-/** @file This file contains small helper classes to provide
+/** @file diaghelper.h This file contains small helper classes to provide
  *  easy diagnostic of physical values.
  */
  

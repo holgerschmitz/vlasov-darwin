@@ -32,21 +32,25 @@ void Potential::Init () {
 
     // resize grid
     den.resize(LBound.Data(),HBound.Data());
+    den.setComponent(ScalarField::ScalarComponent);
+    den.setParity(ScalarField::EvenParity);
+    
     Pot.resize(LBound.Data(),HBound.Data());
+    Pot.setComponent(ScalarField::ScalarComponent);
+    Pot.setParity(ScalarField::EvenParity);
+
     Ex.resize(LBound.Data(),HBound.Data());
     Ex.clear();
+    Ex.setComponent(ScalarField::XComponent);
+    Ex.setParity(ScalarField::OddParity);
+
     Ey.resize(LBound.Data(),HBound.Data());
     Ey.clear();
+    Ey.setComponent(ScalarField::YComponent);
+    Ey.setParity(ScalarField::OddParity);
 
     int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
-    pois = new Poisson;
-    pois->resize(
-        PositionD(0.0,0.0), 
-        PositionD(gssx*dx[0], gssy*dx[1]), 
-        PositionI(gssx,gssy),
-        Poisson::periodic, 
-        Poisson::periodic
-    );
+    pois = new Poisson();
 
     In.resize(LBound.Data(),HBound.Data());
     
@@ -56,14 +60,16 @@ void Potential::Init () {
 
 void Potential::Execute () {
     
-    int lx0 = LBound[0], lx1 = LBound[0]+1;
-    int ly0 = LBound[1], ly1 = LBound[1]+1;
-    int mx0 = HBound[0], mx1 = HBound[0]-1;
-    int my0 = HBound[1], my1 = HBound[1]-1;
+  int lx0 = LBound[0], lx1 = LBound[0]+1;
+  int ly0 = LBound[1], ly1 = LBound[1]+1;
+  int mx0 = HBound[0], mx1 = HBound[0]-1;
+  int my0 = HBound[1], my1 = HBound[1]-1;
 
 	int i;
 	double dF;
 	ScalarField tmp;
+
+  const Boundary &bound = Process::instance().getBoundary();
 
 	tmp.resize(LBound.Data(),HBound.Data());
 	
@@ -93,7 +99,7 @@ void Potential::Execute () {
 //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
         }
 
-    pois->solve(In,Pot);
+  pois->solve(Pot,In, bound.getNumBoundary(Pot));
     
 	for (int i=lx1; i<=mx1; ++i) 
         for (int j=ly0; j<=my0; ++j) 
@@ -104,20 +110,10 @@ void Potential::Execute () {
     	    Ey(i,j) = (Pot(i,j-1) - Pot(i,j+1)) / (2*dx[1]);
 
 
-    // Perform wrapping
-    for (int j=ly0; j<=my0; ++j) {
-        Ex(lx0,j) = Ex(mx1,j);
-        Ex(mx0,j) = Ex(lx1,j);
-        
-    }
+  bound.ScalarFieldReduce(Ex);
+  bound.ScalarFieldReduce(Ey);
 
-    // Perform wrapping
-    for (int i=lx0; i<=mx0; ++i) {
-        Ey(i,ly0) = Ey(i,my1);
-        Ey(i,my0) = Ey(i,ly1);
-    }
-
-    DiagField.Execute();    
+  DiagField.Execute();    
 }
 
 ScalarField *Potential::GetByName(const std::string& name) {

@@ -4,6 +4,7 @@
 #ifndef FIELDDIAG_H
 #define FIELDDIAG_H
 
+#include "scalarfield.h"
 #include "forcefield.h"
 #include "diagnostic.h"
 

@@ -8,6 +8,7 @@
 #ifndef NUMERIC_H
 #define NUMERIC_H
 
+#define PIl 3.1415926535897932384626433832795029L
 /** @file numeric.h
  *  Numeric helper functions and classes
  */
@@ -28,6 +29,27 @@ inline double frand() { return rand()/double(RAND_MAX); }
  */
 double erf(double);
 
+template<typename T>
+T tanh(T x) {
+  T p = exp(x);
+  T m = exp(-x);
+  return (p-m)/(p+m);
+}
+
+template<typename T>
+T sinh(T x) {
+  return 0.5*(exp(x)-exp(-x));
+}
+
+template<typename T>
+T cosh(T x) {
+  return 0.5*(exp(x)+exp(-x));
+}
+
+template<typename T>
+T sech(T x) {
+  return 2./(exp(x)+exp(-x));
+}
 
 
 #endif /* NUMERIC_H */

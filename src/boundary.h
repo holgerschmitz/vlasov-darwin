@@ -6,8 +6,10 @@
 
 #include "numeric.h"
 #include "vlasov.h"
+#include "scalarfield.h"
 #include "parameter.h"
 #include "task.h"
+#include "numboundary.h"
 
 #ifndef SINGLE_PROCESSOR
 #include <mpi.h>
@@ -45,7 +47,9 @@ class Boundary : public Rebuildable {
        *  The resulting field should be the sum of the fields of all 
        *  the processes. Additional wrapping may be done.
        */
-      virtual void ScalarFieldReduce(ScalarField &field) = 0;
+      virtual void ScalarFieldReduce(ScalarField &field) const = 0;
+      
+      virtual const NumBoundary& getNumBoundary(ScalarField &field) const = 0;
 
       /// Return the average of a single value over all the processes
       virtual double AvgReduce(double) = 0;    
@@ -76,13 +80,17 @@ class Boundary : public Rebuildable {
  *  a single processor
  */
 class SinglePeriodicBoundary : public Boundary {
+  private:
+      PPBoundary numBound;
   public:   
       /// Wraps the boundaries in x-direction
       void exchangeX(VlasovDist &field);
       /// Wraps the boundaries in y-direction
       void exchangeY(VlasovDist &field);
       /// Only wraps the boundaries of the scalar field
-      void ScalarFieldReduce(ScalarField &field);
+      void ScalarFieldReduce(ScalarField &field) const;
+      /// Returns periodic boundary conditions
+      const NumBoundary& getNumBoundary(ScalarField &field) const;
       /// There is no average to be calculated
       double AvgReduce(double val) { return val; }
       /// Returns the global lower bound of the distribution function
@@ -107,7 +115,9 @@ class SinglePeriodicBoundary : public Boundary {
  *  a single processor
  */
 class MPIPeriodicSplitXBoundary : public Boundary {
-  private:
+  protected:
+      PPBoundary numBound;
+
       /// The number of processes
       int ComSize;
   
@@ -167,8 +177,11 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       void exchangeY(VlasovDist &field);
       
       /// Adds the scalar fields and wraps them
-      void ScalarFieldReduce(ScalarField &field);
+      void ScalarFieldReduce(ScalarField &field) const;
       
+      /// Returns periodic boundary conditions
+      const NumBoundary& getNumBoundary(ScalarField &field) const;
+
       /** @brief Use MPIALLReduce to calculate the sum and then divide
        *  by the number of processes.
        */
@@ -200,6 +213,8 @@ class MPIPeriodicSplitXBoundary : public Boundary {
  */
 class MPIPeriodicSplitXYBoundary : public Boundary {
   private:
+      PPBoundary numBound;
+
       /// The number of processes
       int ComSize;
   
@@ -271,8 +286,11 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       void exchangeY(VlasovDist &field);
       
       /// Adds the scalar fields and wraps them
-      void ScalarFieldReduce(ScalarField &field);
+      void ScalarFieldReduce(ScalarField &field) const;
       
+      /// Returns periodic boundary conditions
+      const NumBoundary& getNumBoundary(ScalarField &field) const;
+
       /** @brief Use MPIALLReduce to calculate the sum and then divide
        *  by the number of processes.
        */

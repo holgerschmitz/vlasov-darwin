@@ -5,75 +5,90 @@
 #define POISSON_H
 
 #include "matrix.h"
-#include "index.h"
-#include "vlasov.h"
+#include "numboundary.h"
 
-/** @brief Wraps the Fortran hwscrt routine in a handy class that
- *  solves poissons equation.
+
+/** @brief Solves Poisson equation using a multigrid method.
  *
- *  At the moment only periodic boundary conditions are implemented.
+ *  The Poisson equation is given by
+ *  \f$\Delta u(x) = f(x)\f$
+ *  where \f$u(x)\f$ is the unknown scalar field.
  *
- *  See the page @ref hwscrt
+ *  The boundary object is passed, when
  */
 class Poisson {
-  private:
-      /// The physical coordinates of the minimum and maximum points
-      PositionD pMiN, pMaX;
-      /// The type of boundary condition for the two directions
-      PositionI boundary;
-      /// A temporary working array needed by hwscrt
-      double *WorkArray;
-  public:
-      /** @brief An enumeration that contains the type of boundary conditions.
-       */
-      enum bcond { periodic=0, fixfix=1, fixder=2, derfix=3, derder=4 };
-  
-      /// Default constructor
-      Poisson();
-      
-      /** @brief Construct using the physical extent, the number of
-       *  steps in each direction and the boundary conditions
-       */
-      Poisson(const PositionD &pMiN_, const PositionD &pMaX_, 
-              const PositionI &steps_,
-              bcond boundx, bcond boundy);
-      
-      /// Destruct and free the WorkArray buffer
-      ~Poisson();     
-      
-      /** @brief Resize the physical extent, the number of
-       *  steps in each direction and the boundary conditions
-       */
-      void resize(const PositionD &pMiN_, const PositionD &pMaX_, 
-                  const PositionI &steps_,
-                  bcond boundx, bcond boundy);
-      
-      /** @brief Resize the physical extent, the number of
-       *  steps in each direction. Don't change the boundary
-       *  conditions
-       */
-      void resize(const PositionD &pMiN_, const PositionD &pMaX_, 
-                  const PositionI &steps_);
-      
-      /// Set new boundary conditions
-      void BCond(bcond boundx, bcond boundy);
-      
-      /** @brief Solve the Poisson equation.
-       *  The result is returned in the second parameter. Internally the
-       *  solve_step method is called twice to promote the second
-       *  order hwscrt to a fourth order solver
-       */
-      void solve(ScalarField &In, ScalarField &Out);
-  private:
-      
-      /// Perform a single call to hwscrt and perform wrapping
-      void solve_step(ScalarField &In, ScalarField &Out);
-  
-      /** @brief Perform resizing. Set the parameters and allocate
-       *  memory for the WorkArray
-       */
-      void do_resize(const PositionD &pMiN_, const PositionD &pMaX_, 
-                     const PositionI &steps_);       
+    protected:
+        /// physical dimensions of a grid cell. Read from global variables
+        double dx[2];
+
+        /** @brief Do nu1 Gauss steps then repeat multigrid refinement
+         *  gama times then do nu2 Gauss steps.
+         */
+        int gama,nu1,nu2;
+        
+        /// The error to reach.
+        double epsilon;
+        
+        const NumBoundary *boundary;
+    public:
+        /** @brief The default constructor reads the attributes from
+         *  global variables
+         */
+        Poisson();
+    
+        /** @brief Solves the Helmholtz equation
+         *  \f$\Delta u(x) = f(x)\f$.
+         *  The solution is returned in the first parameter.
+         */
+        void solve(   NumMatrix<double,2> &u,
+                      NumMatrix<double,2> &f,
+                      const NumBoundary &boundary_);
+
+        /// The grid spacing in x-direction
+        double Dx() { 
+            return dx[0];
+        }
+        
+        /// The grid spacing in y-direction
+        double Dy() { 
+            return dx[1];
+        }
+    private:
+        /// Perform one Gauss-Seidel red-black iteration
+        void gauss( NumMatrix<double,2> &u,     
+                    NumMatrix<double,2> &f);   
+                     
+        /** @brief Calculates the defect and stores the new
+         *  fields of \f$f(x)\f$ and \f$\lambda(x)\f$ on the
+         *  coarser grid
+         */
+        void defect(NumMatrix<double,2> &u,
+                    NumMatrix<double,2> &f,
+                    NumMatrix<double,2> &fn);
+                        
+        
+        /** @brief Prolongates the solution \f$u(x)\f$ onto 
+         *  the finer grid resolution.
+         */                              
+        void prolongate(NumMatrix<double,2> &u,
+                        NumMatrix<double,2> &un);
+        
+        /** @brief One single multigrid step.
+         *  This method calls itself recursively on coarser
+         *  and coarser grids
+         */
+        void mgi(   NumMatrix<double,2> &u,     
+                    NumMatrix<double,2> &f);    
+        
+        /** @brief Normalizes a scalar field.
+         *  This method is not needed for the Helmhotz solver.
+         */            
+        void normalize( NumMatrix<double,2> &f);
+        
+        /// Calculates the maximum norm between two scalar fields
+        double distance(NumMatrix<double,2> &u,
+                        NumMatrix<double,2> &f);
+        
 };
 
 #endif

@@ -3,13 +3,6 @@
 
 #include "wrapvlasov.h"
 
-/** @brief Implements the VlasovInitialiser interface to create a two stream
- *  distribution.
- *
- *  This class also inherits from the Rebuildable class, so it can work together with
- *  the VlasovSpecies class.
- */
-
 #ifndef VLASOVINIT_H
 #define VLASOVINIT_H
 
@@ -53,9 +46,9 @@ class VlasovMaxwellInit : public VlasovInitialiser {
       /// pointer to the owning VlasovSpecies class
       ForceFieldBase *pVlasov; 
   public:
-	  /// Default constructor
+	    /// Default constructor
       VlasovMaxwellInit();
-	  /// Destructor
+	    /// Destructor
       virtual ~VlasovMaxwellInit();
 
       /** @brief Perform distribution initialisation.
@@ -63,7 +56,8 @@ class VlasovMaxwellInit : public VlasovInitialiser {
        *  dist parameter.
        */
       virtual void initialise(ForceFieldBase *pVlasov);
-    protected:
+  protected:
+      /// Create the parameter map for the readable object
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
@@ -75,9 +69,9 @@ class VlasovMaxwellInit : public VlasovInitialiser {
  */
 class VlasovTwoMaxwellInit : public VlasovInitialiser {
   protected:
-      /// density of first population in particles\f$m^{-{\rm dim}}\f$
+      /// density of first population in particles\f$m^{-\text{dim}}\f$
       double N1;   
-      /// density of second population in particles\f$m^{-{\rm dim}}\f$        
+      /// density of second population in particles\f$m^{-\text{dim}}\f$        
       double N2;
       /// streaming vlocity of first population  
       VelocityD u_stream1;

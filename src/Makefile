@@ -8,19 +8,20 @@ VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 		vlasovinit.cpp wrapvlasov.cpp diaghelper.cpp main.cpp \
 		poisson.cpp vlasovinit.cpp  vlasovbase.cpp process.cpp \
 		derivedfields.cpp forcefield.cpp hdfstream.cpp task.cpp \
-		globals.cpp diagnostic.cpp fielddiag.cpp
+		globals.cpp diagnostic.cpp fielddiag.cpp reconnection.cpp
 
 VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 		parameter.h poisson.h potential.h stlpwrapper.h \
 		vlasov.h vlasovinit.h vlasovbase.h wrapvlasov.h scheme.h \
 		derivedfields.h forcefield.h hdfstream.h task.h parameter.h \
-		process.h globals.h diagnostic.h fielddiag.h
+		process.h globals.h diagnostic.h fielddiag.h reconnection.h \
+		numboundary.h
 
 OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
 		potential.o poisson.o wrapvlasov.o main.o \
 		vlasovinit.o vlasovbase.o forcefield.o process.o\
 		derivedfields.o hdfstream.o task.o globals.o diagnostic.o \
-		fielddiag.o
+		fielddiag.o reconnection.o
 
 HEADERS = $(VLASOV_HEADERS)
 

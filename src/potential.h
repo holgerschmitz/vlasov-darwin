@@ -12,6 +12,7 @@
 #define ID_POTENTIAL "Potential"
 
 #include "numeric.h"
+#include "scalarfield.h"
 #include "stlpwrapper.h"
 #include "poisson.h"
 #include "wrapvlasov.h"

@@ -12,11 +12,7 @@
  *
  *  @todo Test gyro-frequency (how? waves?)
  *  @todo Test magnetosonic modes
- *  @todo Rethink class structure
  *  @todo Update Documentation
- *  @todo Make parallel
- *
- *  
  */
 
 
@@ -37,9 +33,6 @@ typedef FixedArray<int,3> VelocityI;
 typedef FixedArray<double,3> VelocityD;
 
 typedef NumMatrix<double, DIMENSION+3> VlasovDist;
-typedef NumMatrix<double, DIMENSION>  ScalarField;
-
-
 
 #endif
 

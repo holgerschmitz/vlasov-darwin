@@ -61,7 +61,7 @@ void SinglePeriodicBoundary::exchangeY(VlasovDist &field) {
           }
 }
 
-void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) {
+void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
@@ -80,6 +80,11 @@ void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) {
         field(lx0,j) = field(mx1,j);
         field(mx0,j) = field(lx1,j);
     }       
+}
+
+const NumBoundary& SinglePeriodicBoundary::getNumBoundary(ScalarField &) const
+{
+  return numBound;
 }
 
 const PhasePositionI &SinglePeriodicBoundary::DistLow() const {
@@ -243,7 +248,7 @@ void MPIPeriodicSplitXBoundary::exchangeY(VlasovDist &field) {
           }
 }
 
-void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) {
+void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
@@ -279,6 +284,11 @@ void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) {
         field(lx0,j) = field(mx1,j);
         field(mx0,j) = field(lx1,j);
     }       
+}
+
+const NumBoundary& MPIPeriodicSplitXBoundary::getNumBoundary(ScalarField &) const
+{
+  return numBound;
 }
 
 const PhasePositionI &MPIPeriodicSplitXBoundary::DistLow() const {
@@ -506,7 +516,7 @@ void MPIPeriodicSplitXYBoundary::exchangeY(VlasovDist &field) {
                 
 }
 
-void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) {
+void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
@@ -542,6 +552,11 @@ void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) {
         field(lx0,j) = field(mx1,j);
         field(mx0,j) = field(lx1,j);
     }       
+}
+
+const NumBoundary& MPIPeriodicSplitXYBoundary::getNumBoundary(ScalarField &) const
+{
+  return numBound;
 }
 
 double MPIPeriodicSplitXYBoundary::AvgReduce(double val) {

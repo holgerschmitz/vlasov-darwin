@@ -4,6 +4,7 @@
 
 #include <string>
 #include "numeric.h"
+#include "scalarfield.h"
 #include "potential.h"
 #include "boundary.h"
 

@@ -12,7 +12,8 @@ void Darwin::AddSpecies(EMDarwinForce* pS) {
     species.push_back(pEMDarwinForce(pS));
 }
 
-void Darwin::Init () {
+void Darwin::Init () 
+{
   tstep= 0;
   n0 = Parameters::instance().bgDensity();
   double VRatio = Parameters::instance().velocityRatio();
@@ -21,8 +22,10 @@ void Darwin::Init () {
   //  Fields range from 0 to N+1, where the inner points are
   //  1 to N
   
-  LBound = Process::instance().getBoundary().scalarLow();
-  HBound = Process::instance().getBoundary().scalarHigh();
+  const Boundary& boundary = Process::instance().getBoundary();
+  
+  LBound = boundary.scalarLow();
+  HBound = boundary.scalarHigh();
   
   dx[0] = Parameters::instance().gridSpace_x();
   dx[1] = Parameters::instance().gridSpace_y();
@@ -34,38 +37,100 @@ void Darwin::Init () {
     
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
+  den.setComponent(ScalarField::ScalarComponent);
+  den.setParity(ScalarField::EvenParity);
+
   om2.resize(LBound.Data(),HBound.Data());
+  om2.setComponent(ScalarField::ScalarComponent);
+  om2.setParity(ScalarField::EvenParity);
     
   jx.resize(LBound.Data(),HBound.Data());
+  jx.setComponent(ScalarField::XComponent);
+  jx.setParity(ScalarField::OddParity);
   jy.resize(LBound.Data(),HBound.Data());
+  jy.setComponent(ScalarField::YComponent);
+  jy.setParity(ScalarField::OddParity);
   jz.resize(LBound.Data(),HBound.Data());
+  jz.setComponent(ScalarField::ZComponent);
+  jz.setParity(ScalarField::OddParity);
 
   sx.resize(LBound.Data(),HBound.Data());
+  sx.setComponent(ScalarField::XComponent);
+  sx.setParity(ScalarField::OddParity);
   sy.resize(LBound.Data(),HBound.Data());
+  sy.setComponent(ScalarField::YComponent);
+  sy.setParity(ScalarField::OddParity);
   sz.resize(LBound.Data(),HBound.Data());
+  sz.setComponent(ScalarField::ZComponent);
+  sz.setParity(ScalarField::OddParity);
 
   vxx.resize(LBound.Data(),HBound.Data());
+  vxx.setComponent(ScalarField::ScalarComponent);
+  vxx.setParity(ScalarField::EvenParity);
+
   vxy.resize(LBound.Data(),HBound.Data());
+  vxy.setComponent(ScalarField::ScalarComponent);
+  vxy.setParity(ScalarField::EvenParity);
+
   vxz.resize(LBound.Data(),HBound.Data());
+  vxz.setComponent(ScalarField::ScalarComponent);
+  vxz.setParity(ScalarField::EvenParity);
+
   vyy.resize(LBound.Data(),HBound.Data());
+  vyy.setComponent(ScalarField::ScalarComponent);
+  vyy.setParity(ScalarField::EvenParity);
+
   vyz.resize(LBound.Data(),HBound.Data());
+  vyz.setComponent(ScalarField::ScalarComponent);
+  vyz.setParity(ScalarField::EvenParity);
+
   vzz.resize(LBound.Data(),HBound.Data());
+  vzz.setComponent(ScalarField::ScalarComponent);
+  vzz.setParity(ScalarField::EvenParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
+  Pot.setComponent(ScalarField::ScalarComponent);
+  Pot.setParity(ScalarField::EvenParity);
+  
   Az.resize(LBound.Data(),HBound.Data());
+  Az.setComponent(ScalarField::ZComponent);
+  Az.setParity(ScalarField::OddParity);
 
   Ex.resize(LBound.Data(),HBound.Data());
+  Ex.setComponent(ScalarField::XComponent);
+  Ex.setParity(ScalarField::OddParity);
   Ey.resize(LBound.Data(),HBound.Data());
+  Ey.setComponent(ScalarField::YComponent);
+  Ey.setParity(ScalarField::OddParity);
   Ez.resize(LBound.Data(),HBound.Data());
+  Ez.setComponent(ScalarField::ZComponent);
+  Ez.setParity(ScalarField::OddParity);
+
     
   Etx.resize(LBound.Data(),HBound.Data());
+  Etx.setComponent(ScalarField::XComponent);
+  Etx.setParity(ScalarField::OddParity);
   Ety.resize(LBound.Data(),HBound.Data());
+  Ety.setComponent(ScalarField::YComponent);
+  Ety.setParity(ScalarField::OddParity);
+  
   Theta.resize(LBound.Data(),HBound.Data());
+  Theta.setComponent(ScalarField::ScalarComponent);
+  Theta.setParity(ScalarField::EvenParity);
+  
   DivEt.resize(LBound.Data(),HBound.Data());
+  DivEt.setComponent(ScalarField::ScalarComponent);
+  DivEt.setParity(ScalarField::EvenParity);
 
   Bx.resize(LBound.Data(),HBound.Data());
+  Bx.setComponent(ScalarField::XComponent);
+  Bx.setParity(ScalarField::EvenParity);
   By.resize(LBound.Data(),HBound.Data());
+  By.setComponent(ScalarField::YComponent);
+  By.setParity(ScalarField::EvenParity);
   Bz.resize(LBound.Data(),HBound.Data());
+  Bz.setComponent(ScalarField::ZComponent);
+  Bz.setParity(ScalarField::EvenParity);
     
   den.clear();
   om2.clear();
@@ -94,18 +159,7 @@ void Darwin::Init () {
   By.clear();
   Bz.clear();
 
-  int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
-  pois = new Poisson;
-  pois->resize(
-    PositionD(0.0,0.0), 
-    PositionD(
-      gssx*Parameters::instance().gridSpace_x(), 
-      gssy*Parameters::instance().gridSpace_y()
-    ), 
-    PositionI(gssx,gssy),
-    Poisson::periodic, 
-    Poisson::periodic
-  );
+  pois = new Poisson();
 
   helmh = new Helmholtz();
 
@@ -126,6 +180,8 @@ bool Darwin::Execute () {
   int mx0 = HBound[0], mx1 = HBound[0]-1;
   int my0 = HBound[1], my1 = HBound[1]-1;
   
+  const Boundary &bound = Process::instance().getBoundary();
+
   ScalarField tmp;
   
   tstep++;
@@ -201,25 +257,6 @@ bool Darwin::Execute () {
       }
   }
 
-  /// @todo Diagnostic should be moved to separate classes
-//   if(mainproc /*&& ((tstep%10)==0)*/) {
-//     //if (false) {
-//     write_Scalar(den, "den.out");
-//     write_Scalar(om2, "om2.out");
-//     write_Scalar(jx, "jx.out");
-//     write_Scalar(jy, "jy.out");
-//     write_Scalar(jz, "jz.out");
-//     write_Scalar(sx, "sx.out");
-//     write_Scalar(sy, "sy.out");
-//     write_Scalar(sz, "sz.out");
-//     write_Scalar(vxx, "vxx.out");
-//     write_Scalar(vxy, "vxy.out");
-//     write_Scalar(vxz, "vxz.out");
-//     write_Scalar(vyy, "vyy.out");
-//     write_Scalar(vyz, "vyz.out");
-//     write_Scalar(vzz, "vzz.out");
-//   }
-
   /* *************************************
    *  With the charge density we can first calculate the 
    *  scalar potential Pot. 
@@ -234,12 +271,8 @@ bool Darwin::Execute () {
       //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
     }
     
-  pois->solve(In,Pot);
+  pois->solve(Pot,In, bound.getNumBoundary(Pot));
     
-  /// @todo Diagnostic should be moved to separate classes
-//  if(mainproc && ((tstep%100)==0)) write_Scalar(Pot, "Pot.out");
-  //if (false) write_Scalar(Pot, "Pot.out");
-
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly0; j<=my0; ++j) 
       Ex(i,j) = (Pot(i-1,j) - Pot(i+1,j)) / (2*dx[0]);
@@ -248,17 +281,8 @@ bool Darwin::Execute () {
     for (int j=ly1; j<=my1; ++j) 
       Ey(i,j) = (Pot(i,j-1) - Pot(i,j+1)) / (2*dx[1]);
 
-  // Perform wrapping
-  for (int j=ly0; j<=my0; ++j) {
-    Ex(lx0,j) = Ex(mx1,j);
-    Ex(mx0,j) = Ex(lx1,j);
-  }
-
-  // Perform wrapping
-  for (int i=lx0; i<=mx0; ++i) {
-    Ey(i,ly0) = Ey(i,my1);
-    Ey(i,my0) = Ey(i,ly1);
-  }
+  bound.ScalarFieldReduce(Ex);
+  bound.ScalarFieldReduce(Ey);
 
 
   /* *************************************
@@ -273,7 +297,7 @@ bool Darwin::Execute () {
    * The z--component of the vector potential.
    */
     
-  pois->solve(jz,Az);
+  pois->solve(Az,jz, bound.getNumBoundary(Az));
 
     
   for (int i=lx0; i<=mx0; ++i) 
@@ -288,19 +312,13 @@ bool Darwin::Execute () {
     for (int j=ly1; j<=my1; ++j) 
       Bx(i,j) = (Az(i,j+1) - Az(i,j-1)) / (2*dx[1]);
 
-  for (int i=lx0; i<=mx0; ++i) {
-    Bx(i,ly0) = Bx(i,my1);
-    Bx(i,my0) = Bx(i,ly1);
-  }
+  bound.ScalarFieldReduce(Bx);
     
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly0; j<=my0; ++j) 
       By(i,j) = (Az(i-1,j) - Az(i+1,j)) / (2*dx[0]);
 
-  for (int j=ly0; j<=my0; ++j) {
-    By(lx0,j) = By(mx1,j);
-    By(mx0,j) = By(lx1,j);
-  }
+  bound.ScalarFieldReduce(Bx);
 
   /* *************************************
    * The z--component of  -rot(j).
@@ -311,15 +329,9 @@ bool Darwin::Execute () {
       In(i,j) = csc*(- (jy(i+1,j) - jy(i-1,j)) / (2*dx[0])
 		     + (jx(i,j+1) - jx(i,j-1)) / (2*dx[1]));
 
-  for (int i=lx0; i<=mx0; ++i) {
-    In(i,ly0) = In(i,my1);
-    In(i,my0) = In(i,lx1);
-  }
-
-  for (int j=ly0; j<=my0; ++j) {
-    In(lx0,j) = In(mx1,j);
-    In(mx0,j) = In(lx1,j);
-  }
+  In.setParity(ScalarField::EvenParity);
+  In.setComponent(ScalarField::ZComponent); 
+  bound.ScalarFieldReduce(In);
 
   double rotjzsum = 0;
   for (int i=lx1; i<=mx1; ++i) 
@@ -333,7 +345,7 @@ bool Darwin::Execute () {
       In(i,j) -= rotjzsum;
   }
 
-  pois->solve(In,Bz);
+  pois->solve(Bz,In,bound.getNumBoundary(Bz));
     
   double Bzsum = 0;
   for (int i=lx1; i<=mx1; ++i) 
@@ -345,10 +357,6 @@ bool Darwin::Execute () {
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
       Bz(i,j) -= Bzsum;
-      //==================
-      // ACHTUNG TEST
-      //==================
-      //Bz(i,j) = 0;
   }
   
   /* *************************************
@@ -381,29 +389,19 @@ bool Darwin::Execute () {
   for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
       In(i,j) = csc*(
-		    //  -( vxx(i+1,j) - vxx(i-1,j)
-			//  +vxy(i+1,j) - vxy(i-1,j)
-			//  +vxz(i+1,j) - vxz(i-1,j)
-			//  ) / (2*dx[0])                       /// -grad (rho <vv>)
 		     -(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-			 -(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+			   -(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
 		     +om2(i,j)*Ex(i,j)                   /// om2*E
 		     +sy(i,j)*Bz(i,j)-sz(i,j)*By(i,j)    /// q rho <v> x B
 		     );
     }
   }
-    
-  for (int i=lx0; i<=mx0; ++i) {
-    In(i,ly0) = In(i,my1);
-    In(i,my0) = In(i,lx1);
-  }
 
-  for (int j=ly0; j<=my0; ++j) {
-    In(lx0,j) = In(mx1,j);
-    In(mx0,j) = In(lx1,j);
-  }
+  In.setParity(ScalarField::OddParity);
+  In.setComponent(ScalarField::XComponent); 
+  bound.ScalarFieldReduce(In);
 
-  helmh->solve(Out,In,Lambda);
+  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Etx));
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) 
@@ -413,28 +411,18 @@ bool Darwin::Execute () {
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
       In(i,j) = csc*(
-		     //-( vxy(i,j+1) - vxy(i,j-1)
-			 // +vyy(i,j+1) - vyy(i,j-1)
-			 // +vyz(i,j+1) - vyz(i,j-1)
-			 // ) / (2*dx[1])                       /// -grad (rho <vv>)
 		     -(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-			 -(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+			   -(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
 		     +om2(i,j)*Ey(i,j)                   /// om2*E
 		     +sz(i,j)*Bx(i,j)-sx(i,j)*Bz(i,j)    /// q rho <v> x B
 		     );
     }
-    
-  for (int i=lx0; i<=mx0; ++i) {
-    In(i,ly0) = In(i,my1);
-    In(i,my0) = In(i,lx1);
-  }
 
-  for (int j=ly0; j<=my0; ++j) {
-    In(lx0,j) = In(mx1,j);
-    In(mx0,j) = In(lx1,j);
-  }
+  In.setParity(ScalarField::OddParity);
+  In.setComponent(ScalarField::YComponent); 
+  bound.ScalarFieldReduce(In);
 
-  helmh->solve(Out,In,Lambda);
+  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Ety));
     
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
@@ -446,29 +434,19 @@ bool Darwin::Execute () {
     for (int j=ly1; j<=my1; ++j) {
       In(i,j) = csc*(
 		     -(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-			 -(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-             +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j));/// q rho <v> x B
+			   -(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+             +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j)); /// q rho <v> x B
     }
     
-  for (int i=lx0; i<=mx0; ++i) {
-    In(i,ly0) = In(i,my1);
-    In(i,my0) = In(i,lx1);
-  }
+  In.setParity(ScalarField::OddParity);
+  In.setComponent(ScalarField::ZComponent); 
+  bound.ScalarFieldReduce(In);
 
-  for (int j=ly0; j<=my0; ++j) {
-    In(lx0,j) = In(mx1,j);
-    In(mx0,j) = In(lx1,j);
-  }
-
-  helmh->solve(Out,In,Lambda);
+  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Ez));
     
-  //==================
-  // ACHTUNG TEST
-  //==================
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
       Ez(i,j) = -Out(i,j);
-      //Ez(i,j) = 0;
     }
            
   clearDiv(Etx, Ety);
@@ -481,23 +459,8 @@ bool Darwin::Execute () {
         
   /* *************************************
    *  This should be it!
-   *  Now we can write out the diagnostics
    */
-    
-  /// @todo Diagnostic should be moved to separate classes
-//   if(mainproc /*&& ((tstep%100)==0)*/)   {
-//     //if (false) {
-//     write_Scalar(Ex, "Ex.out");
-//     write_Scalar(Ey, "Ey.out");
-//     write_Scalar(Ez, "Ez.out");
-//     write_Scalar(Bx, "Bx.out");
-//     write_Scalar(By, "By.out");
-//     write_Scalar(Bz, "Bz.out");
-//     write_Scalar(Az, "Az.out");
-//     write_Scalar(Pot,"Phi.out");
-//   } 
 
-  //    Task::Execute();
   return false;
     
 }
@@ -511,39 +474,21 @@ void Darwin::clearDiv(ScalarField &Fx, ScalarField &Fy) {
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j)  
       DivEt(i,j) = (Fx(i+1,j) - Fx(i-1,j) ) /(2*dx[0])
-	+(Fy(i,j+1) - Fy(i,j-1) ) /(2*dx[1]);
-                        
-  for (int i=lx0; i<=mx0; ++i) {
-    DivEt(i,ly0) = DivEt(i,my1);
-    DivEt(i,my0) = DivEt(i,lx1);
-  }
+	    +(Fy(i,j+1) - Fy(i,j-1) ) /(2*dx[1]);
+     
+  const Boundary &bound = Process::instance().getBoundary();
+  bound.ScalarFieldReduce(DivEt);
 
-  for (int j=ly0; j<=my0; ++j) {
-    DivEt(lx0,j) = DivEt(mx1,j);
-    DivEt(mx0,j) = DivEt(lx1,j);
-  }
-
-  pois->solve(DivEt,Theta);
+  pois->solve(Theta,DivEt,bound.getNumBoundary(Theta));
     
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) { 
       Fx(i,j) -= (Theta(i+1,j) - Theta(i-1,j) ) /(2*dx[0]);
       Fy(i,j) -= (Theta(i,j+1) - Theta(i,j-1) ) /(2*dx[1]);
     }
-    
-  for (int i=lx0; i<=mx0; ++i) {
-    Fx(i,ly0) = Fx(i,my1);
-    Fx(i,my0) = Fx(i,lx1);
-    Fy(i,ly0) = Fy(i,my1);
-    Fy(i,my0) = Fy(i,lx1);
-  }
-
-  for (int j=ly0; j<=my0; ++j) {
-    Fx(lx0,j) = Fx(mx1,j);
-    Fx(mx0,j) = Fx(lx1,j);
-    Fy(lx0,j) = Fy(mx1,j);
-    Fy(mx0,j) = Fy(lx1,j);
-  }
+  
+  bound.ScalarFieldReduce(Fx);
+  bound.ScalarFieldReduce(Fy);
 }
 
 

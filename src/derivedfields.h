@@ -4,6 +4,7 @@
 #ifndef DERIVEDFIELDS_H
 #define DERIVEDFIELDS_H
 
+#include "scalarfield.h"
 #include "stlpwrapper.h"
 #include "boundary.h"
 

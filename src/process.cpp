@@ -3,6 +3,7 @@
 #include "process.h"
 #include "wrapvlasov.h"
 #include "vlasovinit.h"
+#include "reconnection.h"
 
 Process *Process::process;
 
@@ -93,6 +94,8 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<MPIPeriodicSplitXBoundary, Boundary>(&boundary));
   (*pm)["mpi-xy-periodic"] 
       = WParameter(new ParameterRebuild<MPIPeriodicSplitXYBoundary, Boundary>(&boundary));
+  (*pm)["simple-reconnection"] 
+      = WParameter(new ParameterRebuild<SimpleReconnectionBoundary, Boundary>(&boundary));
 #endif // single processor
   return pm;
 }
@@ -167,5 +170,9 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovGaussTempInit, VlasovInitialiser>(&initialiser));
   (*pm)["hdfrestart"] 
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
+#ifndef SINGLE_PROCESSOR
+  (*pm)["reconnection"] 
+      = WParameter(new ParameterRebuild<VlasovReconnectionInit, VlasovInitialiser>(&initialiser));
+#endif
   return pm;
 }

@@ -59,36 +59,36 @@ void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov) {
       
       double NPert = (
 		      1+n_perturb*cos(
-				      2*M_PIl*k_perturb[0]*Xi[0]/Nx
-				      +2*M_PIl*k_perturb[1]*Xi[1]/Ny
+				      2*PIl*k_perturb[0]*Xi[0]/Nx
+				      +2*PIl*k_perturb[1]*Xi[1]/Ny
 				      )
 		      );
       
       //        double NPert =  1 + n_perturb*frand();
       
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-	     for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-	       for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
 	    
-	         VelocityD V( pVlasov->velocity(Vi) );
-	         VelocityD Vm( 
-			       (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-			       );
-	    VelocityD Vp( 
-			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-			 );
+	          VelocityD V( pVlasov->velocity(Vi) );
+	          VelocityD Vm( 
+			        (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			      );
+	          VelocityD Vp( 
+			        (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			      );
 	    
                 
-	    VelocityD vd1m((Vm - UStream)/VTh);
+	          VelocityD vd1m((Vm - UStream)/VTh);
 
-	    VelocityD vd1p((Vp - UStream)/VTh);
+	          VelocityD vd1p((Vp - UStream)/VTh);
 
-	    VelocityD F1;
+	          VelocityD F1;
                 
-	    for (int j=0; j<3; ++j) {
-	      if (Vi[j]==L[j+2]) {
-		      F1[j] = 0.5*(erf(vd1p[j]) + 1);
-	      } else if (Vi[j]==H[j+2]) {
+	          for (int j=0; j<3; ++j) {
+	            if (Vi[j]==L[j+2]) {
+		            F1[j] = 0.5*(erf(vd1p[j]) + 1);
+              } else if (Vi[j]==H[j+2]) {
 		      F1[j] = 0.5*(1 - erf(vd1m[j]));
 	      } else {
 		      F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
@@ -188,16 +188,16 @@ void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
 //      cerr << "X pos " << Xi << endl;
       double NPert1 = (
 		       1+n_perturb1*cos(
-					2*M_PIl*k_perturb1[0]*Xi[0]/Nx
-					+2*M_PIl*k_perturb1[1]*Xi[1]/Ny
+					2*PIl*k_perturb1[0]*Xi[0]/Nx
+					+2*PIl*k_perturb1[1]*Xi[1]/Ny
 					)
 		       );
         
         
       double NPert2 = (
 		      1+n_perturb2*cos(
-					 2*M_PIl*k_perturb2[0]*Xi[0]/Nx
-					 +2*M_PIl*k_perturb2[1]*Xi[1]/Ny
+					 2*PIl*k_perturb2[0]*Xi[0]/Nx
+					 +2*PIl*k_perturb2[1]*Xi[1]/Ny
           )
 		       );
         
@@ -315,22 +315,22 @@ void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
         
-//      double PP = cos( 2*M_PIl*(Xi[0]/double(gx)));
-//      double PZ = sin( 2*M_PIl*(Xi[0]/double(gx)));
+//      double PP = cos( 2*PIl*(Xi[0]/double(gx)));
+//      double PZ = sin( 2*PIl*(Xi[0]/double(gx)));
       double PP=0;
       double PZ=0;
       double gx = Parameters::instance().gridX();
       for (int kx=1; kx<(gx/2); ++kx)  {
 //      for (int kx=1; kx<2; ++kx)  {
-        PP += cos( 2*M_PIl*kx*(Xi[0]/gx-kx/15.0));
-        PZ += sin( 2*M_PIl*kx*(Xi[0]/gx-kx/15.0));
-        //PP += cos( 2*M_PIl*kx*(Xi[0]/gx));
-        //PZ += sin( 2*M_PIl*kx*(Xi[0]/gx));
+        PP += cos( 2*PIl*kx*(Xi[0]/gx-kx/15.0));
+        PZ += sin( 2*PIl*kx*(Xi[0]/gx-kx/15.0));
+        //PP += cos( 2*PIl*kx*(Xi[0]/gx));
+        //PZ += sin( 2*PIl*kx*(Xi[0]/gx));
         
       }
         
       //        for (int ky=1; ky<Ny/2; ++kx) 
-      //            PP += cos( 2*M_PIl*ky*Xi[0]/double(Ny)) / double(ky);
+      //            PP += cos( 2*PIl*ky*Xi[0]/double(Ny)) / double(ky);
 
       PP *= 0.01;
       PZ *= 0.01;
@@ -455,11 +455,11 @@ void VlasovGaussTempInit::initialise(ForceFieldBase *pVlasov) {
 
            for (int j=0; j<3; ++j) {
               if (Vi[j]==L[j+2]) {
-               F1[j] = 0.5*(erf(vd1p[j]) + 1);
+                F1[j] = 0.5*(erf(vd1p[j]) + 1);
               } else if (Vi[j]==H[j+2]) {
                 F1[j] = 0.5*(1 - erf(vd1m[j]));
               } else {
-               F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+                F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
              }
             }
 
