@@ -129,6 +129,7 @@ class ConstEBFieldForce : public ForceFieldBase {
       /** The force at one position given the velocity.
        *  Actually the displacement in the velocity space is returned.
        *  The scheme of Boris is used for calculating the acceleration
+       *  The Boris scheme has been checked on simple trajectory integration.
        */
       VelocityD Force(const PositionI &Pos, 
                       const VelocityD &Vel,
@@ -140,21 +141,22 @@ class ConstEBFieldForce : public ForceFieldBase {
       DistMomentVelocities *getDerivedVelocities();
 };
 
-class Darwin;
 
 /** @brief Implements a force field that plugs into the concrete advancers
- *  taking the force from the Opar electric field.
+ *  taking the force from a electromagetic field specified as template
+ *  parameter.
  *
  *  Implements the Force method for the Advancer and the Init and MakeParamMap
  *  method to work together with the VlasovSpecies.
  */
-class EMDarwinForce : public ForceFieldBase {
+template<class FType>
+class GenericEMForce : public ForceFieldBase {
   public:
-      typedef Darwin FieldType;
+      typedef FType FieldType;
       typedef EBFieldDiagnostic DiagnosticType; 
   protected:
       /// Pointer to the darwin field solver
-      Darwin* pPot;
+      FieldType* pPot;
   
   private:
       /// Scaling constant
@@ -165,7 +167,7 @@ class EMDarwinForce : public ForceFieldBase {
       ScalarField FEngy;
   public:
       
-      EMDarwinForce(SpeciesData &data) : ForceFieldBase(data) {}
+      GenericEMForce(SpeciesData &data) : ForceFieldBase(data) {}
       
       /// Gets the x-component of the electric field from the field solver
       ScalarField &GetEx();
@@ -186,6 +188,7 @@ class EMDarwinForce : public ForceFieldBase {
       /** The force at one position given the velocity.
        *  Actually the displacement in the velocity space is returned.
        *  The scheme of Boris is used for calculating the acceleration
+       *  The Boris scheme has been checked on simple trajectory integration.
        */
       VelocityD Force(const PositionI &Pos, 
                       const VelocityD &Vel,
@@ -198,6 +201,16 @@ class EMDarwinForce : public ForceFieldBase {
       DistMomentVelocities *getDerivedVelocities();
 };
 
+
+class Darwin;
+
+typedef GenericEMForce<Darwin> EMDarwinForce;
 typedef PtrWrapper<EMDarwinForce> pEMDarwinForce;
+
+class Magnetostatic;
+typedef GenericEMForce<Magnetostatic> MagnetostaticForce;
+typedef PtrWrapper<MagnetostaticForce> pMagnetostaticForce;
+
+#include "forcefield.t"
 
 #endif

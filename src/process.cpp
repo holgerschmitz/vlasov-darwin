@@ -4,6 +4,7 @@
 #include "wrapvlasov.h"
 #include "vlasovinit.h"
 #include "reconnection.h"
+#include "magnetostatic.h"
 
 Process *Process::process;
 

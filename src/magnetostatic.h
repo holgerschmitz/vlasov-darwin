@@ -1,13 +1,13 @@
 // -*- C++ -*-
 // $Id$
 
-/** @file darwin.h
+/** @file magnetostatic.h
  *  Classes implementing potentials
  */
 
 
-#ifndef DARWIN_H
-#define DARWIN_H
+#ifndef MAGNETOSTATIC_H
+#define MAGNETOSTATIC_H
 
 #include "scalarfield.h"
 #include "numeric.h"
@@ -21,16 +21,21 @@
 #include <string>
 
 
-/** @brief Class that implements the Darwin approximation for 
+/** @brief Class that implements the Magnetostatic approximation for 
  *  Maxwell's equation.
  */
-class Darwin {
+class Magnetostatic {
   protected:
+      bool firststep;
+    
       /// Lower and upper bound of the numerical grid
       PositionI LBound,HBound;
   
       /// grid spacing
       PositionD dx;
+      
+      /// time step
+      double dt;
             
       /** @brief Volume of a grid cell in \f${\rm m}^3\f$ */
       double dV;		    
@@ -38,56 +43,37 @@ class Darwin {
       /// The background charge density
       double n0;
       
-      /** @brief The ratio of thermal speed to speed of ligh 
-       *  \f$(v_th / c)^2\f$
-       */
-      double csc; 
-
       /// Container of all the Species that contribute to the charge density
-      vector<pEMDarwinForce> species;
+      vector<pMagnetostaticForce> species;
 
       /// Temporary fields needed for the Poisson and Helmholtz solvers
       ScalarField In, Lambda, Out;
       
       /// The poisson solver object
       Poisson *pois;
-      
-      /// The Helmholtz solver object
-      Helmholtz *helmh;
 
       /** @brief The grid containing the potential values.
        *  Scalar potential and z-component of the vector potential
        */
-      ScalarField Pot, Az;
+      ScalarField Pot, Ax, Ay, Az;
+      ScalarField oldAx, oldAy, oldAz;
       
       /// All the electric and magnetic field components
       ScalarField Ex, Ey, Ez,  Bx, By, Bz;
       
-      /// The transverse electric field
-      ScalarField Etx, Ety;
-      
       /** @brief Helper fields for clearing the divergence of the 
        *  transverse electric field.
        */
-      ScalarField Theta, DivEt;
+      ScalarField Theta, DivF;
       
       /** @brief Contains the charge and current densities 
        * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
        */
       ScalarField den, jx, jy, jz;
       
-      /** @brief Contains the charge and current densities 
-       * \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
-       *  and \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
-       */
-      ScalarField om2, sx, sy, sz;
-      /** @brief The components of the \f${\bf vv}\f$ tensor
-       *
-       */
-      ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
   public:  
 	    /// Construct passing the value of mainproc
-	    Darwin () {}
+	    Magnetostatic () {}
 
       /// Return the scalar field that stores the field component \f$E_x\f$
       ScalarField &GetEx() { return Ex; }
@@ -119,17 +105,17 @@ class Darwin {
        *  The charge and current densities have to be summed over
        *  all species
        */
-      void AddSpecies(EMDarwinForce* pS);
+      void AddSpecies(MagnetostaticForce* pS);
   private:
       /// Make copy constructor private
-      Darwin(Darwin &) {}
+      Magnetostatic(Magnetostatic &) {}
       
       /// Clear the divergence of a dimensional field in two dimensions
       void clearDiv(ScalarField &Fx, ScalarField &Fy); 
 
-}; // Darwin
+}; // Magnetostatic
 
-#endif // POTENTIAL_H
+#endif // MAGNETOSTATIC_H
 
 
 

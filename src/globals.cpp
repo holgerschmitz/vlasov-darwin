@@ -2,6 +2,7 @@
 // $Id$
 #include "globals.h"
 #include "darwin.h"
+#include "magnetostatic.h"
 #include "potential.h"
 #include "fielddiag.h"
 

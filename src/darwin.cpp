@@ -15,7 +15,6 @@ void Darwin::AddSpecies(EMDarwinForce* pS) {
 
 void Darwin::Init () 
 {
-  tstep= 0;
   n0 = Parameters::instance().bgDensity();
   double VRatio = Parameters::instance().velocityRatio();
   csc = VRatio*VRatio;
@@ -184,8 +183,6 @@ bool Darwin::Execute () {
   const Boundary &bound = Process::instance().getBoundary();
 
   ScalarField tmp;
-  
-  tstep++;
 
   tmp.resize(LBound.Data(),HBound.Data());
   

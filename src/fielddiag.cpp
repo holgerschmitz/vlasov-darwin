@@ -2,6 +2,7 @@
 #include "fielddiag.h"
 #include "potential.h"
 #include "darwin.h"
+#include "magnetostatic.h"
 
 EFieldDiagnostic::EFieldDiagnostic()
 {

@@ -10,6 +10,10 @@ typedef EFieldForce ForceField;
 typedef EMDarwinForce ForceField;
 #endif
 
+#ifdef SIM_MAGNETOSTATIC
+typedef MagnetostaticForce ForceField;
+#endif
+
 #ifdef SIM_CONSTFIELD
 typedef ConstEBFieldForce ForceField;
 #endif

@@ -2,10 +2,10 @@
 #include "vlasov.h"
 
 double dt = 0.01;
-double Charge = -1;
-VelocityD EField(0,0,0);
-VelocityD BField(1,0,0);
-VelocityD VStart(0,1,0);
+double Charge = 1;
+VelocityD EField(1,0,0);
+VelocityD BField(0,1,0);
+VelocityD VStart(1,0,0);
 VelocityD XStart(0,0,0);
 
 VelocityD Force(const VelocityD &Vel,
@@ -65,7 +65,7 @@ int main()
   VelocityD Pos = XStart;
   VelocityD Vel = VStart;
   VelocityD dV;
-  for (int i=0; i<629; ++i)
+  for (int i=0; i<600; ++i)
   {
     dV = Force(Vel,dt);
     Vel = Vel + dV;
