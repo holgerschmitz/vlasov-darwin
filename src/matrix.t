@@ -203,6 +203,25 @@ ostream& operator<<(ostream& os, const Matrix<T, rank>& matr)
   return os;
 }
 
+template<class T>
+ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
+{
+  if (!matr) {
+    os << "(undef)" << endl;
+    return os;
+  }
+  
+  for (int i = matr.lo[0]; i<= matr.hi[0]; ++i)
+  {
+    for (int j = matr.lo[1]; j<= matr.hi[1]; ++j)
+    {
+      os << i << " " << j << " " << matr(i,j) << "\n";
+    }
+    os << std::endl;
+  }
+  return os;
+}
+
 // -----------------------------------------------------------------
 
 template<class T, int rank>

@@ -7,6 +7,11 @@
 #include "array.h"
 
 using namespace std;
+template<class T, int rank>
+class Matrix;
+
+template<class T, int rank>
+ostream& operator<< (ostream&, const Matrix<T, rank>&);
 
 // ---------------------------------------------------------
 // declarations
@@ -123,8 +128,7 @@ class Matrix {
     int operator!=(const Matrix<T, rank>&) const;
 
     /** output to ostream */
-    template<class T2, int rank2>
-    friend ostream& operator<< (ostream&, const Matrix<T2, rank2>&);
+    friend ostream& operator<< <>(ostream&, const Matrix<T, rank>&);
 
   protected:
     /** */
@@ -133,8 +137,6 @@ class Matrix {
     virtual void newData(const int* l, const int* h);
 };
 
-template<class T, int rank>
-ostream& operator<< (ostream&, const Matrix<T, rank>&);
 
 // ---------------------------------------------------------
 
