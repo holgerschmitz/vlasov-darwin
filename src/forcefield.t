@@ -294,6 +294,9 @@ double GenericEMForce<FieldType>
 //    return FEngy;
 //}
 
+//********************************************************************
+//********** GenericEMForceBoris2  **************************
+//********************************************************************
 
 template<class FieldType>
 VelocityD GenericEMForceBoris2<FieldType>
@@ -524,3 +527,38 @@ double GenericEMForceBoris2<FieldType>
         
 }
 
+
+//********************************************************************
+//********** GenericEMForceDirect  **************************
+//********************************************************************
+
+template<class FieldType>
+VelocityD GenericEMForceDirect<FieldType>
+                       ::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    double af = dt*Charge/Mass;
+    
+    // Storing E and B field
+    double Ex = GetEx(Pos);
+    double Ey = GetEy(Pos);
+    double Ez = GetEz(Pos);
+
+    double Bx = GetBx(Pos);
+    double By = GetBy(Pos);
+    double Bz = GetBz(Pos);
+
+    // Calculate Force
+    double Fx = Ex + vy*Bz - vz*By;
+    double Fy = Ey + vz*Bx - vx*Bz;
+    double Fz = Ez + vx*By - vy*Bx;
+       
+    return VelocityD(Fx*af, Fy*af, Fz*af);
+        
+}

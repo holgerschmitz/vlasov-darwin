@@ -311,23 +311,50 @@ class GenericEMForceBoris2 : public ForceBaseType {
                     double dt);
 };
 
+/** @brief Implements a force field that plugs into the concrete advancers
+ *  taking the force from a electromagetic field specified as template
+ *  parameter.
+ *
+ *  Implements the Force method for the Advancer and the Init and MakeParamMap
+ *  method to work together with the VlasovSpecies.
+ */
+template<class ForceBaseType>
+class GenericEMForceDirect : public ForceBaseType {
+  public:
+      
+      GenericEMForceDirect(SpeciesData &data) : ForceBaseType(data) {}
+      
+      /// Returns the reference to the electric field energy
+//      ScalarField &FieldEnergy();
+
+      /** The force at one position given the velocity.
+       *  Actually the displacement in the velocity space is returned.
+       *  The scheme of Boris is used for calculating the acceleration
+       *  The Boris scheme has been checked on simple trajectory integration.
+       */
+      VelocityD Force(const PositionI &Pos, 
+                      const VelocityD &Vel,
+                      double dt);
+                      
+};
+
 
 class Darwin;
 
-typedef GenericEMForceBoris2<
+typedef GenericEMForceDirect<
   GenericEMForceBase_ConstEB
 > ConstEBFieldForce;
 
 typedef PtrWrapper<ConstEBFieldForce> pConstEBFieldForce;
 
-typedef GenericEMForceBoris2<
+typedef GenericEMForceDirect<
   GenericEMForceBase_FullEM<Darwin>
 > EMDarwinForce;
 
 typedef PtrWrapper<EMDarwinForce> pEMDarwinForce;
 
 class Magnetostatic;
-typedef GenericEMForceBoris2<
+typedef GenericEMForceDirect<
   GenericEMForceBase_FullEM<Magnetostatic>
 > MagnetostaticForce;
 
