@@ -5,17 +5,17 @@
 #include "diaghelper.h"
 #include "potential.h"
 
-void ES_EFieldEnergy::Init (Potential *pField_) {
+void ES_EFieldEnergy::Init (Potential *pPot_) {
     t=0;
     
     Energy=0;
-    pField = pField_;
+    pPot = pPot_;
     Output.open("ElEnergy.out");
 }
 
 void ES_EFieldEnergy::Execute () {
 
-    ScalarField &Field = pField->GetEx();
+    ScalarField &Field = pPot->GetEx();
     const int *LBound = Field.getLow();
     const int *UBound = Field.getHigh();
     
