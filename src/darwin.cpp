@@ -197,6 +197,7 @@ bool Darwin::Execute (double timestep) {
       }
   }
 
+  /// @todo Diagnostic should be moved to separate classes
   if(mainproc /*&& ((tstep%10)==0)*/) {
     //if (false) {
     write_Scalar(den, "den.out");
@@ -231,6 +232,7 @@ bool Darwin::Execute (double timestep) {
     
   pois->solve(In,Pot);
     
+  /// @todo Diagnostic should be moved to separate classes
   if(mainproc && ((tstep%100)==0)) write_Scalar(Pot, "Pot.out");
   //if (false) write_Scalar(Pot, "Pot.out");
 
@@ -477,6 +479,7 @@ bool Darwin::Execute (double timestep) {
    *  Now we can write out the diagnostics
    */
     
+  /// @todo Diagnostic should be moved to separate classes
   if(mainproc /*&& ((tstep%100)==0)*/)   {
     //if (false) {
     write_Scalar(Ex, "Ex.out");
