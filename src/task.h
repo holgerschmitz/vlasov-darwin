@@ -2,7 +2,7 @@
 // $Id$
 
 /** @file task.h
- *  Contains the declarations of the fundamental Task class and the 
+ *  Contains the declarations of the fundamental Rebuildable class and the 
  *  also important Process class
  */
 
@@ -15,23 +15,12 @@
 #define TASK_H
 
 
-/** @brief The Task class is the fundamental class from which all the 
- *  classes that carry out simulation calculations are derived.
- *
- *  The Task contains information of when it is to be executed.
- *  Also every object instantiating Task has a name.
- *  A Task can also include subtasks which are executed whenever the 'parent' Task
- *  is executed.
- *  @param name The name of the Task
- *  @param start The timestep when the Task starts execution
- *  @param end The timestep when the Task ends execution
- *  @param step The interval between execution in timesteps
- *  @param Norm The name of the referenced Normalization object
+/** @brief 
  */
-class Task {
+class Rebuildable {
     public:
-        Task () {}
-        virtual ~Task () {} ///< virtual destructor
+        Rebuildable () {}
+        virtual ~Rebuildable () {} ///< virtual destructor
 
     protected:
         virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
@@ -42,8 +31,9 @@ class Task {
          *  Rebuild always returns the next token that does not belong to the
          *  object setup.
          */
-        std::string Rebuild (std::istream& in);
-}; // Task
+        virtual std::string Rebuild (std::istream& in);
+}; // Rebuildable
+
 
 #endif // TASK_H
 

@@ -3,7 +3,7 @@
 
 
 ForceFieldBase::ForceFieldBase(SpeciesData &data) 
-    :  boundary(data.bound),
+    :  boundary(BoundaryKeeper::getBoundary()),
        tstep(0) { 
     Mass = data.mass;
     Charge = data.charge;
@@ -13,15 +13,6 @@ ForceFieldBase::ForceFieldBase(SpeciesData &data)
     VRange[2] = data.GridRange_vz;
 }
 
-PARAMETERMAP* ForceFieldBase::MakeParamMap (PARAMETERMAP* pm) {
-  (*pm)["mass"] = WParameter(new ParameterValue<double>(&Mass, 1));
-  (*pm)["charge"] = WParameter(new ParameterValue<double>(&Charge, 1));
-  (*pm)["single-periodic-boundary"] = WParameter(new ParameterTask<SinglePeriodicBoundary, Boundary>(&boundary));
-#ifndef SINGLE_PROCESSOR
-  (*pm)["mpi-periodic-split-x-boundary"] = WParameter(new ParameterTask<MPIPeriodicSplitXBoundary, Boundary>(&boundary));
-  (*pm)["mpi-periodic-split-xy-boundary"] = WParameter(new ParameterTask<MPIPeriodicSplitXYBoundary, Boundary>(&boundary));
-#endif
-}
 
 ForceFieldBase::~ForceFieldBase() {
     cerr << "Destructing Vlasov Species\n";
@@ -32,7 +23,7 @@ ForceFieldBase::~ForceFieldBase() {
 void ForceFieldBase::initialise(VlasovInitialiser *init) {
     cerr << "Executing initializer " << endl;
     
-    init->initialise(Distribution, VRange);
+    init->initialise(this);
     
     cerr << "Boundary Exchange " << endl;
     boundary->exchangeX(Distribution);
@@ -42,7 +33,7 @@ void ForceFieldBase::initialise(VlasovInitialiser *init) {
 }
 
 
-void ForceFieldBase::resize(PhasePositionI &low, PhasePositionI &high) {
+void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
     cerr << "RISIZING Vlasov Advancer Base " << low << " " << high << endl;
     
     Distribution.resize(low.Data(),high.Data());

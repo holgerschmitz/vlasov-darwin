@@ -4,6 +4,8 @@
 #include "vlasovinit.h"
 #include "potential.h"
 #include "darwin.h"
+#include "globals.h"
+#include "process.h"
 
 // -------------------------------------------------------------------
 // VlasovSpecies
@@ -18,18 +20,9 @@ template<
 VlasovSpecies<ForceField,Advancer,Scheme>::VlasovSpecies(SpeciesData &data)
     : Advancer<ForceField,Scheme>(data)
 {
-  dt = Gl_dt;
+  dt = Parameters::instance().dt();
 }
 
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-void VlasovSpecies<ForceField,Advancer,Scheme>::setForceField(typename ForceField::FieldType *pField_) {
-  pPot = pField_;
-  pPot->AddSpecies(this);
-}
 
 template<
   class ForceField, 
@@ -38,32 +31,34 @@ template<
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
 
+  pPot = Parameters::instance().getField();
+  pPot->AddSpecies(this);
 
-    cerr << "INITIALIZING Vlasov Species" << endl;
+  cerr << "INITIALIZING Vlasov Species" << endl;
 
-    PhasePositionI Size;
-    PositionI Lowx = pPot->GetLBound();
-    PositionI Highx = pPot->GetHBound();
+  PhasePositionI Size;
+  PositionI Lowx = Process::instance().getBoundary().scalarLow();
+  PositionI Highx = Process::instance().getBoundary().scalarHigh();
     
-    cerr << "Resizing" << endl;
+  cerr << "Resizing" << endl;
     
-    resize(boundary->DistLow(),boundary->DistHigh());
+  resize(boundary->DistLow(),boundary->DistHigh());
     
-    cerr << "Resizing fields" << endl;
+  cerr << "Resizing fields" << endl;
     
 	EKin.resize(Lowx.Data(),Highx.Data());
 
 
-	dx[0] = GlGridSpace_x;
-    dx[1] = GlGridSpace_y;
+	dx[0] = Parameters::instance().gridSpace_x();
+  dx[1] = Parameters::instance().gridSpace_y();
     
-    for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-3)*dx[i];
+  for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-3)*dx[i];
     
-    cerr << "Init Base " << BoxRange << " " << VRange << endl;
+  cerr << "Init Base " << BoxRange << " " << VRange << endl;
        
        
-    cerr << "Init Field " << Charge/Mass << " " << VRange << endl;
-    ForceField::Init(dx[0]/dt);
+  cerr << "Init Field " << Charge/Mass << " " << VRange << endl;
+  ForceField::Init(dx[0]/dt);
 }
 
 
@@ -267,13 +262,3 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
     derivedFields.update(*this);
 }
 
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-PARAMETERMAP* VlasovSpecies<ForceField,Advancer,Scheme>::MakeParamMap (PARAMETERMAP* pm)
-{
-  pm = Task::MakeParamMap(pm);
-  return Advancer<ForceField,Scheme>::MakeParamMap(pm);
-}

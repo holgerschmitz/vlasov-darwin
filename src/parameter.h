@@ -14,7 +14,7 @@
 #ifndef PARAMETER_H
 #define PARAMETER_H
 
-class Task;
+class Rebuildable;
 
 class Parameter;
 typedef PtrWrapper<Parameter> WParameter;
@@ -76,34 +76,30 @@ class ParameterValue : public Parameter {
 }; // ParameterValue
 
 
-/** @brief Base class for reading a subclass of the Task class from the input. 
+/** @brief Base class for reading a subclass of the Rebuildable class from the input. 
  *
- *  A Task class is read from the input file by invoking the creating the
- *  object and calling its Task::Rebuild method. The parameters of the newly 
- *  built Task have to be enclosed in curly brackets.
- *  The new Task is then attached to its 'parent'.
- *
- *  The abstract method New should actually create the object. ParameterTask 
- *  and DiagnosticTask overwrite this method.
+ *  A Rebuildable class is read from the input file by invoking the creating the
+ *  object and calling its Rebuildable::Rebuild method. The parameters of the newly 
+ *  built Rebuildable have to be enclosed in curly brackets.
  */
 template<class Type, class BaseType>
-class ParameterTask : public Parameter {
+class ParameterRebuild : public Parameter {
 	public:
     protected:
         BaseType **value; ///< Pointer to the pointer of the object
     public:
-        /// Constructor takes a pointer to the parent Task
-        ParameterTask (BaseType **value_) : value(value_){}
+        /// Constructor takes a pointer to the parent Rebuildable
+        ParameterRebuild (BaseType **value_) : value(value_){}
         /// Destructor
-        virtual ~ParameterTask () {}
+        virtual ~ParameterRebuild () {}
 
-        /** @brief Creates a new Task, calls its Task::Rebuild method 
-         *  and attaches it to its parent Task
+        /** @brief Creates a new Rebuildable, calls its 
+         * Rebuildable::Rebuild method 
          */
         virtual std::string Rebuild (std::istream& in);
         /// Abstract method that should return a pointer to a new task
         virtual BaseType* NewInstance ()  { return new Type; }
-}; // ParameterTask_BASE
+}; // ParameterRebuild
 
 
 #include "parameter.t"

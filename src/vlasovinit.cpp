@@ -2,29 +2,27 @@
 // $Id$
 
 #include "vlasovinit.h"
+#include "globals.h"
 
 //=========================================================================
 //===============   VlasovMaxwellInit  ====================================
 //=========================================================================
 
-VlasovMaxwellInit::VlasovMaxwellInit(VlasovMaxwellInitData &data) {
-  pVlasov = data.vlasov;
-  
-  u_stream[0] = data.InitStream_vx;
-  u_stream[1] = data.InitStream_vy;
-  u_stream[2] = data.InitStream_vz;
-  
-  v_th[0] = data.InitTherm_vx;
-  v_th[1] = data.InitTherm_vy;
-  v_th[2] = data.InitTherm_vz;
-  
-  N = data.Init_N0;
-  n_perturb = data.Init_N1;
-  
-  k_perturb[0] = data.Init_kx;
-  k_perturb[1] = data.Init_ky;
-  
-  cout << "VlasovMaxwellInit::Init (" << u_stream << ") (" <<  v_th << ") ";
+VlasovMaxwellInit::VlasovMaxwellInit() {}
+
+PARAMETERMAP* VlasovMaxwellInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["Stream_vx"] = WParameter(new ParameterValue<double>(&u_stream[0], 0));
+  (*pm)["Stream_vy"] = WParameter(new ParameterValue<double>(&u_stream[1], 0));
+  (*pm)["Stream_vz"] = WParameter(new ParameterValue<double>(&u_stream[2], 0));
+  (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
+  (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
+  (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
+  (*pm)["N0"] = WParameter(new ParameterValue<double>(&N, 1));
+  (*pm)["N1"] = WParameter(new ParameterValue<double>(&n_perturb, 0));
+  (*pm)["kx"] = WParameter(new ParameterValue<int>(&k_perturb[0], 0));
+  (*pm)["ky"] = WParameter(new ParameterValue<int>(&k_perturb[1], 0));
+  return pm;
 }
 
 VlasovMaxwellInit::~VlasovMaxwellInit() {}
@@ -36,12 +34,16 @@ VlasovMaxwellInit::~VlasovMaxwellInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov) {
+  VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
   
-  double Nx = GlDistHigh[0]-GlDistLow[0]-3;
-  double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+  PhasePositionI GlLow  = Parameters::instance().distLow();
+  PhasePositionI GlHigh = Parameters::instance().distHigh();
+  
+  double Nx = GlHigh[0]-GlLow[0]-3;
+  double Ny = GlHigh[1]-GlLow[1]-3;
   
   PositionI Xi;
   VelocityI Vi;
@@ -61,13 +63,13 @@ void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
       //        double NPert =  1 + n_perturb*frand();
       
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	     for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+	       for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
 	    
-	    VelocityD V( pVlasov->velocity(Vi) );
-	    VelocityD Vm( 
-			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-			 );
+	         VelocityD V( pVlasov->velocity(Vi) );
+	         VelocityD Vm( 
+			       (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			       );
 	    VelocityD Vp( 
 			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
 			 );
@@ -81,12 +83,11 @@ void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
                 
 	    for (int j=0; j<3; ++j) {
 	      if (Vi[j]==L[j+2]) {
-		F1[j] = 0.5*(erf(vd1p[j]) + 1);
+		      F1[j] = 0.5*(erf(vd1p[j]) + 1);
 	      } else if (Vi[j]==H[j+2]) {
-		F1[j] = 0.5*(1 - erf(vd1m[j]));
+		      F1[j] = 0.5*(1 - erf(vd1m[j]));
 	      } else {
-		F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
-
+		      F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
 	      }
 	    }
                 
@@ -104,15 +105,15 @@ void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
         }
            
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-	  dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
-	  dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
+	     for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	       dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
+	       dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
         }
       
       for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-	for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-	  dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
-	  dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
+        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	       dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
+	       dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
         }
     }
   //    std::cout << "Initialized " << Xi[0] << std::endl;
@@ -123,42 +124,33 @@ void VlasovMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
 //===============   VlasovTwoMaxwellInit  =================================
 //=========================================================================
 
-VlasovTwoMaxwellInit::VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData &data) {
-  pVlasov = data.vlasov;
-    
-  u_stream1[0] = data.InitStream_vx;
-  u_stream1[1] = data.InitStream_vy;
-  u_stream1[2] = data.InitStream_vz;
-    
-  u_stream2[0] = data.InitStream2_vx;
-  u_stream2[1] = data.InitStream2_vy;
-  u_stream2[2] = data.InitStream2_vz;
-    
-  v_th1[0] = data.InitTherm_vx;
-  v_th1[1] = data.InitTherm_vy;
-  v_th1[2] = data.InitTherm_vz;
-    
-  v_th2[0] = data.InitTherm2_vx;
-  v_th2[1] = data.InitTherm2_vy;
-  v_th2[2] = data.InitTherm2_vz;
-    
-  N1 = data.Init_N0;
-  N2 = data.Init2_N0;
-  n_perturb1 = data.Init_N1;
-  n_perturb2 = data.Init2_N1;
-    
-  k_perturb1[0] = data.Init_kx;
-  k_perturb1[1] = data.Init_ky;
+VlasovTwoMaxwellInit::VlasovTwoMaxwellInit() {}
 
-  k_perturb2[0] = data.Init2_kx;
-  k_perturb2[1] = data.Init2_ky;
-
-  cout << "VlasovTwoMaxwellInit::Init (" <<
-    u_stream1 << ") (" <<
-    v_th1 << ") "<<
-    u_stream2 << ") (" <<
-    v_th2 << ")\n";
+PARAMETERMAP* VlasovTwoMaxwellInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["Stream_vxa"] = WParameter(new ParameterValue<double>(&u_stream1[0], 0));
+  (*pm)["Stream_vya"] = WParameter(new ParameterValue<double>(&u_stream1[1], 0));
+  (*pm)["Stream_vza"] = WParameter(new ParameterValue<double>(&u_stream1[2], 0));
+  (*pm)["Therm_vxa"] = WParameter(new ParameterValue<double>(&v_th1[0], 1));
+  (*pm)["Therm_vya"] = WParameter(new ParameterValue<double>(&v_th1[1], 1));
+  (*pm)["Therm_vza"] = WParameter(new ParameterValue<double>(&v_th1[2], 1));
+  (*pm)["N0a"] = WParameter(new ParameterValue<double>(&N1, 1));
+  (*pm)["N1a"] = WParameter(new ParameterValue<double>(&n_perturb1, 0));
+  (*pm)["kxa"] = WParameter(new ParameterValue<int>(&k_perturb1[0], 0));
+  (*pm)["kya"] = WParameter(new ParameterValue<int>(&k_perturb1[1], 0));
+  (*pm)["Stream_vxb"] = WParameter(new ParameterValue<double>(&u_stream2[0], 0));
+  (*pm)["Stream_vyb"] = WParameter(new ParameterValue<double>(&u_stream2[1], 0));
+  (*pm)["Stream_vzb"] = WParameter(new ParameterValue<double>(&u_stream2[2], 0));
+  (*pm)["Therm_vxb"] = WParameter(new ParameterValue<double>(&v_th2[0], 1));
+  (*pm)["Therm_vyb"] = WParameter(new ParameterValue<double>(&v_th2[1], 1));
+  (*pm)["Therm_vzb"] = WParameter(new ParameterValue<double>(&v_th2[2], 1));
+  (*pm)["N0b"] = WParameter(new ParameterValue<double>(&N2, 1));
+  (*pm)["N1b"] = WParameter(new ParameterValue<double>(&n_perturb2, 0));
+  (*pm)["kxb"] = WParameter(new ParameterValue<int>(&k_perturb2[0], 0));
+  (*pm)["kyb"] = WParameter(new ParameterValue<int>(&k_perturb2[1], 0));
+  return pm;
 }
+
 
 VlasovTwoMaxwellInit::~VlasovTwoMaxwellInit() {}
 
@@ -169,12 +161,16 @@ VlasovTwoMaxwellInit::~VlasovTwoMaxwellInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-void VlasovTwoMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
+  VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
 
-  double Nx = GlDistHigh[0]-GlDistLow[0]-3;
-  double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+  PhasePositionI GlLow  = Parameters::instance().distLow();
+  PhasePositionI GlHigh = Parameters::instance().distHigh();
+  
+  double Nx = GlHigh[0]-GlLow[0]-3;
+  double Ny = GlHigh[1]-GlLow[1]-3;
 
   PositionI Xi;
   VelocityI Vi;
@@ -195,40 +191,39 @@ void VlasovTwoMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRang
         
         
       double NPert2 = (
-		       1+n_perturb2*cos(
-					2*PI*k_perturb2[0]*Xi[0]/Nx
-					+2*PI*k_perturb2[1]*Xi[1]/Ny
-					)
+		      1+n_perturb2*cos(
+					 2*PI*k_perturb2[0]*Xi[0]/Nx
+					 +2*PI*k_perturb2[1]*Xi[1]/Ny
+          )
 		       );
         
 
-      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) {
-	for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) { 
-	  for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-	    //                cerr << "V pos " << Vi << endl;
+     for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) {
+	     for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) { 
+	       for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+	       //  cerr << "V pos " << Vi << endl;
 
-	    VelocityD V( pVlasov->velocity(Vi) );
-	    VelocityD Vm( 
-			 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-			 );
-	    VelocityD Vp( 
-			 (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-			 );
-                
-                
-	    VelocityD vd1m((Vm - UStream1)/VTh1);
-	    VelocityD vd1p((Vp - UStream1)/VTh1);
+	         VelocityD V( pVlasov->velocity(Vi) );
+	         VelocityD Vm( 
+			       (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+			     );
+	         VelocityD Vp( 
+			       (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
+			     );
+                        
+	         VelocityD vd1m((Vm - UStream1)/VTh1);
+	         VelocityD vd1p((Vp - UStream1)/VTh1);
 
-	    VelocityD vd2m((Vm - UStream2)/VTh2);
-	    VelocityD vd2p((Vp - UStream2)/VTh2);
+	         VelocityD vd2m((Vm - UStream2)/VTh2);
+	         VelocityD vd2p((Vp - UStream2)/VTh2);
 
-	    VelocityD F1, F2;
+	         VelocityD F1, F2;
                 
-	    for (int j=0; j<3; ++j) {
-	      if (Vi[j]==L[j+2]) {
-		F1[j] = 0.5*(erf(vd1p[j]) + 1);
-		F2[j] = 0.5*(erf(vd2p[j]) + 1);
-	      } else if (Vi[j]==H[j+2]) {
+	      for (int j=0; j<3; ++j) {
+          if (Vi[j]==L[j+2]) {
+		        F1[j] = 0.5*(erf(vd1p[j]) + 1);
+		        F2[j] = 0.5*(erf(vd2p[j]) + 1);
+	         } else if (Vi[j]==H[j+2]) {
 		F1[j] = 0.5*(1 - erf(vd1m[j]));
 		F2[j] = 0.5*(1 - erf(vd2m[j]));
 	      } else {
@@ -273,22 +268,19 @@ void VlasovTwoMaxwellInit::initialise(VlasovDist &dist, const VelocityD &VelRang
 //===============   VlasovWaveGenInit   ===================================
 //=========================================================================
 
-VlasovWaveGenInit::VlasovWaveGenInit(VlasovMaxwellInitData &data) {
-  pVlasov = data.vlasov;
-  
-  u_stream[0] = data.InitStream_vx;
-  u_stream[1] = data.InitStream_vy;
-  u_stream[2] = data.InitStream_vz;
-  
-  v_th[0] = data.InitTherm_vx;
-  v_th[1] = data.InitTherm_vy;
-  v_th[2] = data.InitTherm_vz;
-  
-  N = data.Init_N0;
-  n_perturb = data.Init_N1;
-    
-  cout << "VlasovWaveGenInit::Init (" << v_th << ") ";
+VlasovWaveGenInit::VlasovWaveGenInit() { }
 
+PARAMETERMAP* VlasovWaveGenInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["Stream_vx"] = WParameter(new ParameterValue<double>(&u_stream[0], 0));
+  (*pm)["Stream_vy"] = WParameter(new ParameterValue<double>(&u_stream[1], 0));
+  (*pm)["Stream_vz"] = WParameter(new ParameterValue<double>(&u_stream[2], 0));
+  (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
+  (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
+  (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
+  (*pm)["N0"] = WParameter(new ParameterValue<double>(&N, 1));
+  (*pm)["N1"] = WParameter(new ParameterValue<double>(&n_perturb, 0));
+  return pm;
 }
 
 VlasovWaveGenInit::~VlasovWaveGenInit() {}
@@ -300,7 +292,8 @@ VlasovWaveGenInit::~VlasovWaveGenInit() {}
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-void VlasovWaveGenInit::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
+  VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
 
@@ -318,16 +311,17 @@ void VlasovWaveGenInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0]) 
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
         
-//      double PP = cos( 2*PI*(Xi[0]/double(GlGridX)));
-//      double PZ = sin( 2*PI*(Xi[0]/double(GlGridX)));
+//      double PP = cos( 2*PI*(Xi[0]/double(gx)));
+//      double PZ = sin( 2*PI*(Xi[0]/double(gx)));
       double PP=0;
       double PZ=0;
-      for (int kx=1; kx<(GlGridX/2); ++kx)  {
+      double gx = Parameters::instance().gridX();
+      for (int kx=1; kx<(gx/2); ++kx)  {
 //      for (int kx=1; kx<2; ++kx)  {
-     PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
-     PZ += sin( 2*PI*kx*(Xi[0]/double(GlGridX)-kx/15.0));
-     //PP += cos( 2*PI*kx*(Xi[0]/double(GlGridX)));
-     //PZ += sin( 2*PI*kx*(Xi[0]/double(GlGridX)));
+        PP += cos( 2*PI*kx*(Xi[0]/gx-kx/15.0));
+        PZ += sin( 2*PI*kx*(Xi[0]/gx-kx/15.0));
+        //PP += cos( 2*PI*kx*(Xi[0]/gx));
+        //PZ += sin( 2*PI*kx*(Xi[0]/gx));
         
       }
         
@@ -340,42 +334,41 @@ void VlasovWaveGenInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
       double NPert = 1.0;
         
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-     for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-       for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
+        for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
+          for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
 
-         VelocityD V( pVlasov->velocity(Vi) );
-         VelocityD Vm( 
-              (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
-              );
-         VelocityD Vp( 
+            VelocityD V( pVlasov->velocity(Vi) );
+            VelocityD Vm( 
+                 (pVlasov->velocity(Vi-VelocityI(1,1,1)) + V)*0.5 
+            );
+            VelocityD Vp( 
               (pVlasov->velocity(Vi+VelocityI(1,1,1)) + V)*0.5
-              );
+            );
+
+            UStream[0] = u_stream[0]*PP;
+            UStream[1] = u_stream[1]*PP;
+            UStream[2] = u_stream[2]*PZ;
+
+            VelocityD vd1m((Vm-UStream)/VTh);
+
+            VelocityD vd1p((Vp-UStream)/VTh);
+
+            VelocityD F1;
+
+            for (int j=0; j<3; ++j) {
+              if (Vi[j]==0) {
+                F1[j] = 0.5*(erf(vd1p[j]) + 1);
+              } else if (Vi[j]==dist.getHigh(j+2)) {
+                F1[j] = 0.5*(1 - erf(vd1m[j]));
+              } else {
+                F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
+              }
+            }
 
 
-         UStream[0] = u_stream[0]*PP;
-         UStream[1] = u_stream[1]*PP;
-         UStream[2] = u_stream[2]*PZ;
-
-         VelocityD vd1m((Vm-UStream)/VTh);
-
-         VelocityD vd1p((Vp-UStream)/VTh);
-
-         VelocityD F1;
-
-         for (int j=0; j<3; ++j) {
-           if (Vi[j]==0) {
-             F1[j] = 0.5*(erf(vd1p[j]) + 1);
-           } else if (Vi[j]==dist.getHigh(j+2)) {
-             F1[j] = 0.5*(1 - erf(vd1m[j]));
-           } else {
-             F1[j] = 0.5*(erf(vd1p[j]) - erf(vd1m[j]));
-           }
-         }
-
-
-         double F = N*NPert*F1.product();
-         dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
-   }
+            double F = N*NPert*F1.product();
+            dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
+        }
       state = (state==0)?1:0;
 
     }
@@ -414,15 +407,18 @@ void VlasovWaveGenInit::initialise(VlasovDist &dist, const VelocityD &VelRange) 
 //  *  is calculated as a Maxwellian distribution.
 //  */
 // template<class ForceField>
-// void VlasovCurrentSheetInit<ForceField>::initialise(VlasovDist &dist, const VelocityD &VelRange) {
+// void VlasovCurrentSheetInit<ForceField>::initialise(VlasovDist &dist) {
 //   const int *L = dist.getLow();
 //   const int *H = dist.getHigh();
 //   
-//   double Nx = GlDistHigh[0]-GlDistLow[0]-3;
-//   double Ny = GlDistHigh[1]-GlDistLow[1]-3;
+//  PhasePositionI GlLow  = Parameters::instance().distLow();
+//  PhasePositionI GlHigh = Parameters::instance().distHigh();
+//  
+//  double Nx = GlHigh[0]-GlLow[0]-3;
+//  double Ny = GlHigh[1]-GlLow[1]-3;
 //   
-//   int currup = (GlDistHigh[0]-GlDistLow[0]-3)/4;
-//   int curdown = (3*(GlDistHigh[0]-GlDistLow[0]-3))/4;
+//   int currup = (GlHigh[0]-GlLow[0]-3)/4;
+//   int curdown = (3*(GlHigh[0]-GlLow[0]-3))/4;
 //   
 //   PositionI Xi;
 //   VelocityI Vi;

@@ -55,10 +55,9 @@ DistMomentRho *EFieldForce::getDerivedRho() {
 void EBFieldForce::Init(double dttx_) {
   dttx = dttx_;
   Rho = new DistMomentRho(boundary);
+  B = Parameters::instance().bField();
   derivedFields.add(Rho);
 }
-
-void EBFieldForce::setBField(VelocityD B_) { B = B_; }
 
 ScalarField &EBFieldForce::GetEx() { return pPot->GetEx(); }
 ScalarField &EBFieldForce::GetEy() { return pPot->GetEy(); }
@@ -128,12 +127,10 @@ DistMomentRho *EBFieldForce::getDerivedRho() {
 void ConstEBFieldForce::Init(double dttx_) {
     dttx = dttx_;
     Veloc = new DistMomentVelocities(boundary);
+    E = Parameters::instance().eField();
+    B = Parameters::instance().bField();
     derivedFields.add(Veloc);
 }
-
-void ConstEBFieldForce::setEField(VelocityD E_) { E = E_; }
-
-void ConstEBFieldForce::setBField(VelocityD B_) { B = B_; }
 
 VelocityD ConstEBFieldForce::Force(const PositionI &Pos, 
                                    const VelocityD &Vel,

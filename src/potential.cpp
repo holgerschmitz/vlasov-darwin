@@ -18,11 +18,11 @@ void Potential::Init () {
 //    n0 = -1;
     n0 = 0;
 
-    LBound = GlGridLow;
-    HBound = GlGridHigh;
+    LBound = Process::instance().getBoundary().scalarLow();
+    HBound = Process::instance().getBoundary().scalarHigh();
 
-    dx[0] = GlGridSpace_x;
-    dx[1] = GlGridSpace_y;
+    dx[0] = Parameters::instance().gridSpace_x();
+    dx[1] = Parameters::instance().gridSpace_y();
 
     cerr << "Grid Spacing is " << dx << endl;
     cerr << "Grid Size is " << LBound << " to " << HBound << endl;
@@ -52,7 +52,7 @@ void Potential::Init () {
 
 }
 
-void Potential::Execute (double timestep) {
+void Potential::Execute () {
     
     int lx0 = LBound[0], lx1 = LBound[0]+1;
     int ly0 = LBound[1], ly1 = LBound[1]+1;
@@ -84,21 +84,15 @@ void Potential::Execute (double timestep) {
                 
 		den += tmp;         // and add
 	}
-    
-    if(mainproc) write_Scalar(den, "den.out");
-    
+        
     for (int j=ly0; j<=my0; ++j) 
         for (int i=lx0; i<=mx0; ++i) {
             In(i,j) = -(den(i,j)+n0);
 //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
         }
 
-    if(mainproc) write_Scalar(In, "In.out");
-    
     pois->solve(In,Pot);
     
-    if(mainproc) write_Scalar(Pot, "Pot.out");
-
 	for (int i=lx1; i<=mx1; ++i) 
         for (int j=ly0; j<=my0; ++j) 
     	    Ex(i,j) = (Pot(i-1,j) - Pot(i+1,j)) / (2*dx[0]);
@@ -120,9 +114,6 @@ void Potential::Execute (double timestep) {
         Ey(i,ly0) = Ey(i,my1);
         Ey(i,my0) = Ey(i,ly1);
     }
-
-    if(mainproc) write_Scalar(Ex, "Ex.out");
-    if(mainproc) write_Scalar(Ey, "Ey.out");
 
     DiagField.Execute();    
 }

@@ -2,6 +2,8 @@
 // $Id$
 
 #include "darwin.h"
+#include "globals.h"
+#include "process.h"
 
 // ----------------------------------------------------------------------
 // Darwin
@@ -13,23 +15,23 @@ void Darwin::AddSpecies(EMDarwinForce* pS) {
 void Darwin::Init () {
   tstep= 0;
   n0 = -1;
-  csc = Gl_VelocityRatio*Gl_VelocityRatio;
+  double VRatio = Parameters::instance().velocityRatio();
+  csc = VRatio*VRatio;
   
   //  Fields range from 0 to N+1, where the inner points are
   //  1 to N
   
-  LBound = GlGridLow;
-  HBound = GlGridHigh;
+  LBound = Process::instance().getBoundary().scalarLow();
+  HBound = Process::instance().getBoundary().scalarHigh();
   
-  dx[0] = GlGridSpace_x;
-  dx[1] = GlGridSpace_y;
+  dx[0] = Parameters::instance().gridSpace_x();
+  dx[1] = Parameters::instance().gridSpace_y();
   
-  dV = GlVolumeQuant;
+  dV = Parameters::instance().volumeQuant();
 	
   cerr << "Grid Spacing is " << dx << endl;
   cerr << "Grid Size is " << LBound << " to " << HBound << endl;
-  
-  
+    
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
   om2.resize(LBound.Data(),HBound.Data());
@@ -96,7 +98,10 @@ void Darwin::Init () {
   pois = new Poisson;
   pois->resize(
     PositionD(0.0,0.0), 
-    PositionD(gssx*GlGridSpace_x, gssy*GlGridSpace_y), 
+    PositionD(
+      gssx*Parameters::instance().gridSpace_x(), 
+      gssy*Parameters::instance().gridSpace_y()
+    ), 
     PositionI(gssx,gssy),
     Poisson::periodic, 
     Poisson::periodic
@@ -111,7 +116,7 @@ void Darwin::Init () {
   cerr << "Done Darwin: Size=( " << LBound << "),(" << HBound<< ")" << endl;
 }
 
-bool Darwin::Execute (double timestep) {
+bool Darwin::Execute () {
     
   int i;
   double dF, dF2;
@@ -351,11 +356,12 @@ bool Darwin::Execute (double timestep) {
    *  to the solution for B
    */
  
+  const VelocityD &GlB = Parameters::instance().bField();
   for (int i=lx0; i<=mx0; ++i) {
     for (int j=ly0; j<=my0; ++j) {
-      Bx(i,j) += Gl_B0x;
-      By(i,j) += Gl_B0y;
-      Bz(i,j) += Gl_B0z;
+      Bx(i,j) += GlB[0];
+      By(i,j) += GlB[1];
+      Bz(i,j) += GlB[2];
     }
   }
      

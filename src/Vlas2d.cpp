@@ -4,9 +4,7 @@
 #include "Vlas2d.h"
 
 int GlGridX = 256;
-int GlGridY = 4;
 //const int GlGridX = 64;
-//const int GlGridY = 64;
 int GlVelRes = 20;
 
 PositionI GlGridLow(0,0);

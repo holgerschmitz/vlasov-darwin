@@ -22,7 +22,7 @@
  *  See the page @ref indices for a discussion on the numerical
  *  ranges of the fields
  */
-class Boundary : public Task {
+class Boundary : public Rebuildable {
   public:
       /** @brief We need a virtual destructor because the class has 
        *  virtual methods
@@ -50,16 +50,16 @@ class Boundary : public Task {
       virtual double AvgReduce(double) = 0;    
 
       /// Return the lower bound of the distribution function
-      virtual PhasePositionI &DistLow() = 0;
+      virtual const PhasePositionI &DistLow() const = 0;
 
       /// Return the upper bound of the distribution function
-      virtual PhasePositionI &DistHigh() = 0;
+      virtual const PhasePositionI &DistHigh() const = 0;
 
       /// Return the lower bound of scalar fields
-      virtual PositionI &ScalarLow() = 0;
+      virtual const PositionI &scalarLow() const = 0;
 
       /// Return the upper bound of scalar fields
-      virtual PositionI &ScalarHigh() = 0;
+      virtual const PositionI &scalarHigh() const = 0;
 
       /// Return true if this is the master process and false otherwise
       virtual bool master() = 0;
@@ -83,13 +83,13 @@ class SinglePeriodicBoundary : public Boundary {
       /// There is no average to be calculated
       double AvgReduce(double val) { return val; }
       /// Returns the global lower bound of the distribution function
-      PhasePositionI &DistLow();
+      const PhasePositionI &DistLow() const;
       /// Returns the global upper bound of the distribution function
-      PhasePositionI &DistHigh();
+      const PhasePositionI &DistHigh() const;
       /// Return the lower bound of scalar fields
-      virtual PositionI &ScalarLow();
+      const PositionI &scalarLow()const;
       /// Return the upper bound of scalar fields
-      virtual PositionI &ScalarHigh();
+      const PositionI &scalarHigh()const;
       /// There is only one process, so master always returns true
       bool master() { return true; }
       /// The process number is always zero
@@ -168,16 +168,16 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       double AvgReduce(double val);
       
       /// Returns the global lower bound of the distribution function
-      virtual PhasePositionI &DistLow();
+      const PhasePositionI &DistLow()const;
       
       /// Returns the global upper bound of the distribution function
-      virtual PhasePositionI &DistHigh();
+      const PhasePositionI &DistHigh()const;
       
       /// Return the lower bound of scalar fields
-      virtual PositionI &ScalarLow();
+      const PositionI &scalarLow()const;
       
       /// Return the upper bound of scalar fields
-      virtual PositionI &ScalarHigh();
+      const PositionI &scalarHigh()const;
 
       /// The process with the rank zero is designated master process
       bool master() { return ComRank==0; }
@@ -266,16 +266,16 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       double AvgReduce(double val);
       
       /// Returns the global lower bound of the distribution function
-      virtual PhasePositionI &DistLow();
+      const PhasePositionI &DistLow()const;
       
       /// Returns the global upper bound of the distribution function
-      virtual PhasePositionI &DistHigh();
+      const PhasePositionI &DistHigh()const;
       
       /// Return the lower bound of scalar fields
-      virtual PositionI &ScalarLow();
+      const PositionI &scalarLow()const;
       
       /// Return the upper bound of scalar fields
-      virtual PositionI &ScalarHigh();
+      const PositionI &scalarHigh()const;
       
       /// The process with the rank zero is designated master process
       bool master() { return ComRank==0; }
@@ -284,5 +284,6 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       int procnum() { return ComRank; }
 };
 #endif // single processor
+
 
 #endif

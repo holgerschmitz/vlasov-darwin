@@ -6,7 +6,7 @@
 /** @brief Implements the VlasovInitialiser interface to create a two stream
  *  distribution.
  *
- *  This class also inherits from the Task class, so it can work together with
+ *  This class also inherits from the Rebuildable class, so it can work together with
  *  the VlasovSpecies class.
  */
 
@@ -18,7 +18,7 @@
  *  Defines only an abstract method initialise, that is called by the 
  *  ValsovAdvancerBase class.
  */
-class VlasovInitialiser {
+class VlasovInitialiser : public Rebuildable {
     public:
         /** @brief  Should be overridden by the subclass to initialise
          *  the distribution.
@@ -28,22 +28,7 @@ class VlasovInitialiser {
          *  the distrbution is defined: The reqion is given by 
          *  [ -VelRange : +VelRange ]
          */
-        virtual void initialise(VlasovDist &dist,
-                                const VelocityD &VelRange_)=0;
-};
-
-struct VlasovMaxwellInitData {
-  ForceFieldBase *vlasov;
-  double InitStream_vx;
-  double InitStream_vy;
-  double InitStream_vz;
-  double InitTherm_vx;
-  double InitTherm_vy;
-  double InitTherm_vz;
-  double Init_N0;
-  double Init_N1;
-  int Init_kx;
-  int Init_ky;
+        virtual void initialise(ForceFieldBase *pVlasov)=0;
 };
 
 /** @brief Initialises the Vlasov distribution function with a
@@ -69,7 +54,7 @@ class VlasovMaxwellInit : public VlasovInitialiser {
       ForceFieldBase *pVlasov; 
   public:
 	  /// Default constructor
-      VlasovMaxwellInit(VlasovMaxwellInitData &data);
+      VlasovMaxwellInit();
 	  /// Destructor
       virtual ~VlasovMaxwellInit();
 
@@ -77,34 +62,10 @@ class VlasovMaxwellInit : public VlasovInitialiser {
        *  The Maxwellian distribution will be written into the
        *  dist parameter.
        */
-      virtual void initialise(VlasovDist &dist,
-                              const VelocityD &VelRange_);
+      virtual void initialise(ForceFieldBase *pVlasov);
+    protected:
+      virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
-
-struct VlasovTwoMaxwellInitData {
-  ForceFieldBase *vlasov;
-  double InitStream_vx;
-  double InitStream_vy;
-  double InitStream_vz;
-  double InitTherm_vx;
-  double InitTherm_vy;
-  double InitTherm_vz;
-  double Init_N0;
-  double Init_N1;
-  int Init_kx;
-  int Init_ky;
-  double InitStream2_vx;
-  double InitStream2_vy;
-  double InitStream2_vz;
-  double InitTherm2_vx;
-  double InitTherm2_vy;
-  double InitTherm2_vz;
-  double Init2_N0;
-  double Init2_N1;
-  int Init2_kx;
-  int Init2_ky;
-};
-
 
 /** @brief Initialises the Vlasov distribution function with two
  *  Maxwellian distributions. The thermal velocities and a streaming velocities
@@ -139,7 +100,7 @@ class VlasovTwoMaxwellInit : public VlasovInitialiser {
       ForceFieldBase *pVlasov; 
   public:
 	  /// Default constructor
-      VlasovTwoMaxwellInit(VlasovTwoMaxwellInitData &data);
+      VlasovTwoMaxwellInit();
 	  /// Destructor
       virtual ~VlasovTwoMaxwellInit();
 
@@ -147,8 +108,9 @@ class VlasovTwoMaxwellInit : public VlasovInitialiser {
        *  The Maxwellian distribution will be written into the
        *  dist parameter.
        */
-      virtual void initialise(VlasovDist &dist,
-                              const VelocityD &VelRange_);
+      virtual void initialise(ForceFieldBase *pVlasov);
+    protected:
+      virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
 /** @brief Initialises the Vlasov distribution function with a
@@ -171,7 +133,7 @@ class VlasovWaveGenInit : public VlasovInitialiser {
       ForceFieldBase *pVlasov; 
   public:
    /// Default constructor
-      VlasovWaveGenInit(VlasovMaxwellInitData &data);
+      VlasovWaveGenInit();
    /// Destructor
       virtual ~VlasovWaveGenInit();
 
@@ -179,8 +141,9 @@ class VlasovWaveGenInit : public VlasovInitialiser {
        *  The Maxwellian distribution will be written into the
        *  dist parameter.
        */
-      virtual void initialise(VlasovDist &dist,
-                              const VelocityD &VelRange_);
+      virtual void initialise(ForceFieldBase *pVlasov);
+    protected:
+      virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
 // /** @brief Initialises the Vlasov distribution function with 

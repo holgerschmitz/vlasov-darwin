@@ -84,10 +84,7 @@ class EBFieldForce : public ForceFieldBase {
 
        /// Initialises the force field
       void Init(double dttx_);
-      
-      /// Sets the magnetic field 
-      void setBField(VelocityD B_);
-      
+           
       DistMomentRho *getDerivedRho();
 };
 
@@ -98,15 +95,11 @@ class ConstEBFieldForce : public ForceFieldBase {
   public:
       class VoidPotential {
         public:
-            VoidPotential(bool) {}
+            VoidPotential() {}
             //VoidPotential(Boundary*) {}
             void Init() {}
-            void Execute(double&) {}
+            void Execute() {}
             void AddSpecies(ConstEBFieldForce*) {}
-            /// Returns the lower bound of the numerical grid
-	        const PositionI &GetLBound () const { return GlGridLow; }
-            /// Returns the upper bound of the numerical grid
-	        const PositionI &GetHBound () const { return GlGridHigh; }
       };
       typedef VoidPotential FieldType;      
   protected:
@@ -132,12 +125,7 @@ class ConstEBFieldForce : public ForceFieldBase {
 
        /// Initialises the force field
       void Init(double dttx_);
-      
-      /// Sets the magnetic field 
-      void setBField(VelocityD B_);
-      /// Sets the magnetic field 
-      void setEField(VelocityD E_);
-      
+            
       DistMomentVelocities *getDerivedVelocities();
 };
 

@@ -2,6 +2,7 @@
 // $Id$
 
 #include "vlasovbase.h"
+#include "scheme.h"
 
 #ifndef ADVANCER_H
 #define ADVANCER_H

@@ -41,8 +41,7 @@ template<
   template<class> class Scheme = PosFluxCons3rdOrder
 >
 class VlasovSpecies 
-  : public Advancer<ForceField,Scheme>,
-    public Task 
+  : public Advancer<ForceField,Scheme>
 {
   protected:
       
@@ -121,8 +120,6 @@ class VlasovSpecies
       
       /// Initialisation before a timestep
       void InterpolationInitStep(const VlasovDist &Dist);
-  protected:
-      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 }; // VlasovSpecies
 
 

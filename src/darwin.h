@@ -86,12 +86,9 @@ class Darwin {
        *
        */
       ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
-
-      /// Is this the main process? (used for diagnostics only)
-      bool mainproc;
   public:  
-	  /// Construct passing the value of mainproc
-	  Darwin (bool mainproc_) : mainproc(mainproc_) {}
+	    /// Construct passing the value of mainproc
+	    Darwin () {}
 
       /// Return the scalar field that stores the field component \f$E_x\f$
       ScalarField &GetEx() { return Ex; }
@@ -107,21 +104,16 @@ class Darwin {
       /// Return the scalar field that stores the field component \f$B_z\f$
       ScalarField &GetBz() { return Bz; }
 
-      /// Returns the lower bound of the numerical grid
-	  const PositionI &GetLBound () const { return LBound; };
-      /// Returns the upper bound of the numerical grid
-	  const PositionI &GetHBound () const { return HBound; };
-
       /** @brief Initialize all the physical quantities and allocate
        *  the scalar fields
        */
-	  void Init ();
+	    void Init ();
 
       /** @brief Calculates the electric and magnetic field in the 
        *  Darwin approximation. These fields can then be retrieved by
        *  the GetE* and the GetB* methods
        */
-      bool Execute (double timestep);
+      bool Execute ();
 
       /** @brief Add a species to the darwin solver.
        *  The charge and current densities have to be summed over
@@ -129,8 +121,6 @@ class Darwin {
        */
       void AddSpecies(EMDarwinForce* pS);
   private:
-      /// Make default constructor private
-      Darwin() {}
       /// Make copy constructor private
       Darwin(Darwin &) {}
       

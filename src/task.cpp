@@ -11,12 +11,12 @@
  *  parameters from the setup file. It should then ALWAYS call the 
  *  MakeParamMap of its superclass.
  */
-PARAMETERMAP* Task::MakeParamMap (PARAMETERMAP* pm) {
+PARAMETERMAP* Rebuildable::MakeParamMap (PARAMETERMAP* pm) {
   if (NULL == pm) pm = new PARAMETERMAP;
   return pm;
 }
 
-std::string Task::Rebuild (std::istream& in) {
+std::string Rebuildable::Rebuild (std::istream& in) {
   PARAMETERMAP* pm = MakeParamMap();
   std::string strToken;
   in >> strToken;

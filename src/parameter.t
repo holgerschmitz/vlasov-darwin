@@ -11,7 +11,7 @@ std::string ParameterValue<Type>::Rebuild (std::istream& in) {
 
 
 template<class Type, class BaseType>
-std::string ParameterTask<Type,BaseType>::Rebuild (std::istream& in) {
+std::string ParameterRebuild<Type,BaseType>::Rebuild (std::istream& in) {
   // in die Liste der Subtasks des Elterntasks eintragen
   (*value) = NewInstance();
   

@@ -10,12 +10,12 @@
 class VlasovInitialiser;
 
 struct SpeciesData {
-  Boundary *bound;
   double charge;
   double mass;
   double GridRange_vx;
   double GridRange_vy;
   double GridRange_vz;
+  VlasovInitialiser *init;
 };
 
 
@@ -71,7 +71,7 @@ class ForceFieldBase {
       /** Resizes the grid of the distribution function
        *  (and the distribution function temporaries)
        */
-      void resize(PhasePositionI &low, PhasePositionI &high);
+      void resize(PhasePositionI low, PhasePositionI high);
 
 // ACCESSOR METHODS
       
@@ -146,8 +146,6 @@ class ForceFieldBase {
       int procnum() {
         return boundary->procnum();
       }
-  protected:
-      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm);
 };
 
 #endif

@@ -26,74 +26,64 @@
  */
 class Potential {
 	protected:
-        /// Size of the grid
-		PositionI LBound,HBound;
-        /// grid spacing
-		PositionD dx;
+      /// Size of the grid
+      PositionI LBound,HBound;
+      /// grid spacing
+		  PositionD dx;
         
-        /// The grid containing the potential values
-		ScalarField Pot;   
+      /// The grid containing the potential values
+  		ScalarField Pot;   
 
-        /// Additional density
-        double n0;          
+      /// Additional density
+      double n0;          
 
-        /// Contains the charge density values \f$\rho({\bf x})\f$
-		ScalarField den;
+      /// Contains the charge density values \f$\rho({\bf x})\f$
+		  ScalarField den;
         
-        /// Container of all the Species that contribute to the charge density   
-		vector<pEFieldForce> species;
+      /// Container of all the Species that contribute to the charge density   
+  		vector<pEFieldForce> species;
            
-        /// A temporary field used for the poisson solver              
-        ScalarField In;
+      /// A temporary field used for the poisson solver              
+      ScalarField In;
         
-        /// The Poisson solver
-        Poisson *pois;
+      /// The Poisson solver
+      Poisson *pois;
 
-        /** @brief The electrostatic fields calculated from the derivative 
-         *  of the potential
-         */
-        ScalarField Ex,Ey;
+      /** @brief The electrostatic fields calculated from the derivative 
+       *  of the potential
+       */
+      ScalarField Ex,Ey;
+          
+      /// A diagnostic for calculating the electrostatic field energy
+      ES_EFieldEnergy DiagField;
         
-        /// A diagnostic for calculating the electrostatic field energy
-        ES_EFieldEnergy DiagField;
-        
-        /** @brief Boolean indicating if this is the main process
-         *  Used for diagnostic only
-         */
-        bool mainproc;
 	public:  
-		/// Default constructor initializing the main process variable
-		Potential (bool mainproc_) : mainproc(mainproc_) {}
-        /// Destructor
-		virtual ~Potential () {}
+		  /// Default constructor initializing the main process variable
+  		Potential () {}
+      /// Destructor
+		  virtual ~Potential () {}
 
-        /// Returns a reference to the electric x-field
-        ScalarField &GetEx() { return Ex; }
-        /// Returns a reference to the electric y-field
-        ScalarField &GetEy() { return Ey; }
+      /// Returns a reference to the electric x-field
+      ScalarField &GetEx() { return Ex; }
+      /// Returns a reference to the electric y-field
+      ScalarField &GetEy() { return Ey; }
 
-        /// Returns the grid size (lower bound)
-		virtual const PositionI &GetLBound () const { return LBound; };
-        /// Returns the grid size (upper bound)
-		virtual const PositionI &GetHBound () const { return HBound; };
+      /** @brief Perform initialization. Setting all the field sizes
+       *  and clearing the values
+       */
+      virtual void Init ();
+      /** @brief Solve for the potential.
+       *  Sums up all the charge densities from the species and
+       *  solves Poissons equation to get the potential.
+       *  Then it uses central differences to calculate the
+       *  electric fields
+       */
+      virtual void Execute ();
 
-        /** @brief Perform initialization. Setting all the field sizes
-         *  and clearing the values
-         */
-		virtual void Init ();
-        /** @brief Solve for the potential.
-         *  Sums up all the charge densities from the species and
-         *  solves Poissons equation to get the potential.
-         *  Then it uses central differences to calculate the
-         *  electric fields
-         */
-        virtual void Execute (double timestep);
-
-        /** @brief Adds a species to the list of species that need 
-         *  contribute to the charge density
-         */
-        void AddSpecies(EFieldForce* pS);
-
+      /** @brief Adds a species to the list of species that need 
+       *  contribute to the charge density
+       */
+      void AddSpecies(EFieldForce* pS);
 }; // Potential
 
 /// Helper function to write a scalar potential into a file

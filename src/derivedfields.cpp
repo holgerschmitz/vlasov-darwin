@@ -23,8 +23,8 @@ void DerivedFieldsContainer::update(ForceFieldBase &vlasov) {
 DistMomentRho::DistMomentRho(Boundary *boundary_) 
     : DistributionDerivedField(boundary_) 
 {
-  PositionI Lowx = boundary->ScalarLow();
-  PositionI Highx = boundary->ScalarHigh();
+  PositionI Lowx = boundary->scalarLow();
+  PositionI Highx = boundary->scalarHigh();
   
   Rho.resize(Lowx.Data(),Highx.Data());  
 }
@@ -61,8 +61,8 @@ void DistMomentRho::calc(ForceFieldBase &vlasov) {
 DistMomentVelocities::DistMomentVelocities(Boundary *boundary_) 
     : DistributionDerivedField(boundary_) 
 {
-  PositionI Lowx = boundary->ScalarLow();
-  PositionI Highx = boundary->ScalarHigh();
+  PositionI Lowx = boundary->scalarLow();
+  PositionI Highx = boundary->scalarHigh();
   
   Jx.resize(Lowx.Data(),Highx.Data());
   Jy.resize(Lowx.Data(),Highx.Data());

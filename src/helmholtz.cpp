@@ -2,20 +2,20 @@
 // $Id$
 
 #include "helmholtz.h"
-#include "Vlas2d.h"
+#include "globals.h"
 
 #define ISODD(i) ((i)&1)     
 
 Helmholtz::Helmholtz() {
 
-    epsilon = MG_epsilon;
-    gama    = MG_gama;
-    nu1     = MG_nu1;
-    nu2     = MG_nu2;
+    epsilon = Parameters::instance().mgEpsilon();
+    gama    = Parameters::instance().mgGamma();
+    nu1     = Parameters::instance().mgNu1();
+    nu2     = Parameters::instance().mgNu2();
 
     // dx
-    dx[0] = GlGridSpace_x;
-    dx[1] = GlGridSpace_y;
+    dx[0] = Parameters::instance().gridSpace_x();
+    dx[1] = Parameters::instance().gridSpace_y();
 
 
 }

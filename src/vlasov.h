@@ -3,7 +3,6 @@
 
 #include "index.h"
 #include "matrix.h"
-#include "Vlas2d.h"
 
 /** @file vlasov.h
  *  Defines the classes for solving Vlasov's equation.
