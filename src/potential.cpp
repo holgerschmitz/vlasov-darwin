@@ -4,6 +4,8 @@
 
 #include "potential.h"
 #include "diaghelper.h"
+#include "globals.h"
+#include "process.h"
 
 // ----------------------------------------------------------------------
 // Potential

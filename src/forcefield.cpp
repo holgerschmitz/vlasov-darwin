@@ -1,6 +1,7 @@
 #include "forcefield.h"
 #include "potential.h"
 #include "darwin.h"
+#include "globals.h"
 
 // -------------------------------------------------------------------
 // EFieldForce
@@ -24,24 +25,45 @@ VelocityD EFieldForce::Force(const PositionI &Pos,
         
 }
 
-ScalarField &EFieldForce::FieldEnergy() {
-    ScalarField &Ex = GetEx();
-    ScalarField &Ey = GetEy();
-    
-    const int *L = Ex.getLow();
-    const int *H = Ex.getHigh();
-    
-    FEngy.resize(Ex);
-    FEngy.clear();
-    
-    for (int i=L[0]; i<=H[0]; ++i)
-        for (int j=L[1]; i<=H[1]; ++i) {
-            FEngy(i,j) += sqr(Ex(i,j));
-            FEngy(i,j) += sqr(Ey(i,j));
-    }
-    
-    return FEngy;
+double EFieldForce::ForceX(const PositionI &Pos, 
+                           const VelocityD &Vel,
+                           double dt) {
+    double Fx = Charge*GetEx()(Pos[0],Pos[1])/Mass;
+    return dttx*dt*Fx;        
 }
+
+double EFieldForce::ForceY(const PositionI &Pos, 
+                           const VelocityD &Vel,
+                           double dt) {
+    double Fy = Charge*GetEy()(Pos[0],Pos[1])/Mass;
+    return dttx*dt*Fy;
+        
+}
+
+double EFieldForce::ForceZ(const PositionI &Pos, 
+                           const VelocityD &Vel,
+                           double dt) {
+    return 0.0;
+}
+
+//ScalarField &EFieldForce::FieldEnergy() {
+//    ScalarField &Ex = GetEx();
+//    ScalarField &Ey = GetEy();
+//    
+//    const int *L = Ex.getLow();
+//    const int *H = Ex.getHigh();
+//    
+//    FEngy.resize(Ex);
+//    FEngy.clear();
+//    
+//    for (int i=L[0]; i<=H[0]; ++i)
+//        for (int j=L[1]; i<=H[1]; ++i) {
+//            FEngy(i,j) += sqr(Ex(i,j));
+//            FEngy(i,j) += sqr(Ey(i,j));
+//    }
+//    
+//    return FEngy;
+//}
 
 DistMomentRho *EFieldForce::getDerivedRho() {
   return Rho;
@@ -52,72 +74,15 @@ DistMomentRho *EFieldForce::getDerivedRho() {
 // EBFieldForce
 // -------------------------------------------------------------------
 
-void EBFieldForce::Init(double dttx_) {
+void GenericEMForceBase_Electrostatic::Init(double dttx_) {
   dttx = dttx_;
   Rho = new DistMomentRho(boundary);
   B = Parameters::instance().bField();
   derivedFields.add(Rho);
 }
 
-ScalarField &EBFieldForce::GetEx() { return pPot->GetEx(); }
-ScalarField &EBFieldForce::GetEy() { return pPot->GetEy(); }
 
-
-
-VelocityD EBFieldForce::Force(const PositionI &Pos, 
-                              const VelocityD &Vel,
-                              double dt) {
-    // normalizing velocity
-    double vx = Vel[0];
-    double vy = Vel[1];
-    double vz = Vel[2];
-    
-    // Storing E and B field
-    double Ex = Charge*GetEx()(Pos[0],Pos[1])/Mass;
-    double Ey = Charge*GetEy()(Pos[0],Pos[1])/Mass;
-    double Ez = 0;
-
-    double Bx = Charge*B[0];
-    double By = Charge*B[1];
-    double Bz = Charge*B[2];
-    
-    // Calculate V-minus
-    double Vmx = vx+0.5*Ex*dt;
-    double Vmy = vy+0.5*Ey*dt;
-    double Vmz = vz+0.5*Ez*dt;
-    
-    // Rotate
-    // a) Calculate t and s
-    double tx = 0.5*Bx*dt;
-    double ty = 0.5*By*dt;
-    double tz = 0.5*Bz*dt;
-    
-    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
-    double sx = sfact*tx;
-    double sy = sfact*ty;
-    double sz = sfact*tz;
-    
-    // b) now v-prime
-    double vprx = Vmx + Vmy*tz-Vmz*ty;
-    double vpry = Vmy + Vmz*tx-Vmx*tz;
-    double vprz = Vmz + Vmx*ty-Vmy*tx;
-    
-    // c) and finally V-plus
-    double Vpx = Vmx + vpry*sz-vprz*sy;
-    double Vpy = Vmy + vprz*sx-vprx*sz;
-    double Vpz = Vmz + vprx*sy-vpry*sx;
-    
-    // Calculate new velocity minus old velocity
-    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
-    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
-    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
-    
-   
-    return VelocityD(Vdiffx, Vdiffy, Vdiffz);
-    
-}
-
-DistMomentRho *EBFieldForce::getDerivedRho() {
+DistMomentRho *GenericEMForceBase_Electrostatic::getDerivedRho() {
   return Rho;
 }
 
@@ -125,7 +90,7 @@ DistMomentRho *EBFieldForce::getDerivedRho() {
 // ConstEBFieldForce
 // -------------------------------------------------------------------
 
-void ConstEBFieldForce::Init(double dttx_) {
+void GenericEMForceBase_ConstEB::Init(double dttx_) {
     dttx = dttx_;
     Veloc = new DistMomentVelocities(boundary);
     E = Parameters::instance().eField();
@@ -133,63 +98,9 @@ void ConstEBFieldForce::Init(double dttx_) {
     derivedFields.add(Veloc);
 }
 
-VelocityD ConstEBFieldForce::Force(const PositionI &Pos, 
-                                   const VelocityD &Vel,
-                                   double dt) {
-// Uses Boris scheme to integrate the characteristics.
-// The Boris scheme has been checked on simple trajectory integration
-    
-    // normalizing velocity
-    double vx = Vel[0];
-    double vy = Vel[1];
-    double vz = Vel[2];
-    
-    // Storing E and B field
-    double Ex = Charge*E[0]/Mass;
-    double Ey = Charge*E[1]/Mass;
-    double Ez = Charge*E[2]/Mass;
 
-    double Bx = Charge*B[0]/Mass;
-    double By = Charge*B[1]/Mass;
-    double Bz = Charge*B[2]/Mass;
 
-    // Calculate V-minus
-    double Vmx = vx+0.5*Ex*dt;
-    double Vmy = vy+0.5*Ey*dt;
-    double Vmz = vz+0.5*Ez*dt;
-    
-    // Rotate
-    // a) Calculate t and s
-    double tx = 0.5*Bx*dt;
-    double ty = 0.5*By*dt;
-    double tz = 0.5*Bz*dt;
-    
-    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
-    double sx = sfact*tx;
-    double sy = sfact*ty;
-    double sz = sfact*tz;
-    
-    // b) now v-prime
-    double vprx = Vmx + Vmy*tz-Vmz*ty;
-    double vpry = Vmy + Vmz*tx-Vmx*tz;
-    double vprz = Vmz + Vmx*ty-Vmy*tx;
-    
-    // c) and finally V-plus
-    double Vpx = Vmx + vpry*sz-vprz*sy;
-    double Vpy = Vmy + vprz*sx-vprx*sz;
-    double Vpz = Vmz + vprx*sy-vpry*sx;
-    
-    // Calculate new velocity minus old velocity
-    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
-    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
-    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
-    
-   
-    return VelocityD(Vdiffx, Vdiffy, Vdiffz);
-        
-}
-
-DistMomentVelocities *ConstEBFieldForce::getDerivedVelocities() {
+DistMomentVelocities *GenericEMForceBase_ConstEB::getDerivedVelocities() {
   return Veloc;
 }
 

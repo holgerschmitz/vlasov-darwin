@@ -15,11 +15,15 @@
 #include "scalarfield.h"
 #include "stlpwrapper.h"
 #include "poisson.h"
-#include "wrapvlasov.h"
+//#include "wrapvlasov.h"
 #include "diaghelper.h"
-#include "forcefield.h"
+//#include "forcefield.h"
 #include <vector>
 #include <string>
+
+class EFieldForce;
+typedef PtrWrapper<EFieldForce> pEFieldForce;
+
 
 /** @brief The class for calculating the electrostatic potential.
  *  At the moment only completely periodic boundary conditions 

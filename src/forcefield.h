@@ -37,7 +37,7 @@ class EFieldForce : public ForceFieldBase {
       ScalarField &GetEy();
 
       /// Returns the reference to the electric field energy
-      ScalarField &FieldEnergy();
+//      ScalarField &FieldEnergy();
 
       /** The force at one position given the velocity.
        *  Actually the displacement in the velocity space is returned
@@ -46,6 +46,30 @@ class EFieldForce : public ForceFieldBase {
                       const VelocityD &Vel,
                       double dt);
       
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the x--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceX(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the y--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceY(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the z--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceZ(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
       /// Initialises the force field
       void Init(double dttx_);
       
@@ -54,40 +78,43 @@ class EFieldForce : public ForceFieldBase {
 
 typedef PtrWrapper<EFieldForce> pEFieldForce;
 
+
 /** @brief Implements the electrostatic force with a constant magnetic
  *  field for plugging into the VlasovSpecies
  */
-class EBFieldForce : public ForceFieldBase {
+class GenericEMForceBase_Electrostatic : public ForceFieldBase {
   public:
       typedef Potential FieldType;
       typedef EFieldDiagnostic DiagnosticType; 
   protected:
       /// Pointer to the potential
       Potential* pPot;
+  private:
       /** @brief Magnetic Field normalized by 
        *  \f$\frac{v_A}{c}\frac{1}{B_0}\f$.
        */
-  private:
       VelocityD B;
       /// Scaling constant
       double dttx;
       DistMomentRho *Rho;
   public:
       
-      EBFieldForce(SpeciesData &data) : ForceFieldBase(data) {}
+      GenericEMForceBase_Electrostatic(SpeciesData &data) : ForceFieldBase(data) {}
       
-      /// Gets the x-component of the electric field from the Potential
-      ScalarField &GetEx();
-      /// Gets the y-component of the electric field from the Potential
-      ScalarField &GetEy();
-
-      /** The force at one position given the velocity.
-       *  Actually the displacement in the velocity space is returned.
-       *  The scheme of Boris is used for calculating the acceleration
-       */
-      VelocityD Force(const PositionI &Pos, 
-                      const VelocityD &Vel,
-                      double dt);
+      /// Gets the x-component of the electric field from the field solver
+      double GetEx(const PositionI &Pos) ;
+      
+      /// Gets the y-component of the electric field from the field solver
+      double GetEy(const PositionI &Pos);
+      
+      /// Gets the z-component of the electric field from the field solver
+      double GetEz(const PositionI &Pos) { return 0.0; }
+      /// Gets the x-component of the magnetic field from the field solver
+      double GetBx(const PositionI &Pos) { return B[0]; }
+      /// Gets the y-component of the magnetic field from the field solver
+      double GetBy(const PositionI &Pos) { return B[1]; }
+      /// Gets the z-component of the magnetic field from the field solver
+      double GetBz(const PositionI &Pos) { return B[2]; }
 
        /// Initialises the force field
       void Init(double dttx_);
@@ -95,21 +122,21 @@ class EBFieldForce : public ForceFieldBase {
       DistMomentRho *getDerivedRho();
 };
 
-class ConstEBFieldForce;
+class GenericEMForceBase_ConstEB;
 class VoidPotential {
   public:
       VoidPotential() {}
       //VoidPotential(Boundary*) {}
       void Init() {}
       void Execute() {}
-      void AddSpecies(ConstEBFieldForce*) {}
+      void AddSpecies(GenericEMForceBase_ConstEB*) {}
       ScalarField *GetByName(const std::string&) { return NULL;}
 };
 
 /** @brief Implements a forcefield with a constant electric and magnetic
  *  field for plugging into the VlasovSpecies
  */
-class ConstEBFieldForce : public ForceFieldBase {
+class GenericEMForceBase_ConstEB : public ForceFieldBase {
   public:
       typedef VoidPotential FieldType;
       typedef VoidFieldDiagnostic DiagnosticType; 
@@ -122,24 +149,66 @@ class ConstEBFieldForce : public ForceFieldBase {
       DistMomentVelocities *Veloc;
       /// Scaling constant
       double dttx;
+      
   public:
-      
-      ConstEBFieldForce(SpeciesData &data) : ForceFieldBase(data) {}
-      
-      /** The force at one position given the velocity.
-       *  Actually the displacement in the velocity space is returned.
-       *  The scheme of Boris is used for calculating the acceleration
-       *  The Boris scheme has been checked on simple trajectory integration.
-       */
-      VelocityD Force(const PositionI &Pos, 
-                      const VelocityD &Vel,
-                      double dt);
+      GenericEMForceBase_ConstEB(SpeciesData &data) : ForceFieldBase(data) {}
 
        /// Initialises the force field
       void Init(double dttx_);
+
+      /// Gets the x-component of the electric field from the field solver
+      double GetEx(const PositionI &Pos) { return E[0]; }
+      /// Gets the y-component of the electric field from the field solver
+      double GetEy(const PositionI &Pos) { return E[1]; }
+      /// Gets the z-component of the electric field from the field solver
+      double GetEz(const PositionI &Pos) { return E[2]; }
+      /// Gets the x-component of the magnetic field from the field solver
+      double GetBx(const PositionI &Pos) { return B[0]; }
+      /// Gets the y-component of the magnetic field from the field solver
+      double GetBy(const PositionI &Pos) { return B[1]; }
+      /// Gets the z-component of the magnetic field from the field solver
+      double GetBz(const PositionI &Pos) { return B[2]; }
             
       DistMomentVelocities *getDerivedVelocities();
 };
+
+template<class FType>
+class GenericEMForceBase_FullEM : public ForceFieldBase
+{
+  public:
+      typedef FType FieldType;
+      typedef EBFieldDiagnostic DiagnosticType; 
+  protected:
+      /// Pointer to the darwin field solver
+      FieldType* pPot;
+  private:
+      /// Scaling constant
+      double dttx;
+      DistMomentRho *Rho;
+      DistMomentVelocities *Veloc;
+  public:
+      GenericEMForceBase_FullEM(SpeciesData &data) : ForceFieldBase(data) {}
+
+      /// Initialises the force field
+      void Init(double dttx_);
+
+      /// Gets the x-component of the electric field from the field solver
+      double GetEx(const PositionI &Pos);
+      /// Gets the y-component of the electric field from the field solver
+      double GetEy(const PositionI &Pos);
+      /// Gets the z-component of the electric field from the field solver
+      double GetEz(const PositionI &Pos);
+      /// Gets the x-component of the magnetic field from the field solver
+      double GetBx(const PositionI &Pos);
+      /// Gets the y-component of the magnetic field from the field solver
+      double GetBy(const PositionI &Pos);
+      /// Gets the z-component of the magnetic field from the field solver
+      double GetBz(const PositionI &Pos);
+
+      DistMomentRho *getDerivedRho();
+      DistMomentVelocities *getDerivedVelocities();
+};
+
 
 
 /** @brief Implements a force field that plugs into the concrete advancers
@@ -149,41 +218,14 @@ class ConstEBFieldForce : public ForceFieldBase {
  *  Implements the Force method for the Advancer and the Init and MakeParamMap
  *  method to work together with the VlasovSpecies.
  */
-template<class FType>
-class GenericEMForce : public ForceFieldBase {
-  public:
-      typedef FType FieldType;
-      typedef EBFieldDiagnostic DiagnosticType; 
-  protected:
-      /// Pointer to the darwin field solver
-      FieldType* pPot;
-  
-  private:
-      /// Scaling constant
-      double dttx;
-      /// 
-      DistMomentRho *Rho;
-      DistMomentVelocities *Veloc;
-      ScalarField FEngy;
+template<class ForceBaseType>
+class GenericEMForce : public ForceBaseType {
   public:
       
-      GenericEMForce(SpeciesData &data) : ForceFieldBase(data) {}
+      GenericEMForce(SpeciesData &data) : ForceBaseType(data) {}
       
-      /// Gets the x-component of the electric field from the field solver
-      ScalarField &GetEx();
-      /// Gets the y-component of the electric field from the field solver
-      ScalarField &GetEy();
-      /// Gets the z-component of the electric field from the field solver
-      ScalarField &GetEz();
-      /// Gets the x-component of the magnetic field from the field solver
-      ScalarField &GetBx();
-      /// Gets the y-component of the magnetic field from the field solver
-      ScalarField &GetBy();
-      /// Gets the z-component of the magnetic field from the field solver
-      ScalarField &GetBz();
-
       /// Returns the reference to the electric field energy
-      ScalarField &FieldEnergy();
+//      ScalarField &FieldEnergy();
 
       /** The force at one position given the velocity.
        *  Actually the displacement in the velocity space is returned.
@@ -193,22 +235,52 @@ class GenericEMForce : public ForceFieldBase {
       VelocityD Force(const PositionI &Pos, 
                       const VelocityD &Vel,
                       double dt);
+                      
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the x--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceX(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
 
-      /// Initialises the force field
-      void Init(double dttx_);
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the y--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceY(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
 
-      DistMomentRho *getDerivedRho();
-      DistMomentVelocities *getDerivedVelocities();
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the z--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceZ(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
 };
 
 
 class Darwin;
 
-typedef GenericEMForce<Darwin> EMDarwinForce;
+typedef GenericEMForce<
+  GenericEMForceBase_ConstEB
+> ConstEBFieldForce;
+
+typedef PtrWrapper<ConstEBFieldForce> pConstEBFieldForce;
+
+typedef GenericEMForce<
+  GenericEMForceBase_FullEM<Darwin>
+> EMDarwinForce;
+
 typedef PtrWrapper<EMDarwinForce> pEMDarwinForce;
 
 class Magnetostatic;
-typedef GenericEMForce<Magnetostatic> MagnetostaticForce;
+typedef GenericEMForce<
+  GenericEMForceBase_FullEM<Magnetostatic>
+> MagnetostaticForce;
+
 typedef PtrWrapper<MagnetostaticForce> pMagnetostaticForce;
 
 #include "forcefield.t"

@@ -7,6 +7,7 @@
 #include "task.h"
 #include "vlasov.h"
 #include "simtype.h"
+#include "forcefield.h"
 
 class Parameters : public Rebuildable {
     private:

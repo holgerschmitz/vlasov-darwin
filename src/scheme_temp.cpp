@@ -154,12 +154,12 @@ void PosFluxCons3rdOrder<ForceField>
             for (Vi[0] = lvx; Vi[0] < bvx; ++Vi[0]) {
                 Vflux[0] = Vi[0]+0.5;
                 VelocityD Vel = velocity(Vflux);
-                VelocityD F = Force(Xi,Vel,timestep);
-                double deltavx = -F[0]/deltaVx();
+                double F = ForceX(Xi,Vel,timestep);
+                double deltavx = -F/deltaVx();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
-                int j = Vi[0]+deltaI;
+                int j = max(min(Vi[0]+deltaI, bvx), lvx-1);
                 // go deltaI right 
 
                 if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
@@ -238,17 +238,19 @@ void PosFluxCons3rdOrder<ForceField>
                 Vflux[1] = Vi[1]+0.5;
                 VelocityD Vel = velocity(Vflux);
                 
-                VelocityD F = Force(Xi,Vel,timestep);
-                double deltavx = -F[1]/deltaVy();
+                double F = ForceY(Xi,Vel,timestep);
+                double deltavx = -F/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
-                int j = Vi[1]+deltaI;
+                int j = max(min(Vi[1]+deltaI, bvx), lvx-1);
                 
                 if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
                 {
-                  cerr << "Vy: deltaI out of bounds:" << deltaI << endl;
+                  cerr << "Vy: deltaI out of bounds:" << deltaI 
+                      << ", " << j << ", " << j_old 
+                      << ", " << lvx << ", " << bvx << endl;
                   errmsg=true;
                 }
 
@@ -324,13 +326,13 @@ void PosFluxCons3rdOrder<ForceField>
                 Vflux[2] = Vi[2]+0.5;
                 VelocityD Vel = velocity(Vflux);
                 
-                VelocityD F = Force(Xi,Vel,timestep);
-                double deltavx = -F[2]/deltaVy();
+                double F = ForceZ(Xi,Vel,timestep);
+                double deltavx = -F/deltaVy();
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
-                int j = Vi[2]+deltaI;
+                int j = max(min(Vi[2]+deltaI, bvx), lvx-1);
                 
                 if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
                 {
