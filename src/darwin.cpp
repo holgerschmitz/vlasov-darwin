@@ -477,6 +477,26 @@ bool Darwin::Execute () {
       Ey(i,j) += Ety(i,j);
     }
         
+  double h=1./((mx1-lx0)*(my1-ly0));
+
+  double sumEx=0, sumEy=0;
+
+  for(j = ly1; j <= my1; j++) {
+    for(i = lx1; i <= mx1; i++) {
+      sumEx += Ex(i,j);
+      sumEy += Ey(i,j);
+    }
+  }
+
+  sumEx *= h;
+  sumEy *= h;
+
+  for(j = ly1; j <= my1; j++) {
+    for(i = lx1; i <= mx1; i++) {
+      Ex(i,j) -= sumEx;
+      Ey(i,j) -= sumEy;
+    }
+  }
   /* *************************************
    *  This should be it!
    */
