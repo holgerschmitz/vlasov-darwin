@@ -40,7 +40,7 @@ void Poisson::solve( NumMatrix<double,2> &u,
         mgi(u,f);
         normalize(u);
         error=distance(uold,u);
-        cerr << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon << endl;
+//        cerr << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon << endl;
     } while (error > epsilon);
     
     boundary = NULL;
