@@ -7,7 +7,7 @@ const int GlGridX = 256;
 const int GlGridY = 4;
 //const int GlGridX = 64;
 //const int GlGridY = 64;
-const int GlVelRes = 16;
+const int GlVelRes = 20;
 
 PositionI GlGridLow(0,0);
 PositionI GlGridHigh(GlGridX+1,GlGridY+1);
@@ -15,9 +15,9 @@ PositionI GlGridHigh(GlGridX+1,GlGridY+1);
 PhasePositionI GlDistLow(-1,-1,0,0,0);
 PhasePositionI GlDistHigh(GlGridX+2,GlGridY+2,GlVelRes+1,GlVelRes+1,GlVelRes+1);
 
-const double GlGridRange_vx = 4.5;
-const double GlGridRange_vy = 4.5;
-const double GlGridRange_vz = 4.5;
+const double GlGridRange_vx = 5.5;
+const double GlGridRange_vy = 5.5;
+const double GlGridRange_vz = 5.5;
 
 const double InitStream_vx = 0.0;
 const double InitStream_vy = 0.2;

@@ -164,8 +164,8 @@ bool Darwin::Execute (double timestep) {
   for (int s = species.size() - 1; s >= 0; s--) {
     DarwinVlasovSpecies* pS = species[s];
 
-    dF = pS->GetCharge()/dV;
-    dF2 = dF * pS->GetCharge();
+    dF = pS->getCharge()/dV;
+    dF2 = dF * pS->getCharge();
         
     //        cerr << "Creating Density\n";
     pS->MakeRho();          //request to make particle density.

@@ -947,7 +947,7 @@ void VlasovSpecies<ForceField>
  */
 template<class ForceField>
 void VlasovSpecies<ForceField>::Execute () {
-    if ( (t%200) == 0) {
+    if ( (t%20) == 0) {
         double err = densityError();
         correctDensityError(err);
     }

@@ -71,7 +71,7 @@ void Potential::Execute (double timestep) {
 	for (int s = species.size() - 1; s >= 0; s--) {
 		ESVlasovSpecies* pS = species[s];
 
-		dF = pS->GetCharge();
+		dF = pS->getCharge();
         
 //        cerr << "Creating Density\n";
 		pS->MakeRho();      //request to make particle density...

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // $Id$
 
-#include "opar.h"
 #include "index.h"
 #include <matrix.H>
+#include "Vlas2d.h"
 
 /** @file vlasov.h
  *  Defines the classes for solving Vlasov's equation.
@@ -20,8 +20,11 @@
  *  
  */
 
+
 #ifndef VLASOV_H
 #define VLASOV_H
+
+#define PI 3.1415926535897932384626433832795029
 
 static const int DIMENSION=2;
 

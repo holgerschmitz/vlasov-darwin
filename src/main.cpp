@@ -10,11 +10,6 @@
 
 
 /** @brief Print some initial diagnostics and start the simulation.
- *
- *  If an argument is specified at the command line then it
- *  is interpreted as a file name and the setup is read from the
- *  corresponding file. If no argument is specified OPAR tries to read
- *  the setup from the standard input.
  */
 int main (int argc, char** argv) {
 

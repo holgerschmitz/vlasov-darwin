@@ -32,90 +32,152 @@ class VlasovInitialiser {
                                 const VelocityD &VelRange_)=0;
 };
 
+/** @brief Initialises the Vlasov distribution function with a
+ *  Maxwellian distribution. The thermal velocity and a streaming velocity
+ *  of the distribution can be supplied by global variables.
+ *  Additionally the density can be perturbed by some value n_perturb.
+ *  The wave vector of the perturbation is k_perturb.
+ */
 template<class ForceField>
 class VlasovMaxwellInit : public VlasovInitialiser {
- protected:
-  double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
-    VelocityD u_stream;  ///< streaming vlocity
-      VelocityD v_th;      ///< thermal velocity
-        PositionI k_perturb;
-        double n_perturb;
+  protected:
+      /// density in particles\f$m^{-{\rm dim}}\f$
+      double N;
+      /// streaming vlocity  
+      VelocityD u_stream;
+      /// thermal velocity
+      VelocityD v_th;
+      /// The perturbation wave vector
+      PositionI k_perturb;
+      /// The perturbation density
+      double n_perturb;
         
-        // pointer to the owning VlasovSpecies class
-        VlasovSpecies<ForceField> *pVlasov; 
-    public:
-		/// Default constructor
-        VlasovMaxwellInit(VlasovSpecies<ForceField> *);
-		/// Destructor
-        virtual ~VlasovMaxwellInit();
+      /// pointer to the owning VlasovSpecies class
+      VlasovSpecies<ForceField> *pVlasov; 
+  public:
+	  /// Default constructor
+      VlasovMaxwellInit(VlasovSpecies<ForceField> *);
+	  /// Destructor
+      virtual ~VlasovMaxwellInit();
 
-        virtual void initialise(VlasovDist &dist,
-                                const VelocityD &VelRange_);
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      virtual void initialise(VlasovDist &dist,
+                              const VelocityD &VelRange_);
 };
 
+/** @brief Initialises the Vlasov distribution function with two
+ *  Maxwellian distributions. The thermal velocities and a streaming velocities
+ *  of the distributions can be supplied by global variables.
+ *  Additionally the densities can be perturbed by some value n_perturb.
+ *  The wave vector of the perturbations are k_perturb.
+ */
 template<class ForceField>
 class VlasovTwoMaxwellInit : public VlasovInitialiser {
-    protected:
-        double N1;           ///< density in particles\f$m^{-{\rm dim}}\f$
-        double N2;           ///< density in particles\f$m^{-{\rm dim}}\f$
-        VelocityD u_stream1;  ///< streaming vlocity
-        VelocityD u_stream2;  ///< streaming vlocity
-        VelocityD v_th1;      ///< thermal velocity
-        VelocityD v_th2;      ///< thermal velocity
-        PositionI k_perturb1;
-        PositionI k_perturb2;
-        double n_perturb1;
-        double n_perturb2;
-        
-        // pointer to the owning VlasovSpecies class
-        VlasovSpecies<ForceField> *pVlasov; 
-    public:
-		/// Default constructor
-        VlasovTwoMaxwellInit(VlasovSpecies<ForceField> *);
-		/// Destructor
-        virtual ~VlasovTwoMaxwellInit();
+  protected:
+      /// density of first population in particles\f$m^{-{\rm dim}}\f$
+      double N1;   
+      /// density of second population in particles\f$m^{-{\rm dim}}\f$        
+      double N2;
+      /// streaming vlocity of first population  
+      VelocityD u_stream1;
+      /// streaming vlocity of second population
+      VelocityD u_stream2;
+      /// thermal velocity of first population  
+      VelocityD v_th1;
+      /// thermal velocity of second population
+      VelocityD v_th2;
+      /// The perturbation wave vector of first population  
+      PositionI k_perturb1;
+      /// The perturbation wave vector of second population
+      PositionI k_perturb2;
+      /// The perturbation density of first population  
+      double n_perturb1;
+      /// The perturbation density of second population
+      double n_perturb2;
 
-        virtual void initialise(VlasovDist &dist,
-                                const VelocityD &VelRange_);
+      /// pointer to the owning VlasovSpecies class
+      VlasovSpecies<ForceField> *pVlasov; 
+  public:
+	  /// Default constructor
+      VlasovTwoMaxwellInit(VlasovSpecies<ForceField> *);
+	  /// Destructor
+      virtual ~VlasovTwoMaxwellInit();
+
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      virtual void initialise(VlasovDist &dist,
+                              const VelocityD &VelRange_);
 };
 
+/** @brief Initialises the Vlasov distribution function with a
+ *  Maxwellian distribution and a perturbation containing a wide wave
+ *  spectrum. The thermal velocity and a streaming velocity
+ *  of the distributions can be supplied by global variables.
+ */
 template<class ForceField>
 class VlasovWaveGenInit : public VlasovInitialiser {
-    protected:
-        double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
-        VelocityD v_th;      ///< thermal velocity
-        VelocityD u_stream;  ///< streaming vlocity
-        double n_perturb;
-        
-        // pointer to the owning VlasovSpecies class
-        VlasovSpecies<ForceField> *pVlasov; 
-    public:
-		/// Default constructor
-        VlasovWaveGenInit(VlasovSpecies<ForceField> *);
-		/// Destructor
-        virtual ~VlasovWaveGenInit();
+  protected:
+      /// density in particles\f$m^{-{\rm dim}}\f$
+      double N;
+      /// thermal velocity
+      VelocityD v_th;
+      /// streaming vlocity
+      VelocityD u_stream;
+      /// The perturbation density  
+      double n_perturb;
 
-        virtual void initialise(VlasovDist &dist,
-                                const VelocityD &VelRange_);
+      /// pointer to the owning VlasovSpecies class
+      VlasovSpecies<ForceField> *pVlasov; 
+  public:
+	  /// Default constructor
+      VlasovWaveGenInit(VlasovSpecies<ForceField> *);
+	  /// Destructor
+      virtual ~VlasovWaveGenInit();
+
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      virtual void initialise(VlasovDist &dist,
+                              const VelocityD &VelRange_);
 };
 
+/** @brief Initialises the Vlasov distribution function with 
+ *  two different regions containing a flow velocity u_stream and
+ *  -u_stream respectively. In each region the distributions are
+ *  Maxwellian distributions.
+ *  The thermal velocity and a streaming velocity
+ *  of the distributions can be supplied by global variables.
+ */
 template<class ForceField>
 class VlasovCurrentSheetInit : public VlasovInitialiser {
-    protected:
-        double N;           ///< density in particles\f$m^{-{\rm dim}}\f$
-        VelocityD v_th;      ///< thermal velocity
-        VelocityD u_stream;  ///< streaming vlocity
-        
-        // pointer to the owning VlasovSpecies class
-        VlasovSpecies<ForceField> *pVlasov; 
-    public:
-		/// Default constructor
-        VlasovCurrentSheetInit(VlasovSpecies<ForceField> *);
-		/// Destructor
-        virtual ~VlasovCurrentSheetInit();
+  protected:
+      /// density in particles\f$m^{-{\rm dim}}\f$
+      double N;
+      /// thermal velocity
+      VelocityD v_th;
+      /// streaming vlocity
+      VelocityD u_stream;  
 
-        virtual void initialise(VlasovDist &dist,
-                                const VelocityD &VelRange_);
+      /// pointer to the owning VlasovSpecies class
+      VlasovSpecies<ForceField> *pVlasov; 
+  public:
+	  /// Default constructor
+      VlasovCurrentSheetInit(VlasovSpecies<ForceField> *);
+	  /// Destructor
+      virtual ~VlasovCurrentSheetInit();
+
+      /** @brief Perform distribution initialisation.
+       *  The Maxwellian distribution will be written into the
+       *  dist parameter.
+       */
+      virtual void initialise(VlasovDist &dist,
+                              const VelocityD &VelRange_);
 };
 
 #include "vlasovinit_temp.cpp"

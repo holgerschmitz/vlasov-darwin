@@ -25,19 +25,22 @@
 template <class TYPE>
 class PtrWrapper {
     private:
-        TYPE* m_pObj;   ///< The pointer
+        /// The pointer
+        TYPE* m_pObj;   
     public:
-        /// Constructor witha pointer to the TYPE
+        /// Constructor with a pointer to the TYPE
         PtrWrapper(TYPE* pObj = 0) : m_pObj(pObj) {};
         /// Copy constructor
         PtrWrapper(const PtrWrapper<TYPE>& wrapper) { 
             m_pObj = wrapper.m_pObj;
         };
+        
         /// Assignment operator
         PtrWrapper<TYPE>& operator= (const PtrWrapper<TYPE>& wrapper) {
             m_pObj = wrapper.m_pObj;
             return *this;
         }  
+        
         /// Destructor doesn't free pointer
         ~PtrWrapper() {};
         

@@ -83,7 +83,7 @@ class Darwin {
       
       /** @brief Contains the charge and current densities 
        * \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
-       *  and \f${\bf s}({\bf x})=\sum_i q_i\{\bf j}_i({\bf x})\f$
+       *  and \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
        */
       ScalarField om2, sx, sy, sz;
       /** @brief The components of the \f${\bf vv}\f$ tensor

@@ -9,7 +9,7 @@
 // EFieldForce
 // -------------------------------------------------------------------
 
-void EFieldForce::Init(double dttx_, double vnorm, Potential *pPot_) {
+void EFieldForce::Init(double dttx_, Potential *pPot_) {
     pE = pPot_;
     dttx = dttx_;
 }
@@ -50,10 +50,9 @@ ScalarField &EFieldForce::FieldEnergy() {
 // EBFieldForce
 // -------------------------------------------------------------------
 
-void EBFieldForce::Init(double dttx_, double vnorm_, Potential *pPot_) {
+void EBFieldForce::Init(double dttx_, Potential *pPot_) {
     pPot = pPot_;
     dttx = dttx_;
-    vnorm = vnorm_;
 }
 
 void EBFieldForce::setBField(VelocityD B_) { B = B_; }
@@ -65,55 +64,56 @@ ScalarField &EBFieldForce::GetEy() { return pPot->GetEy(); }
 VelocityD EBFieldForce::Force(const PositionI &Pos, 
                                const VelocityD &Vel,
                                double dt) {
-    double Ex = pPot->GetEx()(Pos[0],Pos[1]);
-    double Ey = pPot->GetEy()(Pos[0],Pos[1]);
-    const double Ez = 0;
-    
-    double BMag2 = B[0]*B[0]+B[1]*B[1]+B[2]*B[2];
-    double BMag = sqrt(BMag2);
-    double ebx = B[0]/BMag;
-    double eby = B[1]/BMag;
-    double ebz = B[2]/BMag;
-    
-    double Epar = ebx*Ex+eby*Ey+ebz*Ez;
-    double Eparx = Epar*ebx;
-    double Epary = Epar*eby;
-    double Eparz = Epar*ebz;
-
     // normalizing velocity
-    double vx = Vel[0]/vnorm;
-    double vy = Vel[1]/vnorm;
-    double vz = Vel[2]/vnorm;
+    double vx = Vel[0];
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    // Storing E and B field
+    double Ex = GetEx()(Pos[0],Pos[1]);
+    double Ey = GetEy()(Pos[0],Pos[1]);
+    const double Ez = 0;
 
-    double vpar = ebx*vx+eby*vy+ebz*vz;
-    double vparx = vpar*ebx;
-    double vpary = vpar*eby;
-    double vparz = vpar*ebz;
+    double Bx = B[0];
+    double By = B[1];
+    double Bz = B[2];
+
+//    Ex = 0; Ey = 0; Ez = 0;
+//    Bx = 0; By = 0; Bz = 1;
     
-    double vdrx = Ey*B[2]-Ez*B[1];
-    double vdry = Ez*B[0]-Ex*B[2];
-    double vdrz = Ex*B[1]-Ey*B[0];
+    // Calculate V-minus
+    double Vmx = vx+0.5*Ex*dt;
+    double Vmy = vy+0.5*Ey*dt;
+    double Vmz = vz+0.5*Ez*dt;
     
-    double vperpx = vx - vparx - vdrx;
-    double vperpy = vy - vpary - vdry;
-    double vperpz = vz - vparz - vdrz;
+    // Rotate
+    // a) Calculate t and s
+    double tx = 0.5*Bx*dt;
+    double ty = 0.5*By*dt;
+    double tz = 0.5*Bz*dt;
     
-    double vperp = sqrt(vperpx*vperpx + vperpy*vperpy + vperpz*vperpz);
+    double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
+    double sx = sfact*tx;
+    double sy = sfact*ty;
+    double sz = sfact*tz;
     
-    double eperpx = vperpx/vperp;
-    double eperpy = vperpy/vperp;
-    double eperpz = vperpz/vperp;
+    // b) now v-prime
+    double vprx = Vmx + Vmy*tz-Vmz*ty;
+    double vpry = Vmy + Vmz*tx-Vmx*tz;
+    double vprz = Vmz + Vmx*ty-Vmy*tx;
     
-    double enormx = eby*eperpz - ebz*eperpy;
-    double enormy = ebz*eperpx - ebx*eperpz;
-    double enormz = ebx*eperpy - eby*eperpx;
+    // c) and finally V-plus
+    double Vpx = Vmx + vpry*sz-vprz*sy;
+    double Vpy = Vmy + vprz*sx-vprx*sz;
+    double Vpz = Vmz + vprx*sy-vpry*sx;
     
-    double Fx = Eparx - vperp*( 0.5*eperpx*BMag2*dttx + enormx*BMag );
-    double Fy = Epary - vperp*( 0.5*eperpy*BMag2*dttx + enormy*BMag );
-    double Fz = Eparz - vperp*( 0.5*eperpz*BMag2*dttx + enormz*BMag );
+    // Calculate new velocity minus old velocity
+    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
     
-    return VelocityD(dttx*dt*Fx, dttx*dt*Fy, dttx*dt*Fz);
-        
+   
+    return VelocityD(Vdiffx, Vdiffy, Vdiffz);        
 }
 
 
@@ -121,10 +121,9 @@ VelocityD EBFieldForce::Force(const PositionI &Pos,
 // EMDarwinForce
 // -------------------------------------------------------------------
 
-void EMDarwinForce::Init(double dttx_, double vnorm_, Darwin* pFields_) {
+void EMDarwinForce::Init(double dttx_, Darwin* pFields_) {
     pFields = pFields_;
     dttx = dttx_;
-    vnorm = vnorm_;
 }
 
 ScalarField &EMDarwinForce::GetEx() { return pFields->GetEx(); }
