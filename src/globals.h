@@ -43,14 +43,18 @@ class Parameters : public Rebuildable {
       static Parameters *globals;
       
       typedef ForceField::FieldType FieldType;
+      typedef ForceField::DiagnosticType FieldDiagnosticType;
       FieldType *Field;
+      FieldDiagnosticType *FieldDiag;
       
+      bool initialized;
       static int Argc;
       static char **Argv;
     protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:  
       Parameters();
+      void init();
       int gridX() { return GridX; }
       int gridY() { return GridY; }
 //      int velRes() { return VelRes; }
@@ -82,7 +86,10 @@ class Parameters : public Rebuildable {
       static char **getArgv() { return Argv; }
       static void setArgv(char** Argv_) { Argv = Argv_; }
 
-      static Parameters &instance() { return *globals; }
+      static Parameters &instance() { 
+       if ( !(globals->initialized) ) globals->init();
+        return *globals; 
+      }
       
       std::string Rebuild(std::istream& in);
 };

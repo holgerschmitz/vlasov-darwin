@@ -6,13 +6,17 @@
 
 class Potential;
 
+template<class Field>
+class FieldDiagnostic;
+
 
 /** @brief Implements the electrostatic force for plugging into the 
  *  VlasovSpecies
  */
 class EFieldForce : public ForceFieldBase {
   public:
-      typedef Potential FieldType;      
+      typedef Potential FieldType;
+      typedef FieldDiagnostic<FieldType> DiagnosticType;      
   protected:
       /// Pointer to the potential
       Potential* pPot;
@@ -53,7 +57,8 @@ typedef PtrWrapper<EFieldForce> pEFieldForce;
  */
 class EBFieldForce : public ForceFieldBase {
   public:
-      typedef Potential FieldType;      
+      typedef Potential FieldType;
+      typedef FieldDiagnostic<FieldType> DiagnosticType; 
   protected:
       /// Pointer to the potential
       Potential* pPot;
@@ -88,20 +93,23 @@ class EBFieldForce : public ForceFieldBase {
       DistMomentRho *getDerivedRho();
 };
 
+class ConstEBFieldForce;
+class VoidPotential {
+  public:
+      VoidPotential() {}
+      //VoidPotential(Boundary*) {}
+      void Init() {}
+      void Execute() {}
+      void AddSpecies(ConstEBFieldForce*) {}
+};
+
 /** @brief Implements a forcefield with a constant electric and magnetic
  *  field for plugging into the VlasovSpecies
  */
 class ConstEBFieldForce : public ForceFieldBase {
   public:
-      class VoidPotential {
-        public:
-            VoidPotential() {}
-            //VoidPotential(Boundary*) {}
-            void Init() {}
-            void Execute() {}
-            void AddSpecies(ConstEBFieldForce*) {}
-      };
-      typedef VoidPotential FieldType;      
+      typedef VoidPotential FieldType;
+      typedef FieldDiagnostic<FieldType> DiagnosticType; 
   protected:
       /// Pointer to the potential
       VoidPotential* pPot;
@@ -140,7 +148,7 @@ class Darwin;
 class EMDarwinForce : public ForceFieldBase {
   public:
       typedef Darwin FieldType;
-  
+      typedef FieldDiagnostic<FieldType> DiagnosticType; 
   protected:
       /// Pointer to the darwin field solver
       Darwin* pPot;

@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "darwin.h"
 #include "potential.h"
+#include "fielddiag.h"
 
 Parameters *Parameters::globals;
 int Parameters::Argc;
@@ -11,6 +12,13 @@ char **Parameters::Argv;
 Parameters::Parameters() {
   globals = this;
   Field = new FieldType();
+  initialized = false;
+  FieldDiag = NULL;
+}
+
+void Parameters::init()
+{
+  if (FieldDiag) FieldDiag->init();
 }
 
 PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
@@ -41,6 +49,9 @@ PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
   (*pm)["mg-nu2"] = WParameter(new ParameterValue<int>(&MGNu2,1));
   (*pm)["mg-gamma"] = WParameter(new ParameterValue<int>(&MGGamma,1));
   (*pm)["mg-epsilon"] = WParameter(new ParameterValue<double>(&MGEpsilon,1e-6));
+  (*pm)["field-diag"] = WParameter(
+      new ParameterRebuild<FieldDiagnosticType, FieldDiagnosticType>(&FieldDiag)
+  );
   return pm;
 }   
 

@@ -64,13 +64,17 @@ class SimpleDiagnostic : public DiagnosticInterface {
   private:
       Type *field;
       StreamType output;
+      bool single_out;
   public:
-      SimpleDiagnostic() {}
+      SimpleDiagnostic() { single_out=false; }
       void setField(Type*);
   protected:
       void open(const std::string &);
       void write();
       void close();
+      bool singleOut() { return single_out; }
+  public:
+      void setSingleOut(bool single_out_) { single_out = single_out_; }
 };
 
 
