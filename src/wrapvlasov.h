@@ -44,11 +44,7 @@ template<
 class VlasovSpecies 
   : public Advancer<ForceField,Scheme>
 {
-  protected:
-      
-      /// A maximum value of the distribution function
-      double f_infty;
-      
+  protected:      
       /// The timestep (in s)
       double dt;
   protected:
