@@ -1,7 +1,6 @@
 #include "advancer.h"
 #include "scheme.h"
 #include "forcefield.h"
-#include "testcharacteristics.h"
 
 #ifdef SIM_ELECTROSTATIC
 typedef EFieldForce ForceField;
@@ -23,8 +22,7 @@ template<
 >
 class VlasovSpecies;
 
-//typedef VlasovSpecies<ForceField,RungeKuttaAdvance,PosFluxCons3rdOrder> Vlasov;
-typedef TestCharacteristics<ForceField> Vlasov;
+typedef VlasovSpecies<ForceField,RungeKuttaAdvance,PosFluxCons3rdOrder> Vlasov;
 typedef Vlasov* pVlasov;
 
 

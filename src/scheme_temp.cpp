@@ -136,7 +136,7 @@ void PosFluxCons3rdOrder<ForceField>
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        j_old = -1;
+        j_old = lvx;
         
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
@@ -174,12 +174,9 @@ void PosFluxCons3rdOrder<ForceField>
 
             }
             
-            Dj(bvx-1) = 0;
-            for (int jj=j_old+1; jj<bvx; ++jj)
-                Dj(bvx-1) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
-
-            Flux(lvx) = 0;
-            Flux(bvx-1) = 0;
+//            Dj(bvx-1) = 0;
+//            for (int jj=j_old+1; jj<bvx; ++jj)
+//                Dj(bvx-1) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
 
             for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
@@ -217,7 +214,7 @@ void PosFluxCons3rdOrder<ForceField>
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
        
-        j_old = -1;
+        j_old = lvx;
         
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
@@ -252,15 +249,13 @@ void PosFluxCons3rdOrder<ForceField>
 
             }
             
-            Dj(bvx-1) = 0;
-            for (int jj=j_old+1; jj<bvx; ++jj)
-                Dj(bvx-1) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
-
-            Flux(lvx) = 0;
-            Flux(bvx-1) = 0;
+//            Dj(bvx-1) = 0;
+//            for (int jj=j_old+1; jj<bvx; ++jj)
+//                Dj(bvx-1) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
 
             for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
-                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
+                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
+                    = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
             }
 
         }
@@ -295,7 +290,7 @@ void PosFluxCons3rdOrder<ForceField>
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        j_old = -1;
+        j_old = lvx;
         
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
@@ -330,15 +325,13 @@ void PosFluxCons3rdOrder<ForceField>
 
             }
             
-            Dj(bvx-1) = 0;
-            for (int jj=j_old+1; jj<bvx; ++jj)
-                Dj(bvx-1) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
-
-            Flux(lvx) = 0;
-            Flux(bvx-1) = 0;
+//            Dj(bvx-1) = 0;
+//            for (int jj=j_old+1; jj<bvx; ++jj)
+//                Dj(bvx-1) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
 
             for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
-                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
+                Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
+                  = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
             }
 
         }
@@ -350,29 +343,29 @@ void PosFluxCons3rdOrder<ForceField>
 
 template<class ForceField>
 double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-    double fdiff = fjp-fj;
-    double fexc = 2*(f_infty-fj);
-    if (fexc<0) 
-        return 0;
-    else if (2*fj<fdiff)
-        return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
-        return fexc/(-fdiff);
-    else 
+//    double fdiff = fjp-fj;
+//    double fexc = 2*(f_infty-fj);
+//    if (fexc<0) 
+//        return 0;
+//    else if (2*fj<fdiff)
+//        return 2*fj/fdiff;
+//    else if (fexc < (-fdiff) )
+//        return fexc/(-fdiff);
+//    else 
         return 1.;
 }
 
 template<class ForceField>
 double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-    double fdiff = fjm-fj;
-    double fexc = 2*(f_infty-fj);
-    if (fexc<0) 
-        return 0;
-    else if (2*fj<fdiff)
-        return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
-        return fexc/(-fdiff);
-    else 
+//    double fdiff = fjm-fj;
+//    double fexc = 2*(f_infty-fj);
+//    if (fexc<0) 
+//        return 0;
+//    else if (2*fj<fdiff)
+//        return 2*fj/fdiff;
+//    else if (fexc < (-fdiff) )
+//        return fexc/(-fdiff);
+//    else 
         return 1.;
 }
 
