@@ -3,6 +3,8 @@
 
 #include "reconnection.h"
 
+#include <sstream>
+
 #ifndef SINGLE_PROCESSOR
 
 /* **************************************************************
@@ -52,7 +54,7 @@ void SimpleReconnectionBoundary::exchangeY(VlasovDist &field) {
       }
 }
 
-void SimpleReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
+void SimpleReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
@@ -80,6 +82,10 @@ void SimpleReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
+    ScalarFieldReduce(field);
+}
+
+void SimpleReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
     const NumBoundary &bound = getNumBoundary(field);
     bound.apply(field);
 }
@@ -135,8 +141,8 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   double Ny = GlHigh[1]-GlLow[1]-3;
   double Ym = 0.5*(GlLow[1]+GlHigh[1]);
   
-  double dx = Parameters::instance().gridSpace_x();
-  double lambda_norm = lambda/dx; 
+  double dy = Parameters::instance().gridSpace_y();
+  double lambda_norm = lambda/dy; 
   
   PositionI Xi;
   VelocityI Vi;
@@ -246,23 +252,35 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
   
+  std::cerr << "PERIODIC RECONNECTION\n";
+  
   PhasePositionI GlLow  = Parameters::instance().distLow();
   PhasePositionI GlHigh = Parameters::instance().distHigh();
   
   double Nx = GlHigh[0]-GlLow[0]-3;
   double Ny = GlHigh[1]-GlLow[1]-3;
-  double Ysheet1 = 0.75*GlLow[1]+0.25*GlHigh[1];
-  double Ysheet2 = 0.25*GlLow[1]+0.75*GlHigh[1];
+  double Ysheet1 = 0.75*(GlLow[1]+1)+0.25*(GlHigh[1]-2);
+  double Ysheet2 = 0.25*(GlLow[1]+1)+0.75*(GlHigh[1]-2);
   
-  double dx = Parameters::instance().gridSpace_x();
-  double lambda_norm = lambda/dx; 
+  double dy = Parameters::instance().gridSpace_y();
+  double lambda_norm = lambda/dy; 
   
   PositionI Xi;
   VelocityI Vi;
 
   VelocityD VTh(v_th[0],v_th[1],v_th[2]);
   VelocityD UStream(0,0,0);
-  
+
+  const Boundary& boundary = Process::instance().getBoundary();
+  ofstream USTREAMStream;
+  if (boundary.master())
+  {
+    static int cnt=1;
+    ostringstream ustrname;
+    ustrname << "USTREAM"<<cnt++<<".out";
+    USTREAMStream.open(ustrname.str().c_str());
+  }
+   
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
       
@@ -275,7 +293,9 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       UStream[2] =  vz0*(sc1*sc1 - sc2*sc2)/N 
                   + vz_pert;
-            
+      if (boundary.master())
+        USTREAMStream << Xi[0] << " " << Xi[1] << " " << UStream[2] << "\n";
+      
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
           for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
@@ -330,6 +350,8 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
         }
  
     }
+    if (boundary.master()) USTREAMStream.close();
+    
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 }
 

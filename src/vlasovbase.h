@@ -86,6 +86,8 @@ class ForceFieldBase {
       
       /// Return the Charge
       double getCharge () const { return Charge; };
+      /// Return the Charge
+      double getMass () const { return Mass; };
 
       VlasovDist &getDistribution() { return Distribution; }
       
@@ -143,7 +145,12 @@ class ForceFieldBase {
        * (NOT in grid points per timestep!!)
        */
       VelocityD velocity(const VelocityI &Vi) {
-        return (VRange*(VelocityD(-0.5,-0.5,-0.5)+Vi))/VelSizeH - VRange;
+        return VelocityD(
+          VRange[0]*( (Vi[0]-0.5)/VelSizeH[0] - 1 ),
+          VRange[1]*( (Vi[1]-0.5)/VelSizeH[1] - 1 ),
+          VRange[2]*( (Vi[2]-0.5)/VelSizeH[2] - 1 )
+        );
+//        return (VRange*(VelocityD(-0.5,-0.5,-0.5)+Vi))/VelSizeH - VRange;
       }
       
       /// Returns true if this is the master process

@@ -216,7 +216,9 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
     }
     tstep++;
     InterpolationInitStep(Distribution);
+    cerr << "Advance\n";
     Advancer<ForceField,Scheme>::advance(dt);
+    cerr << "Derived Fields\n";
     derivedFields.update(*this);
 }
 

@@ -42,10 +42,17 @@ class Boundary : public Rebuildable {
        */
       virtual void exchangeY(VlasovDist &field) = 0;
 
-      /** @brief Reduce the scalar field. 
+      /** @brief Combine the scalar field. 
        *
        *  The resulting field should be the sum of the fields of all 
        *  the processes. Additional wrapping may be done.
+       */
+      virtual void ScalarFieldCombine(ScalarField &field) const = 0;
+
+      /** @brief Reduce the scalar field. 
+       *
+       *  Assume the scalar field is present on all processes.
+       *  Only perform wrapping.
        */
       virtual void ScalarFieldReduce(ScalarField &field) const = 0;
       
@@ -67,7 +74,7 @@ class Boundary : public Rebuildable {
       virtual const PositionI &scalarHigh() const = 0;
 
       /// Return true if this is the master process and false otherwise
-      virtual bool master() = 0;
+      virtual bool master() const = 0;
 
       /// Return the process number
       virtual int procnum() const = 0;
@@ -88,6 +95,8 @@ class SinglePeriodicBoundary : public Boundary {
       /// Wraps the boundaries in y-direction
       void exchangeY(VlasovDist &field);
       /// Only wraps the boundaries of the scalar field
+      void ScalarFieldCombine(ScalarField &field) const;
+      /// Only wraps the boundaries of the scalar field
       void ScalarFieldReduce(ScalarField &field) const;
       /// Returns periodic boundary conditions
       const NumBoundary& getNumBoundary(ScalarField &field) const;
@@ -102,7 +111,7 @@ class SinglePeriodicBoundary : public Boundary {
       /// Return the upper bound of scalar fields
       const PositionI &scalarHigh()const;
       /// There is only one process, so master always returns true
-      bool master() { return true; }
+      bool master() const { return true; }
       /// The process number is always zero
       int procnum() const { return 0; }
       /// The unique id number is always zero
@@ -177,6 +186,8 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       void exchangeY(VlasovDist &field);
       
       /// Adds the scalar fields and wraps them
+      void ScalarFieldCombine(ScalarField &field) const;
+      /// Wraps the scalar fields
       void ScalarFieldReduce(ScalarField &field) const;
       
       /// Returns periodic boundary conditions
@@ -200,7 +211,7 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       const PositionI &scalarHigh()const;
 
       /// The process with the rank zero is designated master process
-      bool master() { return ComRank==0; }
+      bool master() const { return ComRank==0; }
       
       /// Returns the comm rank as given by mpi
       int procnum() const { return ComRank; }
@@ -286,6 +297,8 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       void exchangeY(VlasovDist &field);
       
       /// Adds the scalar fields and wraps them
+      void ScalarFieldCombine(ScalarField &field) const;
+      /// Wraps the scalar fields
       void ScalarFieldReduce(ScalarField &field) const;
       
       /// Returns periodic boundary conditions
@@ -309,7 +322,7 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       const PositionI &scalarHigh()const;
       
       /// The process with the rank zero is designated master process
-      bool master() { return ComRank==0; }
+      bool master() const { return ComRank==0; }
       
       /// Returns the comm rank as given by mpi
       int procnum() const { return ComRank; }

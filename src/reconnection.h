@@ -56,6 +56,8 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
       void exchangeY(VlasovDist &field);
       
       /// Adds the scalar fields and wraps them
+      void ScalarFieldCombine(ScalarField &field) const;
+      /// Wraps the scalar fields
       void ScalarFieldReduce(ScalarField &field) const;
 
       /// Returns periodic boundary conditions

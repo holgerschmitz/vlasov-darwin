@@ -11,7 +11,7 @@
 /** @brief Solves Poisson equation using a multigrid method.
  *
  *  The Poisson equation is given by
- *  \f$\Delta u(x) = f(x)\f$
+ *  \f$\Delta u(x) + f(x) = 0\f$
  *  where \f$u(x)\f$ is the unknown scalar field.
  *
  *  The boundary object is passed, when

@@ -95,7 +95,7 @@ void Potential::Execute () {
         
   for (int j=ly0; j<=my0; ++j) 
     for (int i=lx0; i<=mx0; ++i) {
-      In(i,j) = -(den(i,j)+n0);
+      In(i,j) = (den(i,j)+n0);
 //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
         }
 

@@ -9,7 +9,7 @@
 /** @brief Solves Helmholtz equation using a multigrid method.
  *
  *  The Helmholtz equation is given by
- *  \f$\Delta u(x) -\lambda(x)u(x) = f(x)\f$
+ *  \f$\Delta u(x) -\lambda(x)u(x) + f(x) = 0\f$
  *  where \f$u(x)\f$ is the unknown scalar field.
  *
  *  Assumes that arrays range from 0 to N+1, where 0 and N+1 are

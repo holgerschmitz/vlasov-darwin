@@ -1,6 +1,9 @@
 #include "derivedfields.h"
 #include "vlasovbase.h"
 
+#include <sstream>
+#include "process.h"
+
 DistributionDerivedField::DistributionDerivedField(Boundary *boundary_) 
     : boundary(boundary_) {}
 
@@ -82,7 +85,7 @@ void DistMomentRhoOne::calc(ForceFieldBase &vlasov) {
       }
     }
     
-    boundary->ScalarFieldReduce(Rho); 
+    boundary->ScalarFieldCombine(Rho); 
 }
 
 DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_) 
@@ -166,60 +169,76 @@ ScalarField& DistMomentVelocitiesBase::getField(std::string name) {
 }
 
 void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
-    VlasovDist &dist = vlasov.getDistribution();
+  VlasovDist &dist = vlasov.getDistribution();
 
-    const int *L = dist.getLow();
-    const int *H = dist.getHigh();
-    
-    VelocityI vi;
-    VelocityD V;
-    double d;
-    
-    Jx.clear();
-    Jy.clear();
-    Jz.clear();
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+  
+  VelocityI vi;
+  VelocityD V;
+  double d;
+  
+  Jx.clear();
+  Jy.clear();
+  Jz.clear();
 
-    Vxx.clear();
-    Vxy.clear();
-    Vxz.clear();
-    Vyy.clear();
-    Vyz.clear();
-    Vzz.clear();
+  Vxx.clear();
+  Vxy.clear();
+  Vxz.clear();
+  Vyy.clear();
+  Vyz.clear();
+  Vzz.clear();
 
-    for (int i=L[0]+2; i<=H[0]-2; ++i) {
-      for (int j=L[1]+2; j<=H[1]-2; ++j) {
-        
-        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
-          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
-            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
-                V = vlasov.velocity(vi);
-                d = dist(i,j,vi[0],vi[1],vi[2]);
+  for (int i=L[0]+2; i<=H[0]-2; ++i) {
+    for (int j=L[1]+2; j<=H[1]-2; ++j) {
+      
+      for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+        for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+          for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
+              V = vlasov.velocity(vi);
+              d = dist(i,j,vi[0],vi[1],vi[2]);
 
-                Jx(i,j) += V[0]*d;
-                Jy(i,j) += V[1]*d;
-                Jz(i,j) += V[2]*d;
-                
-                Vxx(i,j) += V[0]*V[0]*d;
-                Vxy(i,j) += V[0]*V[1]*d;
-                Vxz(i,j) += V[0]*V[2]*d;
-                Vyy(i,j) += V[1]*V[1]*d;
-                Vyz(i,j) += V[1]*V[2]*d;
-                Vzz(i,j) += V[2]*V[2]*d;
-                
-            }
-      }
+              Jx(i,j) += V[0]*d;
+              Jy(i,j) += V[1]*d;
+              Jz(i,j) += V[2]*d;
+              
+              Vxx(i,j) += V[0]*V[0]*d;
+              Vxy(i,j) += V[0]*V[1]*d;
+              Vxz(i,j) += V[0]*V[2]*d;
+              Vyy(i,j) += V[1]*V[1]*d;
+              Vyz(i,j) += V[1]*V[2]*d;
+              Vzz(i,j) += V[2]*V[2]*d;
+              
+          }
     }
+  }
     
-    boundary->ScalarFieldReduce(Jx);
-    boundary->ScalarFieldReduce(Jy);
-    boundary->ScalarFieldReduce(Jz);
+  boundary->ScalarFieldCombine(Jx);
+  boundary->ScalarFieldCombine(Jy);
+  boundary->ScalarFieldCombine(Jz);
 
-    boundary->ScalarFieldReduce(Vxx);
-    boundary->ScalarFieldReduce(Vxy);
-    boundary->ScalarFieldReduce(Vxz);
-    boundary->ScalarFieldReduce(Vyy);
-    boundary->ScalarFieldReduce(Vyz);
-    boundary->ScalarFieldReduce(Vzz);
+  boundary->ScalarFieldCombine(Vxx);
+  boundary->ScalarFieldCombine(Vxy);
+  boundary->ScalarFieldCombine(Vxz);
+  boundary->ScalarFieldCombine(Vyy);
+  boundary->ScalarFieldCombine(Vyz);
+  boundary->ScalarFieldCombine(Vzz);
+  
+  static int cnt=1;
+  ostringstream fname;
+  fname << "Gz"<<cnt++<<".out";
+  ofstream GzStream(fname.str().c_str());
+
+  const Boundary& boundary = Process::instance().getBoundary();
+  
+  const PositionI &LBound = boundary.scalarLow();
+  const PositionI &HBound = boundary.scalarHigh();
+
+  for (int i=LBound[0]; i<=HBound[0]; ++i) 
+    for (int j=LBound[1]; j<=HBound[1]; ++j) 
+      GzStream << i << " " << j << " " << Jz(i,j) << "\n";
+      
+  GzStream.close();
 }
 
 
@@ -244,6 +263,9 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     Vyz.clear();
     Vzz.clear();
 
+    double dvx = vlasov.deltaVx();
+    double dvy = vlasov.deltaVy();
+    double dvz = vlasov.deltaVz();
     
     for (int i=L[0]+2; i<=H[0]-2; ++i) {
       for (int j=L[1]+2; j<=H[1]-2; ++j) {
@@ -266,20 +288,30 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               Vyy(i,j) += (1./3.)*(Vp[1]*Vp[1]*Vp[1]-Vm[1]*Vm[1]*Vm[1])*d;
               Vyz(i,j) += 0.25*(Vp[1]*Vp[1]-Vm[1]*Vm[1])*(Vp[2]*Vp[2]-Vm[2]*Vm[2])*d;
               Vzz(i,j) += (1./3.)*(Vp[2]*Vp[2]*Vp[2]-Vm[2]*Vm[2]*Vm[2])*d;            
-            }            
+            }
+        Jx(i,j) *= dvx;   
+        Jy(i,j) *= dvy;   
+        Jz(i,j) *= dvz;
+        
+        Vxx(i,j) *= dvx*dvx;
+        Vxy(i,j) *= dvx*dvy;
+        Vxz(i,j) *= dvx*dvz;
+        Vyy(i,j) *= dvy*dvy;
+        Vyz(i,j) *= dvy*dvz;
+        Vzz(i,j) *= dvz*dvz;
       }
     }
     
-    boundary->ScalarFieldReduce(Jx);
-    boundary->ScalarFieldReduce(Jy);
-    boundary->ScalarFieldReduce(Jz);
+    boundary->ScalarFieldCombine(Jx);
+    boundary->ScalarFieldCombine(Jy);
+    boundary->ScalarFieldCombine(Jz);
 
-    boundary->ScalarFieldReduce(Vxx);
-    boundary->ScalarFieldReduce(Vxy);
-    boundary->ScalarFieldReduce(Vxz);
-    boundary->ScalarFieldReduce(Vyy);
-    boundary->ScalarFieldReduce(Vyz);
-    boundary->ScalarFieldReduce(Vzz);
+    boundary->ScalarFieldCombine(Vxx);
+    boundary->ScalarFieldCombine(Vxy);
+    boundary->ScalarFieldCombine(Vxz);
+    boundary->ScalarFieldCombine(Vyy);
+    boundary->ScalarFieldCombine(Vyz);
+    boundary->ScalarFieldCombine(Vzz);
 }
 
 DistMomentHeatFluxBase::DistMomentHeatFluxBase(Boundary *boundary_) 
@@ -329,7 +361,7 @@ void DistMomentHeatFluxOne::calc(ForceFieldBase &vlasov) {
             }
       }
     
-    boundary->ScalarFieldReduce(HFluxX); 
+    boundary->ScalarFieldCombine(HFluxX); 
 }
 
 

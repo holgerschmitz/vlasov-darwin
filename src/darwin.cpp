@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "process.h"
 
+#include <fstream>
 // ----------------------------------------------------------------------
 // Darwin
 
@@ -221,13 +222,15 @@ bool Darwin::Execute () {
    */
     
   // iterate through the species
+  std::cerr << "dV="<<dV<<"\n";
   for (int s = species.size() - 1; s >= 0; s--) {
     EMDarwinForce* pS = species[s];
 
-    dF = pS->getCharge()/dV;
-    dF2 = dF * pS->getCharge();
-        
-    //        cerr << "Creating Density\n";
+    dF = pS->getCharge();
+    std::cerr << "dF="<<dF<<"\n";
+    dF2 = dF * pS->getCharge()/pS->getMass();
+
+    // cerr << "Creating Density\n";
     DistMomentRho *distRho = pS->getDerivedRho();
     DistMomentVelocities *distVel = pS->getDerivedVelocities();
     
@@ -267,7 +270,7 @@ bool Darwin::Execute () {
 
   for (int j=ly0; j<=my0; ++j) 
     for (int i=lx0; i<=mx0; ++i) { 
-      In(i,j) = -(den(i,j)+n0);
+      In(i,j) = csc*(den(i,j)+n0);
       //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
     }
     
@@ -296,21 +299,39 @@ bool Darwin::Execute () {
   /* *************************************
    * The z--component of the vector potential.
    */
-    
+  std::ofstream JzStream("JZ.out");
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j)
+      JzStream << i << " " << j << " " << jz(i,j) << "\n";
+  JzStream.close();
+  
   pois->solve(Az,jz, bound.getNumBoundary(Az));
 
-    
+  std::ofstream AzStream("AZ.out");
   for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) 
-      Az(i,j) *= -csc;
-            
+    for (int j=ly0; j<=my0; ++j)
+      AzStream << i << " " << j << " " << Az(i,j) << "\n";
+  AzStream.close();
+    
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j) 
+//      Az(i,j) *= -csc;
+           
   /* *************************************
    * ... resulting in Bx and By
    */
 
+  std::cerr << "dx1="<<dx[1]<<"\n";
+
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly1; j<=my1; ++j) 
       Bx(i,j) = (Az(i,j+1) - Az(i,j-1)) / (2*dx[1]);
+
+  std::ofstream BxStream("BX.out");
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly0; j<=my0; ++j)
+      BxStream << i << " " << j << " " << Bx(i,j) << "\n";
+  AzStream.close();
 
   bound.ScalarFieldReduce(Bx);
     
@@ -318,7 +339,7 @@ bool Darwin::Execute () {
     for (int j=ly0; j<=my0; ++j) 
       By(i,j) = (Az(i-1,j) - Az(i+1,j)) / (2*dx[0]);
 
-  bound.ScalarFieldReduce(Bx);
+  bound.ScalarFieldReduce(By);
 
   /* *************************************
    * The z--component of  -rot(j).
@@ -326,8 +347,8 @@ bool Darwin::Execute () {
 
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) 
-      In(i,j) = csc*(- (jy(i+1,j) - jy(i-1,j)) / (2*dx[0])
-		     + (jx(i,j+1) - jx(i,j-1)) / (2*dx[1]));
+      In(i,j) = -(jy(i+1,j) - jy(i-1,j)) / (2*dx[0])
+		     + (jx(i,j+1) - jx(i,j-1)) / (2*dx[1]);
 
   In.setParity(ScalarField::EvenParity);
   In.setComponent(ScalarField::ZComponent); 
@@ -381,19 +402,18 @@ bool Darwin::Execute () {
   // This is the same for every component
   for (int i=lx0; i<=mx0; ++i) {
     for (int j=ly0; j<=my0; ++j) {
-      Lambda(i,j) = csc*om2(i,j);
+      Lambda(i,j) = om2(i,j);
     }
   }
            
   // x-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = csc*(
+      In(i,j) = 
 		     -(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
 			   -(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-		     +om2(i,j)*Ex(i,j)                   /// om2*E
-		     +sy(i,j)*Bz(i,j)-sz(i,j)*By(i,j)    /// q rho <v> x B
-		     );
+		     +om2(i,j)*Ex(i,j)                      /// om2*E
+		     +sy(i,j)*Bz(i,j)-sz(i,j)*By(i,j);      /// q/m rho <v> x B
     }
   }
 
@@ -410,12 +430,11 @@ bool Darwin::Execute () {
   // y-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = csc*(
+      In(i,j) = 
 		     -(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
 			   -(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
 		     +om2(i,j)*Ey(i,j)                   /// om2*E
-		     +sz(i,j)*Bx(i,j)-sx(i,j)*Bz(i,j)    /// q rho <v> x B
-		     );
+		     +sz(i,j)*Bx(i,j)-sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
     }
 
   In.setParity(ScalarField::OddParity);
@@ -432,10 +451,10 @@ bool Darwin::Execute () {
   // z-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) 
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = csc*(
+      In(i,j) = 
 		     -(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
 			   -(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-             +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j)); /// q rho <v> x B
+             +sx(i,j)*By(i,j)-sy(i,j)*Bx(i,j); /// q/m rho <v> x B
     }
     
   In.setParity(ScalarField::OddParity);
@@ -460,6 +479,8 @@ bool Darwin::Execute () {
   /* *************************************
    *  This should be it!
    */
+
+//  cerr << "Done DARWIN\n";
 
   return false;
     

@@ -61,6 +61,11 @@ void SinglePeriodicBoundary::exchangeY(VlasovDist &field) {
           }
 }
 
+void SinglePeriodicBoundary::ScalarFieldCombine(ScalarField &field) const 
+{
+  ScalarFieldReduce(field);
+}
+
 void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
@@ -248,10 +253,9 @@ void MPIPeriodicSplitXBoundary::exchangeY(VlasovDist &field) {
           }
 }
 
-void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
+void MPIPeriodicSplitXBoundary::ScalarFieldCombine(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
-    
     
     // only one boundary cell
     int mx0=UBound[0], mx1=mx0-1;
@@ -276,6 +280,21 @@ void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
+    ScalarFieldReduce(field);  
+}
+
+void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
+    const int *UBound = field.getHigh();
+    const int *LBound = field.getLow();
+    
+    
+    // only one boundary cell
+    int mx0=UBound[0], mx1=mx0-1;
+    int lx0=LBound[0], lx1=lx0+1;
+
+    int my0=UBound[1], my1=my0-1;
+    int ly0=LBound[1], ly1=ly0+1;
+    
     for (int i = lx0; i<=mx0; ++i) {
         field(i,ly0) = field(i,my1);
         field(i,my0) = field(i,ly1);
@@ -516,7 +535,7 @@ void MPIPeriodicSplitXYBoundary::exchangeY(VlasovDist &field) {
                 
 }
 
-void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {
+void MPIPeriodicSplitXYBoundary::ScalarFieldCombine(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
@@ -544,6 +563,21 @@ void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {
         field(i,j) = scalarrecv[arr_ind++];
       }
 
+    ScalarFieldReduce(field);
+}
+
+void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {
+    const int *UBound = field.getHigh();
+    const int *LBound = field.getLow();
+    
+    
+    // only one boundary cell
+    int mx0=UBound[0], mx1=mx0-1;
+    int lx0=LBound[0], lx1=lx0+1;
+
+    int my0=UBound[1], my1=my0-1;
+    int ly0=LBound[1], ly1=ly0+1;
+    
     for (int i = lx0; i<=mx0; ++i) {
         field(i,ly0) = field(i,my1);
         field(i,my0) = field(i,ly1);
