@@ -284,11 +284,18 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       if ( (Xi[1]>(GlLow[1]+1)) && (Xi[1]<GlMid) )
       {
         N = Ninf + N1;
-        UStream[2] =  vz0*sc1*sc1/N01 + vz_pert;
+        if (NInf>0)
+          UStream[2] =  vz0*sc1*sc1/(Ninf + N01) + vz_pert;
+        else
+          UStream[2] =  vz0 + vz_pert;
+          
       } else if (  (Xi[1]>GlMid) && (Xi[1]<(GlHigh[1]-2)) )
       {
         N = Ninf + N2;
-        UStream[2] =  -vz0*sc2*sc2/N02 + vz_pert;
+        if (NInf>0)
+          UStream[2] =  -vz0*sc2*sc2/(Ninf + N02) + vz_pert;
+        else
+          UStream[2] =  -vz0 + vz_pert;
       } else 
       {
         N = Ninf;
