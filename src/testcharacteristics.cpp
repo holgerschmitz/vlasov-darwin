@@ -4,7 +4,7 @@
 double dt = 0.01;
 double Charge = -1;
 VelocityD EField(0,0,0);
-VelocityD BField(0,0,-1);
+VelocityD BField(1,0,0);
 VelocityD VStart(0,1,0);
 VelocityD XStart(0,0,0);
 
