@@ -34,7 +34,7 @@ void Helmholtz::solve( NumMatrix<double,2> &u,
         uold=u;
         mgi(u,f,lambda);
         error=distance(uold,u);
-//        cout << "Iterating Error = " << error << " with epsilon = " << epsilon << endl;
+//        cerr << "Helmholtz Iterating Error = " << error << " with epsilon = " << epsilon << endl;
     } while (error > epsilon);
     
     boundary = NULL;

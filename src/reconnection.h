@@ -30,6 +30,8 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
   private:
       PDBoundary oddBound;
       PNBoundary evenBound;
+//     PPBoundary oddBound;
+//     PPBoundary evenBound;
   public:
       /**Default constructor used by the parsers
        */

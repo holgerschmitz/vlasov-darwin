@@ -78,7 +78,8 @@ class Poisson {
          *  and coarser grids
          */
         void mgi(   NumMatrix<double,2> &u,     
-                    NumMatrix<double,2> &f);    
+                    NumMatrix<double,2> &f,
+		    bool norm=true);    
         
         /** @brief Normalizes a scalar field.
          *  This method is not needed for the Helmhotz solver.

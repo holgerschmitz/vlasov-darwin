@@ -32,17 +32,19 @@ void Poisson::solve( NumMatrix<double,2> &u,
     NumMatrix<double,2> uold(u);
     double error;
     do {
+//    	cerr << "Poisson step\n";
         uold=u;
         mgi(u,f);
         error=distance(uold,u);
-//        cout << "Iterating Error = " << error << " with epsilon = " << epsilon << endl;
+//        cerr << "Poisson Iterating Error = " << error << " with epsilon = " << epsilon << endl;
     } while (error > epsilon);
     
     boundary = NULL;
 }
 
 void Poisson::mgi( NumMatrix<double,2> &u,
-                     NumMatrix<double,2> &f) 
+                   NumMatrix<double,2> &f,
+		   bool norm) 
 {
     int  i;
     int mx=u.getHigh(0)-1;
@@ -56,6 +58,7 @@ void Poisson::mgi( NumMatrix<double,2> &u,
         do {
             uold=u;
             gauss(u,f);
+	    if (norm || boundary->normalize()) normalize(u);
             error=distance(uold,u);
         } while(error > epsilon);
         
@@ -63,8 +66,10 @@ void Poisson::mgi( NumMatrix<double,2> &u,
         NumMatrix<double,2> un(Index::set(0,0),Index::set(mx/2+1,my/2+1));
         NumMatrix<double,2> fn(Index::set(0,0),Index::set(mx/2+1,my/2+1));
 
-        for(i = 1; i <= nu1; i++)
+        for(i = 1; i <= nu1; i++) {
             gauss(u,f);
+	    if (norm || boundary->normalize()) normalize(u);
+	}
 
         fn.clear();
         defect(u,f,fn);
@@ -75,15 +80,18 @@ void Poisson::mgi( NumMatrix<double,2> &u,
 
         prolongate(u,un);
 
-        for(i=1; i <= nu2; i++)
+        for(i=1; i <= nu2; i++) {
             gauss(u,f);
+	    if (norm || boundary->normalize()) normalize(u);
+	}
+
     }
 }
 
 
 
 void Poisson::gauss( NumMatrix<double,2> &u,
-                       NumMatrix<double,2> &f) {
+                     NumMatrix<double,2> &f) {
     int  i,j;
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
@@ -167,6 +175,7 @@ void Poisson::defect( NumMatrix<double,2> &u,
                    +d(i+1,j)+d(i+1,j+1));
         }
     }
+
 }
 
 
@@ -189,8 +198,6 @@ double Poisson::distance( NumMatrix<double,2> &uold,
 
 
 void Poisson::normalize(NumMatrix<double,2> &u) {
-    
-    if (!boundary->normalize()) return;
     
     int mx=u.getHigh(0)-1;
     int my=u.getHigh(1)-1;
