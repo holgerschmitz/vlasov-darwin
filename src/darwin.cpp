@@ -222,12 +222,12 @@ bool Darwin::Execute () {
    */
     
   // iterate through the species
-  std::cerr << "dV="<<dV<<"\n";
+//  std::cerr << "dV="<<dV<<"\n";
   for (int s = species.size() - 1; s >= 0; s--) {
     EMDarwinForce* pS = species[s];
 
     dF = pS->getCharge();
-    std::cerr << "dF="<<dF<<"\n";
+//    std::cerr << "dF="<<dF<<"\n";
     dF2 = dF * pS->getCharge()/pS->getMass();
 
     // cerr << "Creating Density\n";
@@ -299,19 +299,19 @@ bool Darwin::Execute () {
   /* *************************************
    * The z--component of the vector potential.
    */
-  std::ofstream JzStream("JZ.out");
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j)
-      JzStream << i << " " << j << " " << jz(i,j) << "\n";
-  JzStream.close();
+//  std::ofstream JzStream("JZ.out");
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j)
+//      JzStream << i << " " << j << " " << jz(i,j) << "\n";
+//  JzStream.close();
   
   pois->solve(Az,jz, bound.getNumBoundary(Az));
 
-  std::ofstream AzStream("AZ.out");
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j)
-      AzStream << i << " " << j << " " << Az(i,j) << "\n";
-  AzStream.close();
+//  std::ofstream AzStream("AZ.out");
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j)
+//      AzStream << i << " " << j << " " << Az(i,j) << "\n";
+//  AzStream.close();
     
 //  for (int i=lx0; i<=mx0; ++i) 
 //    for (int j=ly0; j<=my0; ++j) 
@@ -321,17 +321,17 @@ bool Darwin::Execute () {
    * ... resulting in Bx and By
    */
 
-  std::cerr << "dx1="<<dx[1]<<"\n";
+//  std::cerr << "dx1="<<dx[1]<<"\n";
 
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly1; j<=my1; ++j) 
       Bx(i,j) = (Az(i,j+1) - Az(i,j-1)) / (2*dx[1]);
 
-  std::ofstream BxStream("BX.out");
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j)
-      BxStream << i << " " << j << " " << Bx(i,j) << "\n";
-  AzStream.close();
+//  std::ofstream BxStream("BX.out");
+//  for (int i=lx0; i<=mx0; ++i) 
+//    for (int j=ly0; j<=my0; ++j)
+//      BxStream << i << " " << j << " " << Bx(i,j) << "\n";
+//  AzStream.close();
 
   bound.ScalarFieldReduce(Bx);
     
