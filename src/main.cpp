@@ -36,6 +36,7 @@ int main (int argc, char** argv) {
   cout << "MAIN: running\n";
   Process::instance().run();
       
+  Process::finalize();
   return 0;
 }
 

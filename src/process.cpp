@@ -7,6 +7,10 @@
 
 Process *Process::process;
 
+Process::~Process() {
+  delete boundary;
+}
+
 void Process::init() {
   Parameters::instance().getField()->Init();
   for (

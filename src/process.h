@@ -25,11 +25,13 @@ class Process {
       process = this;
       time = 0;
     }
+    ~Process();
     const Boundary& getBoundary() const { return *boundary; }
     int getTime() { return time; }
     static Process& instance() { return *process; }
     void init();
     void run();
+    static void finalize() { delete process; }
 };
 
 class BoundaryRebuild;
