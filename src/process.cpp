@@ -21,9 +21,9 @@ void Process::init() {
 void Process::run() {
   int T = Parameters::instance().totalTime(); 
   ForceField::FieldType *field = Parameters::instance().getField();
-  for (int t=0; t<T; ++t) 
+  for (time=0; time<T; ++time) 
   {
-    std::cout << "Cycle " << t << std::endl << flush;
+    std::cout << "Cycle " << time << std::endl << flush;
     for (
       SpeciesList::iterator it=species.begin(); 
       it!=species.end(); 
@@ -124,5 +124,7 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovTwoMaxwellInit, VlasovInitialiser>(&initialiser));
   (*pm)["wavegen"] 
       = WParameter(new ParameterRebuild<VlasovWaveGenInit, VlasovInitialiser>(&initialiser));
+  (*pm)["hdfrestart"] 
+      = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
   return pm;
 }

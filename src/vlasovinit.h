@@ -134,7 +134,7 @@ class VlasovWaveGenInit : public VlasovInitialiser {
   public:
    /// Default constructor
       VlasovWaveGenInit();
-   /// Destructor
+      /// Destructor
       virtual ~VlasovWaveGenInit();
 
       /** @brief Perform distribution initialisation.
@@ -142,8 +142,32 @@ class VlasovWaveGenInit : public VlasovInitialiser {
        *  dist parameter.
        */
       virtual void initialise(ForceFieldBase *pVlasov);
-    protected:
+  protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
+};
+
+/** @brief Initialises the Vlasov distribution function 
+ *  from a HDF file
+ */
+class VlasovHDFInit : public VlasovInitialiser {
+  protected:
+      /// The filename
+      std::string fname;
+
+      /// pointer to the owning VlasovSpecies class
+      ForceFieldBase *pVlasov; 
+  public:
+      /// Default constructor
+      VlasovHDFInit();
+      /// Destructor
+      virtual ~VlasovHDFInit();
+
+      /** @brief Perform distribution initialisation.
+       *  Read from the HDF file
+       */
+      void initialise(ForceFieldBase *pVlasov);
+    protected:
+      PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
 // /** @brief Initialises the Vlasov distribution function with 

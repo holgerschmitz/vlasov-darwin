@@ -2,6 +2,8 @@
 // $Id$
 
 #include "diagnostic.h"
+#include <sstream>
+#include "process.h"
 
 DiagnosticInterface::DiagnosticInterface() {
   DiagnosticManager::instance().addDiagnostic(this);
@@ -13,7 +15,7 @@ void DiagnosticInterface::execute() {
   ++t;
   if ( (t % interval) != 0 ) return;
   
-  if (!appending()) open(fname);
+  if (!appending()) open(parsedFileName());
   write();
   if (!appending()) close();
 }
@@ -37,6 +39,22 @@ bool DiagnosticInterface::appending() {
   return 'y' == append[0];
 }
 
+std::string DiagnosticInterface::parsedFileName() {
+  std::string parsed=fname;
+
+  std::ostringstream comrankstr;
+  comrankstr << Process::instance().getBoundary().procnum();
+  std::string comrank = comrankstr.str();
+
+  std::ostringstream tstepstr;
+  tstepstr << Process::instance().getTime();
+  std::string tstep = tstepstr.str();
+  
+  parsed.replace(parsed.find("#p"),2,comrank);
+  parsed.replace(parsed.find("#t"),2,tstep);
+  
+  return parsed;
+}
 
 DiagnosticManager *DiagnosticManager::theManager = NULL;
 

@@ -2,7 +2,10 @@
 // $Id$
 
 #include "vlasovinit.h"
+
+#include <sstream>
 #include "globals.h"
+#include "hdfstream.h"
 
 //=========================================================================
 //===============   VlasovMaxwellInit  ====================================
@@ -375,6 +378,37 @@ void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 
 }
+
+//=========================================================================
+//========================   VlasovHDFInit ================================
+//=========================================================================
+
+VlasovHDFInit::VlasovHDFInit() { }
+
+PARAMETERMAP* VlasovHDFInit::MakeParamMap (PARAMETERMAP* pm) {
+  pm = Rebuildable::MakeParamMap(pm);
+  (*pm)["file"] = WParameter(new ParameterValue<std::string>(&fname, 0));
+  return pm;
+}
+
+VlasovHDFInit::~VlasovHDFInit() {}
+
+void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
+{
+  std::string parsed=fname;
+
+  std::ostringstream comrankstr;
+  comrankstr << Process::instance().getBoundary().procnum();
+  std::string comrank = comrankstr.str();
+ 
+  parsed.replace(parsed.find("#p"),2,comrank);
+  
+  VlasovDist &dist = pVlasov->getDistribution();  
+  HDFistream input(parsed.c_str());
+  input >> dist;
+  input.close();
+}
+
 
 // //=========================================================================
 // //===============   VlasovCurrentSheetInit ================================

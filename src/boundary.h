@@ -65,7 +65,7 @@ class Boundary : public Rebuildable {
       virtual bool master() = 0;
 
       /// Return the process number
-      virtual int procnum() = 0;
+      virtual int procnum() const = 0;
 };
 
 
@@ -93,7 +93,7 @@ class SinglePeriodicBoundary : public Boundary {
       /// There is only one process, so master always returns true
       bool master() { return true; }
       /// The process number is always zero
-      int procnum() { return 0; }
+      int procnum() const { return 0; }
 };
 
 #ifndef SINGLE_PROCESSOR
@@ -183,7 +183,7 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       bool master() { return ComRank==0; }
       
       /// Returns the comm rank as given by mpi
-      int procnum() { return ComRank; }
+      int procnum() const { return ComRank; }
 };
 
 /** @brief Implements Boundary to supply a periodic system running on
@@ -281,7 +281,7 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       bool master() { return ComRank==0; }
       
       /// Returns the comm rank as given by mpi
-      int procnum() { return ComRank; }
+      int procnum() const { return ComRank; }
 };
 #endif // single processor
 

@@ -17,13 +17,16 @@ class Process {
     Boundary *boundary;
     SpeciesList species;
     static Process *process;
+    int time;
   public:
     Process(Boundary *boundary_, const SpeciesList &species_)
         : boundary(boundary_), species(species_) 
     {
       process = this;
+      time = 0;
     }
     const Boundary& getBoundary() const { return *boundary; }
+    int getTime() { return time; }
     static Process& instance() { return *process; }
     void init();
     void run();

@@ -20,12 +20,13 @@ class DiagnosticInterface : public Rebuildable {
       DiagnosticInterface();
       void execute();
   protected:
-      virtual void open(std::string &)=0;
+      virtual void open(const std::string &)=0;
       virtual void write()=0;
       virtual void close()=0;
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
   private:
       bool appending();
+      std::string parsedFileName();
 };
 
 typedef PtrWrapper<DiagnosticInterface> pDiagnosticInterface;
@@ -52,7 +53,7 @@ class SimpleDiagnostic : public DiagnosticInterface {
   public:
       void setField(Type*);
   protected:
-      void open(std::string &);
+      void open(const std::string &);
       void write();
       void close();
 };

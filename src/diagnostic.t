@@ -3,7 +3,7 @@
 
 
 template<class Type, class StreamType>
-void SimpleDiagnostic<Type,StreamType>::open(std::string &fname)
+void SimpleDiagnostic<Type,StreamType>::open(const std::string &fname)
 {
   output.open(fname.c_str());
 }
