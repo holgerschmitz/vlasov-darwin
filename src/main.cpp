@@ -5,13 +5,15 @@
 #include "Vlas2d.h"
 #include "wrapvlasov.h"
 #include "boundary.h"
+#include "hdfstream.h"
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <list>
 
 //typedef EFieldForce ForceField;
-typedef EMDarwinForce ForceField;
+//typedef EMDarwinForce ForceField;
+typedef ConstEBFieldForce ForceField;
 
 typedef VlasovSpecies<ForceField,LeapFrogAdvance,PosFluxCons3rdOrder> *pVlasov;
 
@@ -204,8 +206,6 @@ void readParameters() {
  */
 int main (int argc_, char** argv_) {
 
-//    VlasovSpecies<EFieldForce> vlasov(new SinglePeriodicBoundary);
-//    VlasovSpecies<EFieldForce> vlasov(new MPIPeriodicSplitXBoundary(argc,argv));
   argc = argc_;
   argv = argv_;
   
@@ -217,9 +217,10 @@ int main (int argc_, char** argv_) {
 //   ofstream Bxfile;   
 //   ofstream Byfile;   
 //   ofstream Bzfile;   
-//   ofstream Jxfile;   
-//   ofstream Jyfile;   
-//   ofstream Jzfile;   
+  ofstream Jxfile;   
+  ofstream Jyfile;   
+  ofstream Jzfile;
+  ofstream KinEnergy;   
 //   ofstream Rhofile;
 //   ofstream TotalEngy;
 //   ofstream Phase;
@@ -231,9 +232,10 @@ int main (int argc_, char** argv_) {
 //       Bxfile.open("BxWaves.out");   
 //       Byfile.open("ByWaves.out");   
 //       Bzfile.open("BzWaves.out");   
-//       Jxfile.open("jxWaves.out");   
-//       Jyfile.open("jyWaves.out");   
-//       Jzfile.open("jzWaves.out");   
+      Jxfile.open("jxWaves.out");   
+      Jyfile.open("jyWaves.out");   
+      Jzfile.open("jzWaves.out");
+      KinEnergy.open("kinEnergy.out");
 //       Rhofile.open("RhoWaves.out");
 //       TotalEngy.open("TotalEngy.out");
 //       Phase.open("PhaseVxVySlice.out");
@@ -263,6 +265,11 @@ int main (int argc_, char** argv_) {
     
 */    
   list<pVlasov>::iterator it;
+  for (it=species.begin(); it!=species.end(); ++it) {
+        (*it)->setEField(VelocityD(0,0,0));
+        (*it)->setBField(VelocityD(3,0,0));
+  }
+  
   for (int t=0; t<300000; ++t) {
       cerr << "Cycle " << t << endl;
       for (it=species.begin(); it!=species.end(); ++it) {
@@ -279,22 +286,31 @@ int main (int argc_, char** argv_) {
 //       }
       if ( (t>0) && bound->master() /* && ((t%5) == 0) */ ) {
 //        if (false) {
-           write_Scalar(field->GetEx(),Exfile);
-           write_Scalar(field->GetEy(),Eyfile);
+//           write_Scalar(field->GetEx(),Exfile);
+//           write_Scalar(field->GetEy(),Eyfile);
 //            write_Scalar(field.GetEz(),Ezfile);
 //            write_Scalar(field.GetBx(),Bxfile, Gl_B0x);
 //            write_Scalar(field.GetBy(),Byfile, Gl_B0y);
 //            write_Scalar(field.GetBz(),Bzfile, Gl_B0z);
-//            write_Scalar(field.getJx(),Jxfile);
-//            write_Scalar(field.getJy(),Jyfile);
-//            write_Scalar(field.getJz(),Jzfile);
+        it=species.begin();
+        DistMomentVelocities *vel = (*it)->getDerivedVelocities();  
+        write_Scalar(vel->getJx(),Jxfile);
+        write_Scalar(vel->getJy(),Jyfile);
+        write_Scalar(vel->getJz(),Jzfile);
+        FixedArray<double,6> vvtens = vel->getVVTens(2,2);
+        KinEnergy << t << " " << vvtens[0]+vvtens[3]+vvtens[5] << "\n";
 //            write_Scalar(field.Rho(),Rhofile);
       }
   }
 
 
 //    vlasov.writeVxVySlice(2,3,16,"PhaseVxVySlice.out");
-    
+
+  HDFostream phase("phase.hdf");
+  it=species.begin();
+  
+  phase << (*it)->getDistribution();
+  phase.close();
 /*    char fname[20];
     ostrstream ost(fname,20);
     ost << "PhaseSpace" << vlasov.procnum() << ".out";
