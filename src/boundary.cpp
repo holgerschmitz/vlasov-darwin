@@ -400,6 +400,7 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
                    *(High[2]-Low[2]+1)
                    *(High[3]-Low[3]+1)
                    *(High[4]-Low[4]+1);
+                   
     exchSize[1] = 2*(High[0]-Low[0]+1)
                    *(High[2]-Low[2]+1)
                    *(High[3]-Low[3]+1)
@@ -506,8 +507,8 @@ void MPIPeriodicSplitXYBoundary::exchangeY(VlasovDist &field) {
               sendarry[arr_ind++] = 
                 field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
 
-    MPI_Sendrecv(sendarry, exchSize[1], MPI_DOUBLE, topcoord, 0, 
-                 recvarry, exchSize[1], MPI_DOUBLE, bottomcoord, 0, 
+    MPI_Sendrecv(sendarry, exchSize[1], MPI_DOUBLE, bottomcoord, 0, 
+                 recvarry, exchSize[1], MPI_DOUBLE, topcoord, 0, 
                  comm, &stat); 
 
     arr_ind = 0;
