@@ -4,6 +4,7 @@
 
 ForceFieldBase::ForceFieldBase(SpeciesData &data) 
     :  boundary(BoundaryKeeper::getBoundary()),
+       derivedFields(BoundaryKeeper::getBoundary()),
        tstep(0) { 
     Mass = data.mass;
     Charge = data.charge;

@@ -3,10 +3,15 @@
 
 DistributionDerivedField::DistributionDerivedField(Boundary *boundary_) 
     : boundary(boundary_) {}
-    
-void DerivedFieldsContainer::add(pDistributionDerivedField field) {
+
+DerivedFieldsContainer::DerivedFieldsContainer(Boundary *boundary_)
+    : boundary(boundary_) {}
+
+pDistributionDerivedField DerivedFieldsContainer::add(pDistributionDerivedField field) {
   std::string key((*field).name());
+  cerr << "Adding field class " << key << "\n";
   derivedFields[key] = field;
+  return field;
 }
 
 void DerivedFieldsContainer::update(ForceFieldBase &vlasov) {
@@ -23,11 +28,21 @@ void DerivedFieldsContainer::update(ForceFieldBase &vlasov) {
 pDistributionDerivedField DerivedFieldsContainer::getField(std::string name) {
   MapType::iterator pos = derivedFields.find(name);
   if (pos != derivedFields.end()) return pos->second;
+  
+  if ("rho"==name) {
+    return add(new DistMomentRho(boundary));
+  }
+  if ("vels"==name) {
+    return add(new DistMomentVelocities(boundary));
+  }
+  if ("hflux"==name) {
+    return add(new DistMomentHeatFlux(boundary));
+  }
   cerr << "Field Class " << name << " not found\n";
   return pDistributionDerivedField(NULL);
 }
 
-DistMomentRho::DistMomentRho(Boundary *boundary_) 
+DistMomentRhoBase::DistMomentRhoBase(Boundary *boundary_) 
     : DistributionDerivedField(boundary_) 
 {
   PositionI Lowx = boundary->scalarLow();
@@ -36,8 +51,11 @@ DistMomentRho::DistMomentRho(Boundary *boundary_)
   Rho.resize(Lowx.Data(),Highx.Data());  
 }
     
+ScalarField& DistMomentRhoBase::getField(std::string name) {
+  return getRho();
+}
 
-void DistMomentRho::calc(ForceFieldBase &vlasov) {
+void DistMomentRhoOne::calc(ForceFieldBase &vlasov) {
 
     VlasovDist &dist = vlasov.getDistribution();
   
@@ -65,11 +83,7 @@ void DistMomentRho::calc(ForceFieldBase &vlasov) {
     boundary->ScalarFieldReduce(Rho); 
 }
 
-ScalarField& DistMomentRho::getField(std::string name) {
-  return getRho();
-}
-
-DistMomentVelocities::DistMomentVelocities(Boundary *boundary_) 
+DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_) 
     : DistributionDerivedField(boundary_) 
 {
   PositionI Lowx = boundary->scalarLow();
@@ -88,7 +102,48 @@ DistMomentVelocities::DistMomentVelocities(Boundary *boundary_)
 }
     
 
-void DistMomentVelocities::calc(ForceFieldBase &vlasov) {
+
+VelocityD DistMomentVelocitiesBase::getJ(int i, int j) {
+    return VelocityD(Jx(i,j), Jy(i,j), Jz(i,j));
+}
+
+
+
+FixedArray<double,6> DistMomentVelocitiesBase::getVVTens(int i, int j) {    
+    FixedArray<double,6> Result;
+    
+    Result[0] = Vxx(i,j);
+    Result[1] = Vxy(i,j);
+    Result[2] = Vxz(i,j);
+    Result[3] = Vyy(i,j);
+    Result[4] = Vyz(i,j);
+    Result[5] = Vzz(i,j);
+    
+    return Result;
+    
+}
+
+ScalarField& DistMomentVelocitiesBase::getField(std::string name) {
+  if ("Jx"==name) return Jx;
+  else
+  if ("Jy"==name) return Jy;
+  else
+  if ("Jz"==name) return Jz;
+  else
+  if ("Vxx"==name) return Vxx;
+  else
+  if ("Vxy"==name) return Vxy;
+  else
+  if ("Vxz"==name) return Vxz;
+  else
+  if ("Vyy"==name) return Vyy;
+  else
+  if ("Vyz"==name) return Vyz;
+  else
+  return Vzz;
+}
+
+void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
     VlasovDist &dist = vlasov.getDistribution();
 
     const int *L = dist.getLow();
@@ -144,43 +199,113 @@ void DistMomentVelocities::calc(ForceFieldBase &vlasov) {
     boundary->ScalarFieldReduce(Vzz);
 }
 
-VelocityD DistMomentVelocities::getJ(int i, int j) {
-    return VelocityD(Jx(i,j), Jy(i,j), Jz(i,j));
+
+void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
+    VlasovDist &dist = vlasov.getDistribution();
+
+    const int *L = dist.getLow();
+    const int *H = dist.getHigh();
+    
+    VelocityI vi;
+    VelocityD V, Vm, Vp;
+    double d;
+    
+    Jx.clear();
+    Jy.clear();
+    Jz.clear();
+
+    Vxx.clear();
+    Vxy.clear();
+    Vxz.clear();
+    Vyy.clear();
+    Vyz.clear();
+    Vzz.clear();
+
+    for (int i=L[0]+2; i<=H[0]-2; ++i) {
+      for (int j=L[1]+2; j<=H[1]-2; ++j) {
+
+        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
+              V = vlasov.velocity(vi);
+              Vm = (vlasov.velocity(vi-VelocityI(1,1,1)) + V)*0.5;
+              Vp = (vlasov.velocity(vi+VelocityI(1,1,1)) + V)*0.5;
+              d = dist(i,j,vi[0],vi[1],vi[2]);
+                             
+              Jx(i,j) += 0.5*(Vp[0]*Vp[0]- Vm[0]*Vm[0])*d;
+              Jy(i,j) += 0.5*(Vp[1]*Vp[1]- Vm[1]*Vm[1])*d;
+              Jz(i,j) += 0.5*(Vp[2]*Vp[2]- Vm[2]*Vm[2])*d;
+
+              Vxx(i,j) += (1./3.)*(Vp[0]*Vp[0]*Vp[0]-Vm[0]*Vm[0]*Vm[0])*d;
+              Vxy(i,j) += 0.25*(Vp[0]*Vp[0]-Vm[0]*Vm[0])*(Vp[1]*Vp[1]-Vm[1]*Vm[1])*d;
+              Vxz(i,j) += 0.25*(Vp[0]*Vp[0]-Vm[0]*Vm[0])*(Vp[2]*Vp[2]-Vm[2]*Vm[2])*d;
+              Vyy(i,j) += (1./3.)*(Vp[1]*Vp[1]*Vp[1]-Vm[1]*Vm[1]*Vm[1])*d;
+              Vyz(i,j) += 0.25*(Vp[1]*Vp[1]-Vm[1]*Vm[1])*(Vp[2]*Vp[2]-Vm[2]*Vm[2])*d;
+              Vzz(i,j) += (1./3.)*(Vp[2]*Vp[2]*Vp[2]-Vm[2]*Vm[2]*Vm[2])*d;            
+            }
+      }
+    }
+    
+    boundary->ScalarFieldReduce(Jx);
+    boundary->ScalarFieldReduce(Jy);
+    boundary->ScalarFieldReduce(Jz);
+
+    boundary->ScalarFieldReduce(Vxx);
+    boundary->ScalarFieldReduce(Vxy);
+    boundary->ScalarFieldReduce(Vxz);
+    boundary->ScalarFieldReduce(Vyy);
+    boundary->ScalarFieldReduce(Vyz);
+    boundary->ScalarFieldReduce(Vzz);
 }
 
-
-
-FixedArray<double,6> DistMomentVelocities::getVVTens(int i, int j) {    
-    FixedArray<double,6> Result;
+DistMomentHeatFluxBase::DistMomentHeatFluxBase(Boundary *boundary_) 
+    : DistributionDerivedField(boundary_) 
+{
+  PositionI Lowx = boundary->scalarLow();
+  PositionI Highx = boundary->scalarHigh();
+  
+  HFluxX.resize(Lowx.Data(),Highx.Data());  
+}
     
-    Result[0] = Vxx(i,j);
-    Result[1] = Vxy(i,j);
-    Result[2] = Vxz(i,j);
-    Result[3] = Vyy(i,j);
-    Result[4] = Vyz(i,j);
-    Result[5] = Vzz(i,j);
-    
-    return Result;
-    
+ScalarField& DistMomentHeatFluxBase::getField(std::string name) {
+  return getFluxX();
 }
 
-ScalarField& DistMomentVelocities::getField(std::string name) {
-  if ("Jx"==name) return Jx;
-  else
-  if ("Jy"==name) return Jy;
-  else
-  if ("Jz"==name) return Jz;
-  else
-  if ("Vxx"==name) return Vxx;
-  else
-  if ("Vxy"==name) return Vxy;
-  else
-  if ("Vxz"==name) return Vxz;
-  else
-  if ("Vyy"==name) return Vyy;
-  else
-  if ("Vyz"==name) return Vyz;
-  else
-  return Vzz;
+void DistMomentHeatFluxOne::calc(ForceFieldBase &vlasov) {
+    VlasovDist &dist = vlasov.getDistribution();
+  
+    const int *L = dist.getLow();
+    const int *H = dist.getHigh();
+
+    VelocityI vi;
+    double Vx;
+    double d;
+    
+    HFluxX.clear();
+        
+    for (int i=L[0]+2; i<=H[0]-2; ++i)
+      for (int j=L[1]+2; j<=H[1]-2; ++j) {
+        
+        double Jx = 0;
+        
+        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
+              Vx = vlasov.velocity(vi)[0];
+              d = dist(i,j,vi[0],vi[1],vi[2]);
+              Jx += Vx*d;
+            }
+            
+        for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
+          for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
+            for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
+              Vx = vlasov.velocity(vi)[0] - Jx;
+              d = dist(i,j,vi[0],vi[1],vi[2]);
+              HFluxX(i,j) += Vx*Vx*Vx*d;
+            }
+      }
+    
+    boundary->ScalarFieldReduce(HFluxX); 
 }
+
 

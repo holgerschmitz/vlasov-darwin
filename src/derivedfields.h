@@ -9,6 +9,7 @@
 
 class ForceFieldBase;
 
+
 class DistributionDerivedField {
   protected:
       Boundary *boundary;
@@ -26,36 +27,43 @@ class DerivedFieldsContainer {
   private:
       typedef std::map<std::string,pDistributionDerivedField> MapType;
       MapType derivedFields;
+      Boundary *boundary;
   public:
-      void add(pDistributionDerivedField field);
+      DerivedFieldsContainer(Boundary *boundary_);
+      pDistributionDerivedField add(pDistributionDerivedField field);
       void update(ForceFieldBase &dist);
       /// Returns a derived field by its name or NULL if it is not found
       pDistributionDerivedField getField(std::string);
 };
 
 
-class DistMomentRho : public DistributionDerivedField {
-  private:
+class DistMomentRhoBase : public DistributionDerivedField {
+  protected:
       /// contains the particle density
       ScalarField Rho;
   public:
-      DistMomentRho(Boundary *boundary_);
-      void calc(ForceFieldBase &vlasov);
+      DistMomentRhoBase(Boundary *boundary_);
       const char* name() {return "rho";}
       ScalarField& getRho() { return Rho; }
       ScalarField& getField(std::string name);
-}; 
-   
-class DistMomentVelocities : public DistributionDerivedField {
-  private:
+};
+
+class DistMomentRhoOne : public DistMomentRhoBase {
+  public:
+      DistMomentRhoOne(Boundary *boundary_) 
+        : DistMomentRhoBase(boundary) {}
+      void calc(ForceFieldBase &vlasov);
+};
+
+class DistMomentVelocitiesBase : public DistributionDerivedField {
+  protected:
       /// The current densities in x,y and z-direction
       ScalarField Jx, Jy, Jz;
       /// The mixed second order velocity moments of the distribution
       ScalarField Vxx, Vxy, Vxz;   
       ScalarField Vyy, Vyz, Vzz;
   public:
-      DistMomentVelocities(Boundary *boundary_);
-      void calc(ForceFieldBase &vlasov);
+      DistMomentVelocitiesBase(Boundary *boundary_);
       const char* name() {return "vels";}
 
       /** Return a reference to the grid containing the 
@@ -82,5 +90,42 @@ class DistMomentVelocities : public DistributionDerivedField {
       FixedArray<double,6> getVVTens(int i, int j);
       ScalarField& getField(std::string name);
 };    
+
+class DistMomentVelocitiesOne : public DistMomentVelocitiesBase {
+  public:
+      DistMomentVelocitiesOne(Boundary *boundary_) 
+        : DistMomentVelocitiesBase(boundary) {}
+      void calc(ForceFieldBase &vlasov);
+};
+
+class DistMomentVelocitiesTwo : public DistMomentVelocitiesBase {
+  public:
+      DistMomentVelocitiesTwo(Boundary *boundary_) 
+        : DistMomentVelocitiesBase(boundary) {}
+      void calc(ForceFieldBase &vlasov);
+};
+
+class DistMomentHeatFluxBase : public DistributionDerivedField {
+  protected:
+      /// contains the particle density
+      ScalarField HFluxX;
+  public:
+      DistMomentHeatFluxBase(Boundary *boundary_);
+      const char* name() {return "hflux";}
+      ScalarField& getFluxX() { return HFluxX; }
+      ScalarField& getField(std::string name);
+};
+
+class DistMomentHeatFluxOne : public DistMomentHeatFluxBase {
+  public:
+      DistMomentHeatFluxOne(Boundary *boundary_) 
+        : DistMomentHeatFluxBase(boundary) {}
+      void calc(ForceFieldBase &vlasov);
+};
+
+
+typedef DistMomentRhoOne DistMomentRho;
+typedef DistMomentVelocitiesOne DistMomentVelocities;
+typedef DistMomentHeatFluxOne DistMomentHeatFlux;
 
 #endif
