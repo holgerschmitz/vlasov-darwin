@@ -162,11 +162,11 @@ void PosFluxCons3rdOrder<ForceField>
                 int j = max(min(Vi[0]+deltaI, bvx), lvx-1);
                 // go deltaI right 
 
-                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
-                {
-                  cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
-                  errmsg = true;
-                }
+//                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
+//                {
+//                  cerr << "Vx: deltaI out of bounds:" << deltaI << endl;
+//                  errmsg = true;
+//                }
 
                 Dj(Vi[0]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
@@ -246,13 +246,13 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right 
                 int j = max(min(Vi[1]+deltaI, bvx), lvx-1);
                 
-                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
-                {
-                  cerr << "Vy: deltaI out of bounds:" << deltaI 
-                      << ", " << j << ", " << j_old 
-                      << ", " << lvx << ", " << bvx << endl;
-                  errmsg=true;
-                }
+//                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
+//                {
+//                  cerr << "Vy: deltaI out of bounds:" << deltaI 
+//                      << ", " << j << ", " << j_old 
+//                      << ", " << lvx << ", " << bvx << endl;
+//                  errmsg=true;
+//                }
 
                 Dj(Vi[1]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
@@ -334,11 +334,11 @@ void PosFluxCons3rdOrder<ForceField>
                 // go deltaI right 
                 int j = max(min(Vi[2]+deltaI, bvx), lvx-1);
                 
-                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
-                {
-                  cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
-                  errmsg = true;
-                }
+//                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
+//                {
+//                  cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
+//                  errmsg = true;
+//                }
 
                 Dj(Vi[2]) = 0;
                 for (int jj=j_old+1; jj<=j ; ++jj)
