@@ -186,20 +186,15 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
     Vyz.clear();
     Vzz.clear();
 
-    double rho;
-
     for (int i=L[0]+2; i<=H[0]-2; ++i) {
       for (int j=L[1]+2; j<=H[1]-2; ++j) {
-        
-        rho = 0;
         
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
             for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
                 V = vlasov.velocity(vi);
                 d = dist(i,j,vi[0],vi[1],vi[2]);
-                rho += d;
-                
+
                 Jx(i,j) += V[0]*d;
                 Jy(i,j) += V[1]*d;
                 Jz(i,j) += V[2]*d;
@@ -212,16 +207,6 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
                 Vzz(i,j) += V[2]*V[2]*d;
                 
             }
-        Jx(i,j) /= rho;
-        Jy(i,j) /= rho;
-        Jz(i,j) /= rho;
-        
-        Vxx(i,j) /= rho;
-        Vxy(i,j) /= rho;
-        Vxz(i,j) /= rho;
-        Vyy(i,j) /= rho;
-        Vyz(i,j) /= rho;
-        Vzz(i,j) /= rho;
       }
     }
     
@@ -259,12 +244,9 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     Vyz.clear();
     Vzz.clear();
 
-    double rho;
     
     for (int i=L[0]+2; i<=H[0]-2; ++i) {
       for (int j=L[1]+2; j<=H[1]-2; ++j) {
-        
-        rho = 0;
         
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
@@ -273,8 +255,7 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               Vm = (vlasov.velocity(vi-VelocityI(1,1,1)) + V)*0.5;
               Vp = (vlasov.velocity(vi+VelocityI(1,1,1)) + V)*0.5;
               d = dist(i,j,vi[0],vi[1],vi[2]);
-              rho += d;
-                             
+
               Jx(i,j) += 0.5*(Vp[0]*Vp[0]- Vm[0]*Vm[0])*d;
               Jy(i,j) += 0.5*(Vp[1]*Vp[1]- Vm[1]*Vm[1])*d;
               Jz(i,j) += 0.5*(Vp[2]*Vp[2]- Vm[2]*Vm[2])*d;
@@ -285,18 +266,7 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               Vyy(i,j) += (1./3.)*(Vp[1]*Vp[1]*Vp[1]-Vm[1]*Vm[1]*Vm[1])*d;
               Vyz(i,j) += 0.25*(Vp[1]*Vp[1]-Vm[1]*Vm[1])*(Vp[2]*Vp[2]-Vm[2]*Vm[2])*d;
               Vzz(i,j) += (1./3.)*(Vp[2]*Vp[2]*Vp[2]-Vm[2]*Vm[2]*Vm[2])*d;            
-            }
-            
-        Jx(i,j) /= rho;
-        Jy(i,j) /= rho;
-        Jz(i,j) /= rho;
-        
-        Vxx(i,j) /= rho;
-        Vxy(i,j) /= rho;
-        Vxz(i,j) /= rho;
-        Vyy(i,j) /= rho;
-        Vyz(i,j) /= rho;
-        Vzz(i,j) /= rho;
+            }            
       }
     }
     
@@ -336,24 +306,19 @@ void DistMomentHeatFluxOne::calc(ForceFieldBase &vlasov) {
     VelocityI vi;
     double Vx;
     double d;
-    double rho;
     HFluxX.clear();
         
     for (int i=L[0]+2; i<=H[0]-2; ++i)
       for (int j=L[1]+2; j<=H[1]-2; ++j) {
         
         double Jx = 0;
-        rho = 0;
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
             for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
               Vx = vlasov.velocity(vi)[0];
               d = dist(i,j,vi[0],vi[1],vi[2]);
-              rho += d;
               Jx += Vx*d;
             }
-            
-        Jx /= rho;
             
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
@@ -362,7 +327,6 @@ void DistMomentHeatFluxOne::calc(ForceFieldBase &vlasov) {
               d = dist(i,j,vi[0],vi[1],vi[2]);
               HFluxX(i,j) += Vx*Vx*Vx*d;
             }
-        HFluxX(i,j) /= rho;
       }
     
     boundary->ScalarFieldReduce(HFluxX); 
