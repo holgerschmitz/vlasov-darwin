@@ -95,54 +95,7 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::write(ostream &O) {
             
 }
 
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-void VlasovSpecies<ForceField,Advancer,Scheme>::writeYVySlice(int x,int vx,int vz, string fname) {
-    const int *L = Distribution.getLow();
-    const int *H = Distribution.getHigh();
-    if (   (x<L[0]+2) || (x>H[0]-2) 
-        || (vx<L[2]) || (vx>H[2])
-        || (vz<L[4]) || (vz>H[4]))  return;
-    
-    ofstream Slice(fname.c_str());
-    
-    for (int j=L[1]+2; j<=H[1]-2; ++j)
-        for (int k=L[3]; k<=H[3]; ++k)
-            Slice << j << " " << k << " " 
-                << Distribution(x,j,vx,k,vz) << endl;
-    
-    Slice.close();
-}
 
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-void VlasovSpecies<ForceField,Advancer,Scheme>::writeVxVySlice(int t, int x, int y, int vz, ostream &Slice) 
-{
-    const int *L = Distribution.getLow();
-    const int *H = Distribution.getHigh();
-    if (   (x<L[0]+2) || (x>H[0]-2) 
-        || (y<L[1]+2) || (y>H[1]-2)
-        || (vz<L[4]) || (vz>H[4]))  return;
-    
-    
-    for (int j=L[2]; j<=H[2]; ++j) 
-    {
-        for (int k=L[3]; k<=H[3]; ++k)
-        {
-            Slice << t << " " << j << " " << k << " " 
-                << Distribution(x,y,j,k,vz) << endl;
-        }
-        Slice << endl;
-    }
-          
-    
-}
 
 template<
   class ForceField, 
