@@ -26,11 +26,6 @@ LOADLIBES = -lutil_mt -lmatrix_mt -lcyclic_mt -lm
 
 BINARY_PREFIX = $(X_ROOT_DIR)/bin/$(X_OSTYPE)
 
-#CXX = /scratch/raid/hs/bin/i686-pc-linux-gnu-g++ -DSINGLE_PROCESSOR
-#CXX = /usr/local/mpich/bin/mpiCC -D__USE_STD_IOSTREAM -use_ld_input=templateinst
-#CXX = /usr/lib/mpich/bin/mpiCC
-CXX = /usr/local/mpich/bin/mpiCC -w1 -fast -arch ev6 -O5 -std gnu -D__USE_STD_IOSTREAM  -noimplicit_include -accept restrict_keyword
-
 all: vlasov
 
 vlasov:  $(OBJECTS)
