@@ -149,7 +149,7 @@ class VlasovWaveGenInit : public VlasovInitialiser {
 /** @brief Initialises the Vlasov distribution function with a
  *  inhomogeneuos temperature. The temperature distribution is
  *  initialised as a Gaussian distribution in space
- * \f$T = a\left(1 + \frac{1}{2}\exp\left(-(x_0-x)^2/b\right)\right)\f$
+ * \f$T = a\left(1 + A\exp\left[\left(-(x_0-x)/b\right)^2\right]\right)\f$
  */
 class VlasovGaussTempInit : public VlasovInitialiser {
   protected:

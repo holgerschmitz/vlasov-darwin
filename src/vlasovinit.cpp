@@ -427,7 +427,9 @@ void VlasovGaussTempInit::initialise(ForceFieldBase *pVlasov) {
       
       
       double TPert =
-          1+t_amp*exp(-sqr(double(Xi[0])-NxH)/t_width);
+          1+t_amp*exp(
+            -sqr( (double(Xi[0])-NxH)/t_width ) 
+          );
 //      std::cerr << "temperatur " << Xi[0] << " " << TPert << "\n";
       VTh[0] = sqrt(TPert)*v_th[0];
             
