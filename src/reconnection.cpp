@@ -286,13 +286,23 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       double sc1 = sech( (Xi[1]-Ysheet1)/lambda_norm );
       double sc2 = sech( (Xi[1]-Ysheet2)/lambda_norm );
-      
-      double N = Ninf + N0*(sc1*sc1 + sc2*sc2);
-      
+
       double vz_pert = vz1*cos(2*PIl*Xi[0]/Nx)*cos(2*PIl*Xi[1]/Ny);
       
-      UStream[2] =  vz0*(sc1*sc1 - sc2*sc2)/N 
-                  + vz_pert;
+      double N;
+      double N1 = N0*sc1*sc1;
+      double N2 = N0*sc2*sc2;
+      
+      if (N1>N2)
+      {
+        N = Ninf + N1;
+        UStream[2] =  vz0*sc1*sc1/N + vz_pert;
+      } else
+      {
+        N = Ninf + N2;
+        UStream[2] =  -vz0*sc2*sc2/N + vz_pert;
+      }                  
+                  
       if (boundary.master())
         USTREAMStream << Xi[0] << " " << Xi[1] << " " << UStream[2] << "\n";
       
