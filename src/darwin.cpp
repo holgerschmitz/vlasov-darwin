@@ -14,7 +14,7 @@ void Darwin::AddSpecies(EMDarwinForce* pS) {
 
 void Darwin::Init () {
   tstep= 0;
-  n0 = -1;
+  n0 = Parameters::instance().bgDensity();
   double VRatio = Parameters::instance().velocityRatio();
   csc = VRatio*VRatio;
   
