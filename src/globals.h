@@ -45,8 +45,8 @@ class Parameters : public Rebuildable {
       typedef ForceField::FieldType FieldType;
       FieldType *Field;
       
-      int Argc;
-      char **Argv;
+      static int Argc;
+      static char **Argv;
     protected:
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
     public:  
@@ -77,10 +77,10 @@ class Parameters : public Rebuildable {
 
       FieldType *getField() { return Field; }
 
-      int getArgc() { return Argc; }
-      void setArgc(int Argc_) { Argc = Argc_; }
-      char **getArgv() { return Argv; }
-      void setArgv(char** Argv_) { Argv = Argv_; }
+      static int getArgc() { return Argc; }
+      static void setArgc(int Argc_) { Argc = Argc_; }
+      static char **getArgv() { return Argv; }
+      static void setArgv(char** Argv_) { Argv = Argv_; }
 
       static Parameters &instance() { return *globals; }
       

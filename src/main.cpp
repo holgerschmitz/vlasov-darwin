@@ -18,8 +18,8 @@ ForceField::FieldType *field;
  */
 int main (int argc, char** argv) {
 
-  Parameters::instance().setArgc(argc);
-  Parameters::instance().setArgv(argv);
+  Parameters::setArgc(argc);
+  Parameters::setArgv(argv);
 
   // If argument is specified read setup from file
   std::string setupfilename = "setup.dat";

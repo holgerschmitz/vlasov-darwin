@@ -108,7 +108,7 @@ MPIPeriodicSplitXBoundary::MPIPeriodicSplitXBoundary() :
     Low(Parameters::instance().distLow()), 
     High(Parameters::instance().distHigh())
 {
-  init(Parameters::instance().getArgc(), Parameters::instance().getArgv());
+  init(Parameters::getArgc(), Parameters::getArgv());
 } 
 
 

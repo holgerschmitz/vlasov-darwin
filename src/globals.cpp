@@ -5,6 +5,8 @@
 #include "potential.h"
 
 Parameters *Parameters::globals;
+int Parameters::Argc;
+char **Parameters::Argv;
 
 Parameters::Parameters() {
   globals = this;
