@@ -44,7 +44,7 @@ class BoundDirichlet {
       int lowSrc() { return low1; }
       int high() { return high0; }
       int highSrc() { return high1; }
-      int factor() { return 0; }
+      int factor() { return -1; }
       static bool normalize() { return false; }
 };
 

@@ -66,6 +66,7 @@ class Boundary : public Rebuildable {
        */
       virtual void ScalarFieldReduce(ScalarField &field) const = 0;
       
+      /** Returns the numeric boundary for a scalar field. */
       virtual const NumBoundary& getNumBoundary(ScalarField &field) const = 0;
 
       /// Return the average of a single value over all the processes
@@ -251,7 +252,7 @@ class MPIPeriodicSplitXBoundary : public Boundary {
  *  a single processor
  */
 class MPIPeriodicSplitXYBoundary : public Boundary {
-  private:
+  protected:
       PPBoundary numBound;
 
       /// The number of processes
@@ -365,6 +366,9 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       int procnum() const { return ComRank; }
 
       int getUniqueId() const { return dims[1]*mycoord[0] + mycoord[1]; }
+      
+      virtual bool periodicX() { return true; }
+      virtual bool periodicY() { return true; }
 };
 #endif // single processor
 

@@ -2,6 +2,7 @@
 // $Id$
 
 #include "reconnection.h"
+#include "scalarfield.h"
 
 #include <sstream>
 
@@ -12,46 +13,174 @@
  ****************************************************************/
 
 SimpleReconnectionBoundary::SimpleReconnectionBoundary() :
-    MPIPeriodicSplitXBoundary()
+    MPIPeriodicSplitXYBoundary()
 {} 
 
 
 SimpleReconnectionBoundary::SimpleReconnectionBoundary(int argc, char **argv) :
-    MPIPeriodicSplitXBoundary(argc,argv)
+    MPIPeriodicSplitXYBoundary(argc,argv)
 {}
 
 SimpleReconnectionBoundary::~SimpleReconnectionBoundary() {}
 
-void SimpleReconnectionBoundary::exchangeY(VlasovDist &field) {
-    const int *UBound = field.getHigh();
-    const int *LBound = field.getLow();
-    
+void SimpleReconnectionBoundary::exchangeX(VlasovDist &field) {
     PositionI Xi;
     VelocityI Vi;
 
-    int my0=UBound[1], my1=my0-1, my2=my0-2, my3=my0-3;
-    int ly0=LBound[1], ly1=ly0+1, ly2=ly0+2, ly3=ly0+3;
+    MPI_Status stat; 
     
-    int sumvx = LBound[2]+UBound[2];
-    int sumvz = LBound[4]+UBound[4];
+    int arr_ind = 0;
+    for (Xi[0] = Low[0]+2; Xi[0] <= Low[0]+3; ++Xi[0])
+      for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+        for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+          for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+            for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+              sendarrx[arr_ind++] = 
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+
+    MPI_Sendrecv(sendarrx, exchSize[0], MPI_DOUBLE, leftcoord, 0, 
+                 recvarrx, exchSize[0], MPI_DOUBLE, rightcoord, 0, 
+                 comm, &stat); 
+
+    if (rightcoord != MPI_PROC_NULL)
+    {
+      arr_ind = 0;
+      for (Xi[0] = High[0]-1; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = recvarrx[arr_ind++]; 
+    }
+    else
+    {
+      for (Xi[0] = High[0]-1; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(2*High[0]-3-Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]); 
+    }
     
-    for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
-      for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) {
-        int vxi = sumvx-Vi[0];
-        for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
-          int vzi = sumvx-Vi[0];
-          for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) { 
-              field(Xi[0], ly0, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], ly3, vxi, Vi[1], vzi);
-              field(Xi[0], ly1, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], ly2, vxi, Vi[1], vzi);
-              field(Xi[0], my0, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], my3, vxi, Vi[1], vzi);
-              field(Xi[0], my1, Vi[0], Vi[1], Vi[2]) =
-                    field(Xi[0], my2, vxi, Vi[1], vzi);
-          }
-        }
-      }
+                
+    arr_ind = 0;
+    for (Xi[0] = High[0]-3; Xi[0] <= High[0]-2; ++Xi[0])
+      for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+        for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+          for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+            for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+              sendarrx[arr_ind++] = 
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+                
+    MPI_Sendrecv(sendarrx, exchSize[0], MPI_DOUBLE, rightcoord, 0, 
+                 recvarrx, exchSize[0], MPI_DOUBLE, leftcoord, 0, 
+                 comm, &stat); 
+
+    if (leftcoord != MPI_PROC_NULL)
+    {
+      arr_ind = 0;
+      for (Xi[0] = Low[0]; Xi[0] <= Low[0]+1; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = recvarrx[arr_ind++]; 
+    }
+    else
+    {
+      arr_ind = 0;
+      for (Xi[0] = Low[0]; Xi[0] <= Low[0]+1; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(2*Low[0]+3-Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]); 
+    }
+                
+}
+
+void SimpleReconnectionBoundary::exchangeY(VlasovDist &field) {
+    PositionI Xi;
+    VelocityI Vi;
+
+    MPI_Status stat; 
+    
+    int arr_ind = 0;
+    for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+      for (Xi[1] = Low[1]+2; Xi[1] <= Low[1]+3; ++Xi[1])
+        for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+          for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+            for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+              sendarry[arr_ind++] = 
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+
+    MPI_Sendrecv(sendarry, exchSize[1], MPI_DOUBLE, bottomcoord, 0, 
+                 recvarry, exchSize[1], MPI_DOUBLE, topcoord, 0, 
+                 comm, &stat); 
+
+    if (topcoord != MPI_PROC_NULL)
+    {
+      arr_ind = 0;
+      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = recvarry[arr_ind++];
+    }
+    else
+    {
+      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(Xi[0], 2*High[1]-3-Xi[1], Vi[0], Vi[1], Vi[2]);
+    }
+    
+                
+    arr_ind = 0;
+    for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+      for (Xi[1] = High[1]-3; Xi[1] <= High[1]-2; ++Xi[1])
+        for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+          for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+            for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+              sendarry[arr_ind++] = 
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
+                
+    MPI_Sendrecv(sendarry, exchSize[1], MPI_DOUBLE, topcoord, 0, 
+                 recvarry, exchSize[1], MPI_DOUBLE, bottomcoord, 0, 
+                 comm, &stat); 
+
+    if (bottomcoord != MPI_PROC_NULL)
+    {
+      arr_ind = 0;
+      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= Low[1]+1; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = recvarry[arr_ind++]; 
+    }
+    else
+    {
+      arr_ind = 0;
+      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= Low[1]+1; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(Xi[0], 2*Low[1]+3-Xi[1], Vi[0], Vi[1], Vi[2]); 
+    }
+      
 }
 
 void SimpleReconnectionBoundary::ScalarFieldCombine(ScalarField &field) const {
@@ -91,12 +220,25 @@ void SimpleReconnectionBoundary::ScalarFieldReduce(ScalarField &field) const {
 }
 
 const NumBoundary& SimpleReconnectionBoundary::getNumBoundary(ScalarField &field) const {
-    int compEven = (field.getComponent()==ScalarField::YComponent)?1:-1;
-    int even = compEven*field.getParity();
-    if (1==even)
-      return evenBound;
-    else
-      return oddBound;
+    int comp = field.getComponent();
+    int par = field.getParity();
+    
+    switch (comp)
+    {
+      case ScalarField::XComponent : 
+        if (1==par) return evenXBound; 
+        else return evenYBound;
+      case ScalarField::YComponent : 
+        if (1==par) return evenYBound; 
+        else evenXBound;
+      case ScalarField::ZComponent : 
+        if (1==par) return evenZBound; 
+        else ScalarBound;
+      case ScalarField::ScalarComponent : 
+        if (1==par) return ScalarBound; 
+        else evenZBound;
+      default : return ScalarBound;
+    }
 }
 
 #endif // SINGLE_PROCESSOR

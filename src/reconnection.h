@@ -27,12 +27,12 @@
  * A lot of methods are inherited by the MPIPeriodicSplitXBoundary.
  * exchangeY and ScalarFieldReduce contain the major changes
  */
-class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
+class SimpleReconnectionBoundary : public MPIPeriodicSplitXYBoundary {
   private:
-      PDBoundary oddBound;
-      PNBoundary evenBound;
-//     PPBoundary oddBound;
-//     PPBoundary evenBound;
+      NDBoundary evenXBound;
+      DNBoundary evenYBound;
+      DDBoundary evenZBound;
+      NNBoundary ScalarBound;
   public:
       /**Default constructor used by the parsers
        */
@@ -46,11 +46,20 @@ class SimpleReconnectionBoundary : public MPIPeriodicSplitXBoundary {
       /// Virtual destructor deleting all the allocated arrays
       ~SimpleReconnectionBoundary();
       
+      /** Wraps the boundaries in x-direction.
+       * 
+       * Since the current is an odd field, we have to ensure that
+       * \f$\partial_x j_y \partial_x j_z= 0\f$ and \f$j_x=0\f$. To do this we
+       * set \f$f(x=x_0+\Delta, v_x, v_y, v_z) = f(x=x_0-\Delta, -v_x, v_y, v_z)\f$
+       * where \f$x_0\f$ is the location of the boundary.
+       */
+      void exchangeX(VlasovDist &field);
+
       /** Wraps the boundaries in y-direction.
        * 
        * Since the current is an odd field, we have to ensure that
-       * \f$\partial_y j_z = 0\f$ and \f$j_x=j_y=0\f$. To do this we
-       * set \f$f(y=y_0+\Delta, v_x, v_y, v_z) = f(y=y_0-\Delta, -v_x, v_y, -v_z)\f$
+       * \f$\partial_y j_x = \partial_y j_z = 0\f$ and \f$j_y=0\f$. To do this we
+       * set \f$f(y=y_0+\Delta, v_x, v_y, v_z) = f(y=y_0-\Delta, v_x, -v_y, v_z)\f$
        * where \f$y_0\f$ is the location of the boundary.
        */
       void exchangeY(VlasovDist &field);

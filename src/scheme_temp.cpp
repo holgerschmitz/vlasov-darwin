@@ -450,29 +450,57 @@ void PosFluxCons3rdOrder<ForceField>
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
     double fdiff = fjp-fj;
-    double fexc = 2*(f_infty-fj);
-    if (fexc<0) 
-        return 0;
-    if (2*fj<fdiff)
-        return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
-        return -fexc/fdiff;
-    else 
-        return 1.;
+    //    double fexc = 2*(f_infty-fj);
+    //  if (fexc<0) 
+    //    return 0;
+
+//    if (2*fj<fdiff)
+//        return 2*fj/fdiff;
+//    double fexc=2*(f_infty-fj);    
+//    if (fexc < (-fdiff) )
+//        return -fexc/fdiff;
+//    else 
+//        return 1.;
+
+    double fexc=2*(f_infty-fj);    
+
+    double result[3];
+    result[0] = 1;
+    result[1] = 2*fj/fdiff;
+    result[2] = -fexc/fdiff;
+    
+    int res1 = (2*fj<fdiff);
+    int res2 = (fexc < (-fdiff) );
+    
+    return result[res1 + 2*(1-res1)*res2];
 }
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
     double fdiff = fjm-fj;
-    double fexc = 2*(f_infty-fj);
-    if (fexc<0) 
-        return 0;
-    if (2*fj<fdiff)
-        return 2*fj/fdiff;
-    else if (fexc < (-fdiff) )
-        return -fexc/fdiff;
-    else 
-        return 1.;
+    //    double fexc = 2*(f_infty-fj);
+    //    if (fexc<0) 
+    //        return 0;
+//    if (2*fj<fdiff)
+//        return 2*fj/fdiff;
+//    double fexc = 2*(f_infty-fj);
+//    if (fexc < (-fdiff) )
+//        return -fexc/fdiff;
+//    else 
+//        return 1.;
+
+    double fexc=2*(f_infty-fj);    
+
+    double result[3];
+    result[0] = 1;
+    result[1] = 2*fj/fdiff;
+    result[2] = -fexc/fdiff;
+    
+    int res1 = (2*fj<fdiff);
+    int res2 = (fexc < (-fdiff) );
+    
+    return result[res1 + 2*(1-res1)*res2];
+
 }
 
 

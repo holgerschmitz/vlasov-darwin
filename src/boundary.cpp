@@ -438,7 +438,7 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
     
-    int periodic[2] = { true, true};
+    int periodic[2] = {periodicX(), periodicY()};
     
     double Lx = High[0]-Low[0]-3;
     double Ly = High[1]-Low[1]-3;

@@ -28,10 +28,11 @@ class ScalarField : public NumMatrix<double, DIMENSION>
       /// The component index 0,1,2 stands for x, y and z.
       int component;
   public:
-      static const int ScalarComponent;
-      static const int XComponent;
-      static const int YComponent;
-      static const int ZComponent;
+      //static const int ScalarComponent;
+      //static const int XComponent;
+      //static const int YComponent;
+      //static const int ZComponent;
+      enum {ScalarComponent=0, XComponent=1, YComponent=2, ZComponent=3};
       static const int EvenParity;
       static const int OddParity;
   public:
