@@ -2,10 +2,69 @@ template<
   class ForceField, 
   template<class> class Scheme
 >
+void SimpleLeapFrogAdvance<ForceField,Scheme>
+        ::advanceStepA(double timestep) {
+        
+    advanceSpace_x(0.5*timestep);
+    advanceSpace_y(0.5*timestep);
+}
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void SimpleLeapFrogAdvance<ForceField,Scheme>
+        ::advanceStepB(double timestep) {
+
+    advanceVel_x(timestep);
+    advanceVel_y(timestep);
+    advanceVel_z(timestep);
+
+    advanceSpace_x(0.5*timestep);
+    advanceSpace_y(0.5*timestep);
+    
+}
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void SimpleLeapFrogAdvance<ForceField,Scheme>
+        ::advanceStepFull(double timestep) {
+
+    advanceVel_x(timestep);
+    advanceVel_y(timestep);
+    advanceVel_z(timestep);
+
+    advanceSpace_x(timestep);
+    advanceSpace_y(timestep);
+    
+}
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void SimpleLeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
+  switch (InitState) {
+      case -2: InitState = -1;
+               break;
+      case -1: InitState = 0;
+              advanceStepA(timestep); 
+              break;
+      case 0: advanceStepFull(timestep); 
+              break;
+  }
+}
+
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
 void LeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepA(double timestep) {
         
-//    InterpolationInitStep(Distribution);
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
 }
@@ -72,12 +131,12 @@ template<
   template<class> class Scheme
 >
 void RungeKuttaAdvance<ForceField,Scheme>::initializeAdvancer() {
-  PhasePositionI low = boundary->DistLow();
-  PhasePositionI high = boundary->DistHigh();
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
   
-  TempDist.resize(low.Data(),high.Data());
-  T1.resize(low.Data(),high.Data());
-  T2.resize(low.Data(),high.Data());
+  TempDist.resize(LBound,UBound);
+  T1.resize(LBound,UBound);
+  T2.resize(LBound,UBound);
 }
 
 

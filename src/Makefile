@@ -52,11 +52,9 @@ vlasov_const: $(OBJECTS)
 test_helmholtz:  helmholtz.o Vlas2d.o test_helmholtz.o
 	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
 
-.s.o:
-	$(COMPILE) $(INCLUDE) -c $<
+%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCLUDE) $<
 
-.S.o:
-	$(COMPILE) $(INCLUDE) -c $<
 
 clean:
 	-rm -f *.o core vlasov vlasov_es vlasov_const

@@ -22,7 +22,7 @@ template<
 >
 class VlasovSpecies;
 
-typedef VlasovSpecies<ForceField,LeapFrogAdvance,PosFluxCons3rdOrder> Vlasov;
+typedef VlasovSpecies<ForceField,RungeKuttaAdvance,PosFluxCons3rdOrder> Vlasov;
 typedef Vlasov* pVlasov;
 
 

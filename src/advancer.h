@@ -12,6 +12,39 @@ template<
   class ForceField, 
   template<class> class Scheme = PosFluxCons3rdOrder
 >
+class SimpleLeapFrogAdvance  : public Scheme<ForceField> {
+  private:
+      int InitState;
+  protected:
+
+      /** @brief Half of the distribution advance.
+       *  Only advances the spatial direction for half a timestep
+       */
+      void advanceStepA(double timestep);
+
+      /** @brief Half of the distribution advance.
+       *  Only advances the velocity directions one timestep
+       *  and then the spatial direction for half a timestep.
+       */
+      void advanceStepB(double timestep);
+
+      /** @brief The full distribution advance.
+       *  Only advances the velocity directions one timestep
+       *  and then the spatial direction for a timestep.
+       */
+      void advanceStepFull(double timestep);
+      /// Advance the distribution function one timestep
+      void advance(double timestep);
+    
+  public:
+      SimpleLeapFrogAdvance(SpeciesData &data) 
+          : InitState(-2), Scheme<ForceField>(data) {}
+};
+
+template<
+  class ForceField, 
+  template<class> class Scheme = PosFluxCons3rdOrder
+>
 class LeapFrogAdvanceBase  : public Scheme<ForceField> {
   protected:
 

@@ -64,8 +64,8 @@ ScalarField &EBFieldForce::GetEy() { return pPot->GetEy(); }
 
 
 VelocityD EBFieldForce::Force(const PositionI &Pos, 
-                               const VelocityD &Vel,
-                               double dt) {
+                              const VelocityD &Vel,
+                              double dt) {
     // normalizing velocity
     double vx = Vel[0];
     double vy = Vel[1];
