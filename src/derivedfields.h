@@ -51,7 +51,7 @@ class DistMomentRhoBase : public DistributionDerivedField {
 class DistMomentRhoOne : public DistMomentRhoBase {
   public:
       DistMomentRhoOne(Boundary *boundary_) 
-        : DistMomentRhoBase(boundary) {}
+        : DistMomentRhoBase(boundary_) {}
       void calc(ForceFieldBase &vlasov);
 };
 
@@ -94,14 +94,14 @@ class DistMomentVelocitiesBase : public DistributionDerivedField {
 class DistMomentVelocitiesOne : public DistMomentVelocitiesBase {
   public:
       DistMomentVelocitiesOne(Boundary *boundary_) 
-        : DistMomentVelocitiesBase(boundary) {}
+        : DistMomentVelocitiesBase(boundary_) {}
       void calc(ForceFieldBase &vlasov);
 };
 
 class DistMomentVelocitiesTwo : public DistMomentVelocitiesBase {
   public:
       DistMomentVelocitiesTwo(Boundary *boundary_) 
-        : DistMomentVelocitiesBase(boundary) {}
+        : DistMomentVelocitiesBase(boundary_) {}
       void calc(ForceFieldBase &vlasov);
 };
 
@@ -119,7 +119,7 @@ class DistMomentHeatFluxBase : public DistributionDerivedField {
 class DistMomentHeatFluxOne : public DistMomentHeatFluxBase {
   public:
       DistMomentHeatFluxOne(Boundary *boundary_) 
-        : DistMomentHeatFluxBase(boundary) {}
+        : DistMomentHeatFluxBase(boundary_) {}
       void calc(ForceFieldBase &vlasov);
 };
 
