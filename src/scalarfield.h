@@ -28,12 +28,12 @@ class ScalarField : public NumMatrix<double, DIMENSION>
       /// The component index 0,1,2 stands for x, y and z.
       int component;
   public:
-      static const int ScalarComponent=0;
-      static const int XComponent=1;
-      static const int YComponent=2;
-      static const int ZComponent=3;
-      static const int EvenParity=1;
-      static const int OddParity=-1;
+      static const int ScalarComponent;
+      static const int XComponent;
+      static const int YComponent;
+      static const int ZComponent;
+      static const int EvenParity;
+      static const int OddParity;
   public:
       /// Accessor method setting the parity
       void setParity(int parity_) { parity=parity_; }

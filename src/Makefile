@@ -8,7 +8,8 @@ VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 		vlasovinit.cpp wrapvlasov.cpp diaghelper.cpp main.cpp \
 		poisson.cpp vlasovinit.cpp  vlasovbase.cpp process.cpp \
 		derivedfields.cpp forcefield.cpp hdfstream.cpp task.cpp \
-		globals.cpp diagnostic.cpp fielddiag.cpp reconnection.cpp
+		globals.cpp diagnostic.cpp fielddiag.cpp reconnection.cpp \
+		scalarfield.cpp
 
 VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 		parameter.h poisson.h potential.h stlpwrapper.h \
@@ -21,13 +22,13 @@ OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
 		potential.o poisson.o wrapvlasov.o main.o \
 		vlasovinit.o vlasovbase.o forcefield.o process.o\
 		derivedfields.o hdfstream.o task.o globals.o diagnostic.o \
-		fielddiag.o reconnection.o
+		fielddiag.o reconnection.o scalarfield.o
 
 HEADERS = $(VLASOV_HEADERS)
 
 LDFLAGS = $(X_LIB)
 
-LOADLIBS = $(X_HDF_LIBS) -lcyclic_mt -lm
+LOADLIBS = $(X_HDF_LIBS) -lm
 
 BINARY_PREFIX = $(X_ROOT_DIR)/bin/$(X_OSTYPE)
 
