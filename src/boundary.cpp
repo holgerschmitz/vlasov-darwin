@@ -378,7 +378,7 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
     MPI_Cart_coords(comm,ComRank,2,mycoord); 
     
     MPI_Cart_shift(comm,0,1,&leftcoord,&rightcoord); 
-    MPI_Cart_shift(comm,1,1,&topcoord,&bottomcoord); 
+    MPI_Cart_shift(comm,1,1,&bottomcoord,&topcoord); 
             
     double width[2];
     width[0] = (High[0]-2.)/double(dims[0]);
