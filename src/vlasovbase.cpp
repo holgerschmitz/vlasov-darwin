@@ -57,3 +57,33 @@ void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
     std::cout << "RISIZING Finite Volume Advancer" << std::endl;
     std::cout << "VelSize = " << VelSize << "  VelSizeH = " << VelSizeH << "\n";
 }
+
+
+pDistributionDerivedField ForceFieldBase::getDerivedField(std::string name) {
+  return derivedFields.getField(name);
+}
+
+
+VlasovDerivedDiagnostic::DiagList VlasovDerivedDiagnostic::diaglist;
+VlasovDerivedDiagnostic *VlasovDerivedDiagnostic::fielddiag=NULL;
+
+VlasovDerivedDiagnostic::VlasovDerivedDiagnostic() {
+  diaglist.push_back(this);
+}
+
+void VlasovDerivedDiagnostic::retrieveField(ForceFieldBase *vlasov) {
+  pDistributionDerivedField dfield = vlasov->getDerivedField(classname);
+  if (dfield.pObj()==NULL) 
+    setField(NULL);
+  else
+    setField(&(dfield->getField(fieldname)));
+}
+
+PARAMETERMAP* VlasovDerivedDiagnostic::MakeParamMap (PARAMETERMAP* pm) {
+  pm = SimpleDiagnostic<ScalarField,std::ofstream>::MakeParamMap(pm);
+  (*pm)["class"] = WParameter(new ParameterValue<std::string>(&classname, ""));
+  (*pm)["field"] = WParameter(new ParameterValue<std::string>(&fieldname, ""));
+  return pm;
+}
+
+

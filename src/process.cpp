@@ -105,7 +105,17 @@ VlasovRebuild::VlasovRebuild() {
 
 pVlasov VlasovRebuild::getVlasovInstance() {
   vlasovData.init = initRebuild->getInitInstance();
-  return new Vlasov(vlasovData);
+  pVlasov vl = new Vlasov(vlasovData);
+  for (
+    VlasovDerivedDiagnostic::DiagList::iterator it=VlasovDerivedDiagnostic::diaglist.begin();
+    it !=VlasovDerivedDiagnostic::diaglist.end();
+    ++it
+  )
+  {
+    (*it)->retrieveField(vl);
+  }
+  
+  VlasovDerivedDiagnostic::diaglist.clear();
 }
 
 SpeciesList VlasovRebuild::getSpeciesList() {
@@ -133,6 +143,12 @@ PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
   );
   (*pm)["phase-space"] = WParameter(
       new ParameterRebuild<PhaseDiag, PhaseDiag>(&vlasovData.phasediag)
+  );
+  (*pm)["fielddiag"] = WParameter(
+      new ParameterRebuild<
+        VlasovDerivedDiagnostic, 
+        VlasovDerivedDiagnostic
+      >(&VlasovDerivedDiagnostic::fielddiag)
   );
   return pm;
 }

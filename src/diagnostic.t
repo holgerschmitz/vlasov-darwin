@@ -25,3 +25,5 @@ void SimpleDiagnostic<Type,StreamType>::setField(Type *fld)
 {
   field = fld;
 }
+
+

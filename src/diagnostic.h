@@ -10,9 +10,22 @@
 #include "stlpwrapper.h"
 #include "task.h"
 
+/** Interface for diagnostic tasks.
+ * 
+ * This interface can be used to implement different types of diagnostics.
+ * The DiagnosticInterface is closely related to the DiagnosticManager. When an
+ * instance of the interface is created it will register itself with the 
+ * DiagnosticManager. This then takes the responsibility of calling the execute
+ * method of the DiagnosticInterface.
+ */
 class DiagnosticInterface : public Rebuildable {
   private:
+      /// The file name into which to write
       std::string fname;
+      /** A string specifying whether to append to the file or whether to
+       * write into a new file at each turn.
+       * Only the first letter is checked for equality to 'y'
+       */
       std::string append;
       int interval;
       int t;
@@ -51,12 +64,14 @@ class SimpleDiagnostic : public DiagnosticInterface {
       Type *field;
       StreamType output;
   public:
+      SimpleDiagnostic() {}
       void setField(Type*);
   protected:
       void open(const std::string &);
       void write();
       void close();
 };
+
 
 #include "diagnostic.t"
 

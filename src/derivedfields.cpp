@@ -19,7 +19,13 @@ void DerivedFieldsContainer::update(ForceFieldBase &vlasov) {
     (*(*it).second).calc(vlasov);
   }
 }
-    
+
+pDistributionDerivedField DerivedFieldsContainer::getField(std::string name) {
+  MapType::iterator pos = derivedFields.find(name);
+  if (pos != derivedFields.end()) return pos->second;
+  else return pDistributionDerivedField(NULL);
+}
+
 DistMomentRho::DistMomentRho(Boundary *boundary_) 
     : DistributionDerivedField(boundary_) 
 {
@@ -56,6 +62,10 @@ void DistMomentRho::calc(ForceFieldBase &vlasov) {
     }
     
     boundary->ScalarFieldReduce(Rho); 
+}
+
+ScalarField& DistMomentRho::getField(std::string name) {
+  return getRho();
 }
 
 DistMomentVelocities::DistMomentVelocities(Boundary *boundary_) 
@@ -153,3 +163,22 @@ FixedArray<double,6> DistMomentVelocities::getVVTens(int i, int j) {
     
 }
 
+ScalarField& DistMomentVelocities::getField(std::string name) {
+  if ("Jx"==name) return Jx;
+  else
+  if ("Jy"==name) return Jy;
+  else
+  if ("Jz"==name) return Jz;
+  else
+  if ("Vxx"==name) return Vxx;
+  else
+  if ("Vxy"==name) return Vxy;
+  else
+  if ("Vxz"==name) return Vxz;
+  else
+  if ("Vyy"==name) return Vyy;
+  else
+  if ("Vyz"==name) return Vyz;
+  else
+  return Vzz;
+}

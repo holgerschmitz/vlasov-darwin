@@ -1,4 +1,5 @@
 #include <string>
+#include <fstream>
 #include "numeric.h"
 #include "boundary.h"
 #include "derivedfields.h"
@@ -13,17 +14,7 @@ typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
 
 
 class VlasovInitialiser;
-
-struct SpeciesData {
-  double charge;
-  double mass;
-  double GridRange_vx;
-  double GridRange_vy;
-  double GridRange_vz;
-  VlasovInitialiser *init;
-  PhaseDiag *phasediag;
-};
-
+struct SpeciesData;
 
 /** The Base class for the Force Field. All the 
  *  ForceField-classes that are used as template parameters to the
@@ -72,6 +63,7 @@ class ForceFieldBase {
       PhaseDiag *phasediag;
       
       DerivedFieldsContainer derivedFields;
+
   public:
       ForceFieldBase(SpeciesData &data);
       /// Destructor
@@ -158,6 +150,33 @@ class ForceFieldBase {
       int procnum() {
         return boundary->procnum();
       }
+      
+      pDistributionDerivedField getDerivedField(std::string);
 };
+
+struct SpeciesData {
+  double charge;
+  double mass;
+  double GridRange_vx;
+  double GridRange_vy;
+  double GridRange_vz;
+  VlasovInitialiser *init;
+  PhaseDiag *phasediag;
+};
+
+class VlasovDerivedDiagnostic : public SimpleDiagnostic<ScalarField,std::ofstream> {
+  private:
+      std::string classname;
+      std::string fieldname;
+  public:
+      typedef std::list<VlasovDerivedDiagnostic*> DiagList;
+      static DiagList diaglist;
+      static VlasovDerivedDiagnostic *fielddiag;
+  public:
+      VlasovDerivedDiagnostic();
+      void retrieveField(ForceFieldBase*);
+      virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
+};
+
 
 #endif

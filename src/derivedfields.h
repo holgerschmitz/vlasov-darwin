@@ -17,6 +17,7 @@ class DistributionDerivedField {
       virtual ~DistributionDerivedField() {}
       virtual void calc(ForceFieldBase &) = 0;
       virtual const char* name() = 0;
+      virtual ScalarField& getField(std::string name) = 0;
 };
 
 typedef PtrWrapper<DistributionDerivedField> pDistributionDerivedField;
@@ -28,6 +29,8 @@ class DerivedFieldsContainer {
   public:
       void add(pDistributionDerivedField field);
       void update(ForceFieldBase &dist);
+      /// Returns a derived field by its name or NULL if it is not found
+      pDistributionDerivedField getField(std::string);
 };
 
 
@@ -39,7 +42,8 @@ class DistMomentRho : public DistributionDerivedField {
       DistMomentRho(Boundary *boundary_);
       void calc(ForceFieldBase &vlasov);
       const char* name() {return "rho";}
-      ScalarField &getRho() { return Rho; }
+      ScalarField& getRho() { return Rho; }
+      ScalarField& getField(std::string name);
 }; 
    
 class DistMomentVelocities : public DistributionDerivedField {
@@ -76,7 +80,7 @@ class DistMomentVelocities : public DistributionDerivedField {
        *  in a six-component vector
        */
       FixedArray<double,6> getVVTens(int i, int j);
-
+      ScalarField& getField(std::string name);
 };    
 
 #endif
