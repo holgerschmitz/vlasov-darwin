@@ -15,7 +15,7 @@
 #endif
 
 //using namespace std;
-
+/*
 double gammln(double xx)
 {
 	double x,tmp,ser;
@@ -125,6 +125,6 @@ double erf(double x)
 	return x < 0.0 ? -gammp(0.5,x*x) : gammp(0.5,x*x);
 }
 
-
+*/
 
 

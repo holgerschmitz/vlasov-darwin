@@ -149,7 +149,7 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
 
   VelocityD VTh(v_th[0],v_th[1],v_th[2]);
   VelocityD UStream(0,0,0);
-  
+  double Sum=0;
   for (Xi[0] = L[0]; Xi[0] <= H[0]; ++Xi[0])
     for (Xi[1] = L[1]; Xi[1] <= H[1]; ++Xi[1]) {
       
@@ -192,30 +192,12 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
             }
                 
             double F = N*F1.product();
+            Sum = Sum + F;
             dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
           }
-        
-      // Set all the boundaries to zero
-        
-      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-        for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
-          dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
-          dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
-        }
-        
-      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-          dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
-          dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
-        }
-      
-      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-          dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
-          dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
-        }
  
     }
+    std::cerr << "DENSITY SUM " << Sum << std::endl;
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 }
 
@@ -339,26 +321,6 @@ void VlasovPeriodicReconnectionInit::initialise(ForceFieldBase *pVlasov) {
             dist(Xi[0],Xi[1],Vi[0],Vi[1],Vi[2]) = F;
           }
         
-      // Set all the boundaries to zero
-        
-      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-        for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) {
-          dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
-          dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
-        }
-        
-      for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
-        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-          dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
-          dist(Xi[0],Xi[1],Vi[0],H[3],Vi[2])=0; 
-        }
-      
-      for (Vi[1] = L[3]; Vi[1] <= H[3]; ++Vi[1]) 
-        for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
-          dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
-          dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
-        }
- 
     }
     if (boundary.master()) USTREAMStream.close();
     

@@ -497,6 +497,7 @@ bool Darwin::Execute () {
       Ey(i,j) -= sumEy;
     }
   }
+
   /* *************************************
    *  This should be it!
    */

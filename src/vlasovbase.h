@@ -195,5 +195,6 @@ class VlasovDerivedDiagnostic : public SimpleDiagnostic<ScalarField,std::ofstrea
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 
+void CheckDensity(VlasovDist &dist, const char *Msg);
 
 #endif

@@ -64,7 +64,6 @@ template<
 >
 void LeapFrogAdvanceBase<ForceField,Scheme>
         ::advanceStepA(double timestep) {
-        
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
 }
@@ -86,7 +85,6 @@ void LeapFrogAdvanceBase<ForceField,Scheme>
 
     advanceSpace_x(0.5*timestep);
     advanceSpace_y(0.5*timestep);
-    
 }
 
 template<
@@ -106,7 +104,6 @@ void LeapFrogAdvanceBase<ForceField,Scheme>
 
     advanceSpace_x(timestep);
     advanceSpace_y(timestep);
-    
 }
 
 template<

@@ -27,7 +27,7 @@ inline double frand() { return rand()/double(RAND_MAX); }
 /** @brief Returns the error function
  *  @todo Do we really need the error function. Isn't it implemented in math.h
  */
-double erf(double);
+//double erf(double);
 
 template<typename T>
 T tanh(T x) {

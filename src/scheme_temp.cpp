@@ -1,7 +1,10 @@
+
+#include "util.h"
+
 template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_x(double timestep) {
-    
+ //   CheckDensity(Distribution,"XStart");
     errmsg = false;
     
     const int *UBound = Distribution.getHigh();
@@ -50,9 +53,9 @@ void PosFluxCons3rdOrder<ForceField>
           }
     }
     
-//    cerr << "Exchanging boundaries... "; 
+//    CheckDensity(Distribution,"XEnd");
     boundary->exchangeX(Distribution);
-//    cerr << " ...done\n"; 
+//    CheckDensity(Distribution,"XDone");
     
 }
 
@@ -60,6 +63,7 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_y(double timestep) {
         
+//    CheckDensity(Distribution,"YStart");
     errmsg = false;
     
     const int *UBound = Distribution.getHigh();
@@ -107,8 +111,10 @@ void PosFluxCons3rdOrder<ForceField>
 
           }
     }
+//    CheckDensity(Distribution,"YEnd");
     
     boundary->exchangeY(Distribution);
+//    CheckDensity(Distribution,"YDone");
     
 }
 
@@ -116,6 +122,7 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_x(double timestep) {
         
+//    CheckDensity(Distribution,"VXStart");
     errmsg = false;
     
     const int *UBound = Distribution.getHigh();
@@ -130,21 +137,19 @@ void PosFluxCons3rdOrder<ForceField>
     NumMatrix<double, 1> Flux(&lvx,&bvx);
     NumMatrix<double, 1> Dj(&lvx,&bvx);
     
-    int j_old; // check initialization inside the loop!!
+    int j_old; 
     
-//    cerr << "Advancing in vx\n";
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        j_old = lvx;
         
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
+            j_old = lvx-1;
              
             for (Vi[0] = lvx; Vi[0] < bvx; ++Vi[0]) {
-//                cerr << " - " << Vi[0] <<  " - " << Vi[1] <<  " - " << Vi[2] <<  " - " 
-//                    << Xi[0] <<  " - " << Xi[1] << "\n";
+
                 VelocityD Vel = velocity(Vi);
                 VelocityD F = Force(Xi,Vel,timestep);
                 double deltavx = -F[0]/deltaVx();
@@ -160,29 +165,36 @@ void PosFluxCons3rdOrder<ForceField>
                   errmsg = true;
                 }
 
-//                cerr << "Vx: " << Vi[0] << " " << deltavx << " " << deltaI << "\n";
-
                 Dj(Vi[0]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
-                    Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+                  Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
                 j_old=j;
-                
-                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
-                    Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
-                else
-                    Flux(Vi[0]) = 0;
+                  
+                Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
 
             }
             
+            Dj(bvx) = 0;
+            for (int jj=j_old+1; jj<=bvx; ++jj)
+              Dj(bvx) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+  
+
+            Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2])
+              = - Flux(lvx) + Dj(lvx);
+
             for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                     = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
             }
-
+            Distribution(Xi[0], Xi[1], bvx, Vi[1], Vi[2])
+              = Flux(bvx-1) + Dj(bvx);
+              
         }
     }
+//    CheckDensity(Distribution,"VXEnd");
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
+//    CheckDensity(Distribution,"VXDone");
 
 }
 
@@ -190,6 +202,7 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_y(double timestep) {
         
+//    CheckDensity(Distribution,"VYStart");
     errmsg = false;
     
     const int *UBound = Distribution.getHigh();
@@ -204,18 +217,16 @@ void PosFluxCons3rdOrder<ForceField>
     NumMatrix<double, 1> Flux(&lvx,&bvx);
     NumMatrix<double, 1> Dj(&lvx,&bvx);
     
-    int j_old; // check initialization inside the loop!!
-    
-//    cerr << "Advancing in vy\n";
+    int j_old; 
+
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
-       
-        j_old = lvx;
-        
+               
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
             
-             
+            j_old = lvx-1;
+            
             for (Vi[1] = lvx; Vi[1] < bvx; ++Vi[1]) {
             
                 VelocityD Vel = velocity(Vi);
@@ -235,26 +246,34 @@ void PosFluxCons3rdOrder<ForceField>
 
                 Dj(Vi[1]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
-                    Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+                  Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
                 j_old=j;
-
-                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
-                    Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
-                else
-                    Flux(Vi[1]) = 0;
+                  
+                Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
 
             }
-            
+            Dj(bvx) = 0;
+            for (int jj=j_old+1; jj<=bvx; ++jj)
+              Dj(bvx) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+  
+
+            Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2])
+              = - Flux(lvx) + Dj(lvx);
+
             for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                     = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
             }
 
+            Distribution(Xi[0], Xi[1], Vi[0], bvx, Vi[2])
+              = Flux(bvx-1) + Dj(bvx);
         }
     }
+//    CheckDensity(Distribution,"VYEnd");
     
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
+//    CheckDensity(Distribution,"VYDone");
 }
 
 
@@ -262,6 +281,7 @@ template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceVel_z(double timestep) {
         
+//    CheckDensity(Distribution,"VZStart");
     errmsg = false;
     
     const int *UBound = Distribution.getHigh();
@@ -282,11 +302,10 @@ void PosFluxCons3rdOrder<ForceField>
     for (Xi[0] = LBound[0]+1; Xi[0] < UBound[0]; ++Xi[0]) 
       for (Xi[1] = LBound[1]+1; Xi[1] < UBound[1]; ++Xi[1]) {
       
-        j_old = lvx;
-        
         for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
           for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
             
+            j_old = lvx-1;
              
             for (Vi[2] = lvx; Vi[2] < bvx; ++Vi[2]) {
             
@@ -307,26 +326,35 @@ void PosFluxCons3rdOrder<ForceField>
 
                 Dj(Vi[2]) = 0;
                 for (int jj=j_old+1; jj<=j; ++jj)
-                    Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
+                  Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
-
-                if ((j>=lvx+bound_minus()) && (j<bvx-bound_plus()))
-                    Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
-                else
-                    Flux(Vi[2]) = 0;
+                  
+                Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
 
             }
             
+            Dj(bvx) = 0;
+            for (int jj=j_old+1; jj<=bvx; ++jj)
+              Dj(bvx) += Distribution(Xi[0], Xi[1], Vi[0], Vi[1], jj);
+  
+
+            Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx)
+              = - Flux(lvx) + Dj(lvx);
+
             for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                   = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
             }
-
+            Distribution(Xi[0], Xi[1], Vi[0], Vi[1], bvx)
+              = Flux(bvx-1) + Dj(bvx);
         }
     }
+//    CheckDensity(Distribution,"VZEnd");
     
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
+//    CheckDensity(Distribution,"VZDone");
+
 }
 
 template<class ForceField>
@@ -400,9 +428,22 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVx(
                 const VelocityI &Vi,
                 int j,
                 double alpha) {
-    double fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
     double fj  = Distribution(Xi[0],Xi[1],j  ,Vi[1],Vi[2]);
-    double fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+    double fjp, fjm;
+    if (j<=Distribution.getLow()[2])
+    {
+      fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+      fjm = max(0.0,2*fj-fjp);
+    } else
+    if (j>=Distribution.getHigh()[2])
+    {
+      fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+      fjp = max(0.0,2*fj-fjm);
+    } else
+    {
+      fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+      fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+    }
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
@@ -412,15 +453,30 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVx(
                 -(1/6.)*alpha*(alpha - 2)*epsr*(-fjm+fj));
 }
 
+
+
 template<class ForceField>
 double PosFluxCons3rdOrder<ForceField>::interpolateVy(
                 const PositionI &Xi,
                 const VelocityI &Vi,
                 int j,
                 double alpha) {
-    double fjp = Distribution(Xi[0],Xi[1],Vi[0],j+1,Vi[2]);
     double fj  = Distribution(Xi[0],Xi[1],Vi[0],j  ,Vi[2]);
-    double fjm = Distribution(Xi[0],Xi[1],Vi[0],j-1,Vi[2]);
+    double fjp, fjm;
+    if (j<=Distribution.getLow()[3])
+    {
+      fjp = Distribution(Xi[0],Xi[1],Vi[0],j+1,Vi[2]);
+      fjm = max(0.0,2*fj-fjp);
+    } else
+    if (j>=Distribution.getHigh()[3])
+    {
+      fjm = Distribution(Xi[0],Xi[1],Vi[0],j-1,Vi[2]);
+      fjp = max(0.0,2*fj-fjm);
+    } else
+    {
+      fjp = Distribution(Xi[0],Xi[1],Vi[0],j+1,Vi[2]);
+      fjm = Distribution(Xi[0],Xi[1],Vi[0],j-1,Vi[2]);
+    }
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
@@ -436,9 +492,22 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVz(
                 const VelocityI &Vi,
                 int j,
                 double alpha) {
-    double fjp = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j+1);
     double fj  = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j  );
-    double fjm = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j-1);
+    double fjp, fjm;
+    if (j<=Distribution.getLow()[4])
+    {
+      fjp = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j+1);
+      fjm = max(0.0,2*fj-fjp);
+    } else
+    if (j>=Distribution.getHigh()[4])
+    {
+      fjm = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j-1);
+      fjp = max(0.0,2*fj-fjm);
+    } else
+    {
+      fjp = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j+1);
+      fjm = Distribution(Xi[0],Xi[1],Vi[0],Vi[1],j-1);
+    }
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector

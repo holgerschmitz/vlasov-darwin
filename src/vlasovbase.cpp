@@ -92,3 +92,29 @@ PARAMETERMAP* VlasovDerivedDiagnostic::MakeParamMap (PARAMETERMAP* pm) {
 }
 
 
+void CheckDensity(VlasovDist &dist, const char *Msg)
+{
+  const int *L = dist.getLow();
+  const int *H = dist.getHigh();
+  
+  double Rho = 0;
+  
+  // The region of the electromagnetic fields is on
+  // grid cell smaller in every direction
+  // It's important that the density is only calculated on the
+  // inner cells, since ScalarFieldReduce simply adds all the densities of
+  // the processes.
+  
+  for (int ix=L[0]+2; ix<=H[0]-2; ++ix) {
+    for (int iy=L[1]+2; iy<=H[1]-2; ++iy) {
+      for (int j=L[2]; j<=H[2]; ++j)
+        for (int k=L[3]; k<=H[3]; ++k)
+          for (int l=L[4]; l<=H[4]; ++l) 
+              Rho += dist(ix,iy,j,k,l);
+    }
+  }
+  std::cerr << "CheckDensity " << Msg << " " << Rho << std::endl;
+
+}
+
+

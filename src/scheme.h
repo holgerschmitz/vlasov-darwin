@@ -72,6 +72,42 @@ class PosFluxCons3rdOrder : public ForceField {
                               const VelocityI &Vi,
                               int j,
                               double alpha);
+
+      /// Third order flux-cunserving interpolation in the vx-direction
+      double interpolateVxLow(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
+
+      /// Third order flux-cunserving interpolation in the vy-direction
+      double interpolateVyLow(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
+
+      /// Third order flux-cunserving interpolation in the vz-direction
+      double interpolateVzLow(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
+
+      /// Third order flux-cunserving interpolation in the vx-direction
+      double interpolateVxHigh(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
+
+      /// Third order flux-cunserving interpolation in the vy-direction
+      double interpolateVyHigh(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
+
+      /// Third order flux-cunserving interpolation in the vz-direction
+      double interpolateVzHigh(const PositionI &Xi,
+                              const VelocityI &Vi,
+                              int j,
+                              double alpha);
       /// The number of boundary cells needed to the right
       int bound_plus()   { return 1;}
       /// The number of boundary cells needed to the left
