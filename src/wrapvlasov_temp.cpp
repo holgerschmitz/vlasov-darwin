@@ -127,10 +127,12 @@ double VlasovSpecies<ForceField,Advancer,Scheme>::densityError() {
     
     avg = avg/double((UBound[0]-LBound[0]-3)*(UBound[1]-LBound[1]-3));
     
-    std::cout << "Partial Error in density: " << avg - 1 << std::endl;
+//    std::cout << "Partial Error in density: " << avg - 1 << std::endl;
 
     avg =  boundary->AvgReduce(avg);
-    std::cout << "Total Error in density: " << avg - 1 << std::endl;
+    
+    if (boundary->master())
+      std::cout << "Total density: " << avg  << std::endl;
     return avg/densityGoal;
 }
 
@@ -162,9 +164,10 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
-    if ( (densityGoal!=0) && ((tstep%20) == 0) ) {
+    if ( (tstep%20) == 0 ) {
         double err = densityError();
-        correctDensityError(err);
+        if (densityGoal!=0)
+          correctDensityError(err);
     }
     tstep++;
     InterpolationInitStep(Distribution);
