@@ -206,3 +206,86 @@ void RungeKuttaAdvance<ForceField,Scheme>::advance(double timestep) {
   }
 }
 
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void RungeKuttaBAdvance<ForceField,Scheme>::initializeAdvancer() {
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
+    
+  TempDist.resize(LBound,UBound);
+  T1.resize(LBound,UBound);
+  T2.resize(LBound,UBound);
+}
+
+
+template<
+  class ForceField, 
+  template<class> class Scheme
+>
+void RungeKuttaBAdvance<ForceField,Scheme>::advance(double timestep) {
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
+
+  switch (RKState) {
+      case -2: RKState = -1;
+              initializeAdvancer();
+              break;
+      case -1: RKState = 0;
+              for (int i=LBound[0]; i<=UBound[0]; ++i)
+                for (int j=LBound[1]; j<=UBound[1]; ++j)
+                  for (int k=LBound[2]; k<=UBound[2]; ++k)
+                    for (int l=LBound[3]; l<=UBound[3]; ++l) 
+                      for (int m=LBound[4]; m<=UBound[4]; ++m)
+                        TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+              advanceStepA(timestep/2.); 
+              break;
+      case 0: advanceStepB(timestep/2.);         // Distribution = c0 = d1
+
+              for (int i=LBound[0]; i<=UBound[0]; ++i)
+                for (int j=LBound[1]; j<=UBound[1]; ++j)
+                  for (int k=LBound[2]; k<=UBound[2]; ++k)
+                    for (int l=LBound[3]; l<=UBound[3]; ++l) 
+                      for (int m=LBound[4]; m<=UBound[4]; ++m)
+                        T1(i,j,k,l,m) = Distribution(i,j,k,l,m);
+
+
+              advanceStepA(2*timestep/3.); 
+              RKState = 1;
+              break;
+      case 1: advanceStepB(2*timestep/3.);        // Distribution = c1
+
+              for (int i=LBound[0]; i<=UBound[0]; ++i)
+                for (int j=LBound[1]; j<=UBound[1]; ++j)
+                  for (int k=LBound[2]; k<=UBound[2]; ++k)
+                    for (int l=LBound[3]; l<=UBound[3]; ++l) 
+                      for (int m=LBound[4]; m<=UBound[4]; ++m) {
+                        Distribution(i,j,k,l,m) 
+                          = fabs(Distribution(i,j,k,l,m) + TempDist(i,j,k,l,m) - T1(i,j,k,l,m));
+                        T2(i,j,k,l,m) = Distribution(i,j,k,l,m); // = d2
+                      }
+              advanceStepA(3*timestep/4.);
+
+              RKState = 2;
+              VlasovDiagnostic = true;
+              break;
+      case 2: advanceStepB(3*timestep/4.);      // Distribution = c2
+              for (int i=LBound[0]; i<=UBound[0]; ++i)
+                for (int j=LBound[1]; j<=UBound[1]; ++j)
+                  for (int k=LBound[2]; k<=UBound[2]; ++k)
+                    for (int l=LBound[3]; l<=UBound[3]; ++l) 
+                      for (int m=LBound[4]; m<=UBound[4]; ++m) {
+                        Distribution(i,j,k,l,m) 
+                            =  fabs((1/4.)*TempDist(i,j,k,l,m) 
+                             + (3/4.)*T1(i,j,k,l,m) 
+                             +  Distribution(i,j,k,l,m)
+                             - T2(i,j,k,l,m)); 
+                        TempDist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+                      } 
+              advanceStepA(timestep/3.); 
+              RKState = 0;
+              break;
+  }
+}
+

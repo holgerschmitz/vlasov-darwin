@@ -101,6 +101,26 @@ class RungeKuttaAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme> {
       void advance(double timestep);
 };
 
+template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
+class RungeKuttaBAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme> {
+  private:
+      /** The state of the Runge Kutta integrator.
+       *  Also used by the leap-frog integrator for the start-up phase
+       */
+      int RKState;
+      /// The Runge Kutta Temporaries
+      VlasovDist T1, T2;
+      /// Another temporary needed for the Runge Kutta integration
+      VlasovDist TempDist;
+
+  public:
+      RungeKuttaBAdvance(SpeciesData &data) 
+          : RKState(-2), SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) {}
+      void initializeAdvancer();
+      /// Advance the distribution function one timestep
+      void advance(double timestep);
+};
+
 #include "advancer_temp.cpp"
 
 #endif

@@ -354,16 +354,16 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
         }
     }
     
-    std::cout << "Velocity Moments:\n"
-      << "  Jx = " << Jx(1,1) << "\n"
-      << "  Jy = " << Jy(1,1) << "\n"
-      << "  Jz = " << Jz(1,1) << "\n"
-      << "  Vxx = " << Vxx(1,1) << "\n"
-      << "  Vxy = " << Vxy(1,1) << "\n"
-      << "  Vxz = " << Vxz(1,1) << "\n"
-      << "  Vyy = " << Vyy(1,1) << "\n"
-      << "  Vyz = " << Vyz(1,1) << "\n"
-      << "  Vzz = " << Vzz(1,1) << "\n";
+//    std::cout << "Velocity Moments:\n"
+//      << "  Jx = " << Jx(1,1) << "\n"
+//      << "  Jy = " << Jy(1,1) << "\n"
+//      << "  Jz = " << Jz(1,1) << "\n"
+//      << "  Vxx = " << Vxx(1,1) << "\n"
+//      << "  Vxy = " << Vxy(1,1) << "\n"
+//      << "  Vxz = " << Vxz(1,1) << "\n"
+//      << "  Vyy = " << Vyy(1,1) << "\n"
+//      << "  Vyz = " << Vyz(1,1) << "\n"
+//      << "  Vzz = " << Vzz(1,1) << "\n";
     
     boundary->ScalarFieldCombine(Jx);
     boundary->ScalarFieldCombine(Jy);

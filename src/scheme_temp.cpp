@@ -158,7 +158,7 @@ void PosFluxCons3rdOrder<ForceField>
                 int deltaI = int(floor(deltavx)+1);  
                 double alpha = deltavx - deltaI + 1;
 
-                int j = max(min(Vi[0]+deltaI, bvx), lvx-1);
+                int j = max(min(Vi[0]+deltaI, bvx+1), lvx-1);
                 // go deltaI right 
 
 //                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
@@ -168,12 +168,14 @@ void PosFluxCons3rdOrder<ForceField>
 //                }
 
                 Dj(Vi[0]) = 0;
-                for (int jj=j_old+1; jj<=j; ++jj)
+                for (int jj=j_old+1; jj<=min(j,bvx) ; ++jj)
                   Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
                 j_old=j;
                 
-                if (j+1 > lvx)  
+                if ( (j>=lvx) && (j<=bvx) )
+                {
                   Flux(Vi[0]) = interpolateVx(Xi, Vi, j, alpha);
+                }
                 else
                   Flux(Vi[0]) = 0;
 
@@ -186,9 +188,15 @@ void PosFluxCons3rdOrder<ForceField>
 //            for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
 //                double dn = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
 //                if (dn<0) {
-//                   Flux(Vi[0]-1) += dn/2.;
-//                   Flux(Vi[0]) -= dn/2.;
+//                  
+//                  assert( false );
+//                  Flux(Vi[0]-1) += dn/2.0;
+//                  Flux(Vi[0]) -= dn/2.0;
 //                }
+////                else if (dn>f_infty) {
+////                  Flux(Vi[0]-1) -= (dn-f_infty)/2.0;
+////                  Flux(Vi[0]) += (dn-f_infty)/2.0;
+////                }
 //            }
             
             Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2])
@@ -256,7 +264,7 @@ void PosFluxCons3rdOrder<ForceField>
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
-                int j = max(min(Vi[1]+deltaI, bvx), lvx-1);
+                int j = max(min(Vi[1]+deltaI, bvx+1), lvx-1);
                 
 //                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
 //                {
@@ -267,12 +275,15 @@ void PosFluxCons3rdOrder<ForceField>
 //                }
 
                 Dj(Vi[1]) = 0;
-                for (int jj=j_old+1; jj<=j; ++jj)
+                for (int jj=j_old+1; jj<=min(j,bvx); ++jj)
                   Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
                 j_old=j;
                   
-                if (j+1 > lvx)
+                if ( (j>=lvx) && (j<=bvx) )
+                {
                   Flux(Vi[1]) = interpolateVy(Xi, Vi, j, alpha);
+                  assert( (Flux(Vi[1])>0) || (Flux(Vi[1])<1) );
+                }
                 else
                   Flux(Vi[1]) = 0;
                 
@@ -285,9 +296,14 @@ void PosFluxCons3rdOrder<ForceField>
 //            for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
 //                double dn = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
 //                if (dn<0) {
-//                   Flux(Vi[1]-1) += dn/2.;
-//                   Flux(Vi[1]) -= dn/2.;
-//                }
+//                  assert( false );
+//                  Flux(Vi[1]-1) += dn/2.0;
+//                  Flux(Vi[1]) -= dn/2.0;
+//                } 
+////                else if (dn>f_infty) {
+////                  Flux(Vi[1]-1) -= (dn-f_infty)/2.0;
+////                  Flux(Vi[1]) += (dn-f_infty)/2.0;
+////                }
 //            }
 
             Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2])
@@ -355,7 +371,7 @@ void PosFluxCons3rdOrder<ForceField>
                 double alpha = deltavx - deltaI + 1;
 
                 // go deltaI right 
-                int j = max(min(Vi[2]+deltaI, bvx), lvx-1);
+                int j = max(min(Vi[2]+deltaI, bvx+1), lvx-1);
                 
 //                if ( ((deltaI<0) || (deltaI>1)) && !errmsg ) 
 //                {
@@ -364,13 +380,16 @@ void PosFluxCons3rdOrder<ForceField>
 //                }
 
                 Dj(Vi[2]) = 0;
-                for (int jj=j_old+1; jj<=j ; ++jj)
+                for (int jj=j_old+1; jj<=min(j,bvx) ; ++jj)
                   Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
                   
-                Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
-                if (j+1 > lvx)
+                //Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
+                if ( (j>=lvx) && (j<=bvx) )
+                {
                   Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
+                  assert( (Flux(Vi[2])>0) || (Flux(Vi[2])<1) );
+                }
                 else
                   Flux(Vi[2]) = 0;
 
@@ -383,14 +402,18 @@ void PosFluxCons3rdOrder<ForceField>
 //            for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
 //                double dn = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
 //                if (dn<0) {
-//                   Flux(Vi[2]-1) += dn/2.;
-//                   Flux(Vi[2]) -= dn/2.;
-//                }
+//                  assert( false );
+//                  Flux(Vi[2]-1) += dn/2.0;
+//                  Flux(Vi[2]) -= dn/2.0;
+//                } 
+////                else if (dn>f_infty) {
+////                  Flux(Vi[2]-1) -= (dn-f_infty)/2.0;
+////                  Flux(Vi[2]) += (dn-f_infty)/2.0;
+////                }
 //            }
 
             Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx)
               = - Flux(lvx) + Dj(lvx);
-
             for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
                 Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                   = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
@@ -412,29 +435,29 @@ void PosFluxCons3rdOrder<ForceField>
  */
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-//    double fdiff = fjp-fj;
+    double fdiff = fjp-fj;
 //    double fexc = 2*(f_infty-fj);
 //    if (fexc<0) 
 //        return 0;
-//    else if (fabs(2*fj)<fdiff)
-//        return 2*fj/fdiff;
+    if (2*fj<fdiff)
+        return 2*fj/fdiff;
 //    else if (fabs(fexc) < (-fdiff) )
-//        return fexc/(-fdiff);
-//    else 
+//        return -fabs(fexc)/fdiff;
+    else 
         return 1.;
 }
 
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
-//    double fdiff = fjm-fj;
+    double fdiff = fjm-fj;
 //    double fexc = 2*(f_infty-fj);
 //    if (fexc<0) 
 //        return 0;
-//    else if (fabs(2*fj)<fdiff)
-//        return 2*fj/fdiff;
+    if (2*fj<fdiff)
+        return 2*fj/fdiff;
 //    else if (fabs(fexc) < (-fdiff) )
-//        return fexc/(-fdiff);
-//    else 
+//        return -fabs(fexc)/fdiff;
+    else 
         return 1.;
 }
 
@@ -501,7 +524,7 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVx(
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
 
-    return (1-alpha)*(fj
+   return (1-alpha)*(fj
                 +(1/6.)*alpha*(alpha + 1)*epsl*(-fj+fjp)
                 -(1/6.)*alpha*(alpha - 2)*epsr*(-fjm+fj));
 }
@@ -564,7 +587,6 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVz(
 
     double epsl = epsilonLeft(fj,fjp); // Slope Corrector
     double epsr = epsilonRight(fj,fjm); // Slope Corrector
-
     return (1-alpha)*(fj
                 +(1/6.)*alpha*(alpha + 1)*epsl*(-fj+fjp)
                 -(1/6.)*alpha*(alpha - 2)*epsr*(-fjm+fj));

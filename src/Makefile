@@ -1,7 +1,7 @@
 include $(HOME)/src/makeinclude/include.mak
 
-#OFLAGS  = $(X_OFLAGS) -DNDEBUG
-OFLAGS  = $(X_OFLAGS) 
+OFLAGS  = $(X_OFLAGS) -DNDEBUG
+#OFLAGS  = $(X_OFLAGS) 
 
 BASE_CXXFLAGS = $(OFLAGS) -I. $(X_INC) $(X_NO_AUTO_INCLUDE)
 
