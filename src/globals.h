@@ -13,6 +13,7 @@ class Parameters : public Rebuildable {
       int GridX;
       int GridY;
       int VelRes;
+      int VelResX, VelResY, VelResZ;
       double GridSpace_x;
       double GridSpace_y;
       double Dt;
@@ -49,7 +50,7 @@ class Parameters : public Rebuildable {
       Parameters();
       int gridX() { return GridX; }
       int gridY() { return GridY; }
-      int velRes() { return VelRes; }
+//      int velRes() { return VelRes; }
       double gridSpace_x() { return GridSpace_x; }
       double gridSpace_y() { return GridSpace_y; }
       double volumeQuant() { return 1; }

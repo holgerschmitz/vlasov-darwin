@@ -43,7 +43,7 @@ std::string DiagnosticInterface::parsedFileName() {
   std::string parsed=fname;
 
   std::ostringstream comrankstr;
-  comrankstr << Process::instance().getBoundary().procnum();
+  comrankstr << Process::instance().getBoundary().getUniqueId();
   std::string comrank = comrankstr.str();
 
   std::ostringstream tstepstr;

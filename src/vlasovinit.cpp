@@ -387,7 +387,7 @@ VlasovHDFInit::VlasovHDFInit() { }
 
 PARAMETERMAP* VlasovHDFInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
-  (*pm)["file"] = WParameter(new ParameterValue<std::string>(&fname, 0));
+  (*pm)["file"] = WParameter(new ParameterValue<std::string>(&fname, ""));
   return pm;
 }
 
@@ -395,15 +395,18 @@ VlasovHDFInit::~VlasovHDFInit() {}
 
 void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
 {
+  std::cerr << "Restert " << fname << std::endl;
   std::string parsed=fname;
 
   std::ostringstream comrankstr;
-  comrankstr << Process::instance().getBoundary().procnum();
+  comrankstr << Process::instance().getBoundary().getUniqueId();
   std::string comrank = comrankstr.str();
  
   parsed.replace(parsed.find("#p"),2,comrank);
   
   VlasovDist &dist = pVlasov->getDistribution();  
+
+  std::cerr << "reading " << parsed << std::endl;
   HDFistream input(parsed.c_str());
   input >> dist;
   input.close();

@@ -303,7 +303,6 @@ MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary(int argc, char **argv) :
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
     
     int periodic[2] = { true, true};
-    int dims[2];
     
     dims[0] = int(sqrt(ComSize+0.01));
     dims[1] = int(ComSize/dims[0]);
