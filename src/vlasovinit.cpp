@@ -4,6 +4,7 @@
 #include "vlasovinit.h"
 
 #include <sstream>
+#include <math.h>
 #include "globals.h"
 #include "hdfstream.h"
 
