@@ -52,11 +52,14 @@ class Magnetostatic {
       /// The poisson solver object
       Poisson *pois;
 
+      /// The Helmholtz solver object
+      Helmholtz *helmh;
+      
       /** @brief The grid containing the potential values.
        *  Scalar potential and z-component of the vector potential
        */
       ScalarField Pot, Ax, Ay, Az;
-      ScalarField oldAx, oldAy, oldAz;
+      ScalarField oldjx, oldjy, oldjz;
       
       /// All the electric and magnetic field components
       ScalarField Ex, Ey, Ez,  Bx, By, Bz;
@@ -70,6 +73,15 @@ class Magnetostatic {
        * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
        */
       ScalarField den, jx, jy, jz;
+      /** @brief Contains the charge and current densities 
+       * \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
+       *  and \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
+       */
+      ScalarField om2, sx, sy, sz;
+      /** @brief The components of the \f${\bf vv}\f$ tensor
+       *
+       */
+      ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
       
   public:  
 	    /// Construct passing the value of mainproc
