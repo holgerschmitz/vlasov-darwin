@@ -24,6 +24,18 @@ struct SpeciesData {
 };
 
 
+
+class VlasovSpeciesBase {
+  protected:
+      /// The Charge of the particle species
+      double Charge;      
+      /// The Mass of the particles
+      double Mass;
+      /// The timestep (in s)
+      double dt;
+}
+
+
 /** @brief This class wraps the Vlasov advancers in a SpeciesBase class
  *  so that Opar can use it.
  *
@@ -75,12 +87,6 @@ class VlasovSpecies : public PosFluxCons3rdOrder<ForceField> {
       /// The mixed second order velocity moments of the distribution
       ScalarField Vxx, Vxy, Vxz;   
       ScalarField Vyy, Vyz, Vzz;
-      /// The Charge of the particle species
-      double Charge;      
-      /// The Mass of the particles
-      double Mass;
-      /// The timestep (in s)
-      double dt;
       /// range in velocty space
       VelocityD VRange;   
 
@@ -141,9 +147,6 @@ class VlasovSpecies : public PosFluxCons3rdOrder<ForceField> {
 
       /// Return the Charge
       double getCharge () const { return Charge; };
-
-      /// Return the time step
-      double getdt () const { return dt; };
 
       /** Returns the physical position of the grid cell
        *  specified by Xi
@@ -376,7 +379,7 @@ class Darwin;
  *  Implements the Force method for the Advancer and the Init and MakeParamMap
  *  method to work together with the VlasovSpecies.
  */
-class EMDarwinForce {
+class EMDarwinForce : public VlasovSpeciesBase {
   protected:
       /// Pointer to the darwin field solver
       Darwin* pPot;

@@ -141,13 +141,13 @@ VelocityD EMDarwinForce::Force(const PositionI &Pos,
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = GetEx()(Pos[0],Pos[1]);
-    double Ey = GetEy()(Pos[0],Pos[1]);
-    double Ez = GetEz()(Pos[0],Pos[1]);
+    double Ex = Charge*GetEx()(Pos[0],Pos[1]);
+    double Ey = Charge*GetEy()(Pos[0],Pos[1]);
+    double Ez = Charge*GetEz()(Pos[0],Pos[1]);
 
-    double Bx = GetBx()(Pos[0],Pos[1]);
-    double By = GetBy()(Pos[0],Pos[1]);
-    double Bz = GetBz()(Pos[0],Pos[1]);
+    double Bx = Charge*GetBx()(Pos[0],Pos[1]);
+    double By = Charge*GetBy()(Pos[0],Pos[1]);
+    double Bz = Charge*GetBz()(Pos[0],Pos[1]);
 
 //    Ex = 0; Ey = 0; Ez = 0;
 //    Bx = 0; By = 0; Bz = 1;
