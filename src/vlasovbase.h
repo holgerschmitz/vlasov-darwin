@@ -168,6 +168,8 @@ class VlasovDerivedDiagnostic : public SimpleDiagnostic<ScalarField,std::ofstrea
   private:
       std::string classname;
       std::string fieldname;
+  protected:
+      bool singleOut() { return true; }
   public:
       typedef std::list<VlasovDerivedDiagnostic*> DiagList;
       static DiagList diaglist;

@@ -4,6 +4,7 @@
 #include "diagnostic.h"
 #include <sstream>
 #include "process.h"
+#include "globals.h"
 
 DiagnosticInterface::DiagnosticInterface() {
   DiagnosticManager::instance().addDiagnostic(this);
@@ -11,6 +12,8 @@ DiagnosticInterface::DiagnosticInterface() {
 }
 
 void DiagnosticInterface::execute() {
+  if (singleOut() && !(BoundaryKeeper::getBoundary()->master()) ) return;
+  
   if ((0==t) && appending()) open(fname);
   ++t;
   if ( (t % interval) != 0 ) return;

@@ -36,6 +36,7 @@ class DiagnosticInterface : public Rebuildable {
       virtual void open(const std::string &)=0;
       virtual void write()=0;
       virtual void close()=0;
+      virtual bool singleOut() { return false; }
       virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
   private:
       bool appending();
