@@ -116,6 +116,7 @@ pVlasov VlasovRebuild::getVlasovInstance() {
   }
   
   VlasovDerivedDiagnostic::diaglist.clear();
+  return vl;
 }
 
 SpeciesList VlasovRebuild::getSpeciesList() {
