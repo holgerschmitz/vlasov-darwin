@@ -378,13 +378,20 @@ void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
         Low[0] = int(width[0]*mycoord[0])-1;
     
     if (mycoord[1]>0) 
-        Low[1] = int(width[0]*mycoord[1])-1;
+        Low[1] = int(width[1]*mycoord[1])-1;
     
     if (mycoord[0]<(dims[0]-1))
-        High[0] = int(width[1]*(mycoord[0]+1))+2;
+        High[0] = int(width[0]*(mycoord[0]+1))+2;
 
     if (mycoord[1]<(dims[1]-1))
         High[1] = int(width[1]*(mycoord[1]+1))+2;
+        
+    std::cerr << "Split XY Boundary\n";
+    std::cerr << "Boundary Width (" << mycoord[0] << " " << mycoord[1] 
+      << ") " << width[0] << " " << width[1] << "\n";
+    std::cerr << "Boundary Low,High (" << mycoord[0] << " " << mycoord[1] 
+      << ") " << Low[0] << " " << Low[1]
+      << " " << High[0] << " " << High[1] << "\n";
         
     exchSize[0] = 2*(High[1]-Low[1]+1)
                    *(High[2]-Low[2]+1)
