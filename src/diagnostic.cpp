@@ -15,11 +15,12 @@ void DiagnosticInterface::execute() {
   if (singleOut() && !(BoundaryKeeper::getBoundary()->master()) ) return;
   
   if ((0==t) && appending()) open(fname);
-  if ( (t % interval) != 0 ) return;
-  
-  if (!appending()) open(parsedFileName());
-  write();
-  if (!appending()) close();
+  if ( (t % interval) == 0 )
+  {
+    if (!appending()) open(parsedFileName());
+    write();
+    if (!appending()) close();
+  }
   ++t;
 }
 
