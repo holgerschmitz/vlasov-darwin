@@ -18,8 +18,8 @@ ScalarField &EFieldForce::GetEy() { return pPot->GetEy(); }
 VelocityD EFieldForce::Force(const PositionI &Pos, 
                              const VelocityD &Vel,
                              double dt) {
-    double Fx = GetEx()(Pos[0],Pos[1]);
-    double Fy = GetEy()(Pos[0],Pos[1]);
+    double Fx = Charge*GetEx()(Pos[0],Pos[1]);
+    double Fy = Charge*GetEy()(Pos[0],Pos[1]);
     return VelocityD(dttx*dt*Fx, dttx*dt*Fy, 0.0);
         
 }
