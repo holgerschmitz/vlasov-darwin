@@ -299,19 +299,9 @@ bool Darwin::Execute () {
   /* *************************************
    * The z--component of the vector potential.
    */
-//  std::ofstream JzStream("JZ.out");
-//  for (int i=lx0; i<=mx0; ++i) 
-//    for (int j=ly0; j<=my0; ++j)
-//      JzStream << i << " " << j << " " << jz(i,j) << "\n";
-//  JzStream.close();
   
   pois->solve(Az,jz, bound.getNumBoundary(Az));
 
-//  std::ofstream AzStream("AZ.out");
-//  for (int i=lx0; i<=mx0; ++i) 
-//    for (int j=ly0; j<=my0; ++j)
-//      AzStream << i << " " << j << " " << Az(i,j) << "\n";
-//  AzStream.close();
     
 //  for (int i=lx0; i<=mx0; ++i) 
 //    for (int j=ly0; j<=my0; ++j) 
@@ -474,29 +464,29 @@ bool Darwin::Execute () {
       Ey(i,j) += Ety(i,j);
     }
         
-  double h=1./((mx1-lx0)*(my1-ly0));
-
-  double sumEx=0, sumEy=0, sumEz=0;
-
-  for(int j = ly1; j <= my1; j++) {
-    for(int i = lx1; i <= mx1; i++) {
-      sumEx += Ex(i,j);
-      sumEy += Ey(i,j);
-//      sumEz += Ez(i,j);
-    }
-  }
-
-  sumEx *= h;
-  sumEy *= h;
-  sumEz *= h;
-
-  for(int j = ly0; j <= my0; j++) {
-    for(int i = lx0; i <= mx0; i++) {
-      Ex(i,j) -= sumEx;
-      Ey(i,j) -= sumEy;
-//      Ez(i,j) -= sumEz;
-    }
-  }
+//  double h=1./((mx1-lx0)*(my1-ly0));
+//
+//  double sumEx=0, sumEy=0, sumEz=0;
+//
+//  for(int j = ly1; j <= my1; j++) {
+//    for(int i = lx1; i <= mx1; i++) {
+//      sumEx += Ex(i,j);
+//      sumEy += Ey(i,j);
+////      sumEz += Ez(i,j);
+//    }
+//  }
+//
+//  sumEx *= h;
+//  sumEy *= h;
+//  sumEz *= h;
+//
+//  for(int j = ly0; j <= my0; j++) {
+//    for(int i = lx0; i <= mx0; i++) {
+//      Ex(i,j) -= sumEx;
+//      Ey(i,j) -= sumEy;
+////      Ez(i,j) -= sumEz;
+//    }
+//  }
 
   /* *************************************
    *  This should be it!

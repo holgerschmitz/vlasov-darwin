@@ -339,7 +339,7 @@ void PosFluxCons3rdOrder<ForceField>
                 }
 
                 Dj(Vi[2]) = 0;
-                for (int jj=j_old+1; jj<= ; ++jj)
+                for (int jj=j_old+1; jj<=j ; ++jj)
                   Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
                   
