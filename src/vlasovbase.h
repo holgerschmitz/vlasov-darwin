@@ -180,7 +180,7 @@ class VlasovDerivedDiagnostic : public SimpleDiagnostic<ScalarField,std::ofstrea
   public:
       typedef ForceFieldBase::DerivedDiagList DerivedDiagList;
       static DerivedDiagList diaglist;
-//      static VlasovDerivedDiagnostic *fielddiag;
+      static VlasovDerivedDiagnostic *fielddiag;
   public:
       VlasovDerivedDiagnostic();
       void retrieveField(ForceFieldBase*);
