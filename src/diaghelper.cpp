@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 
 #include "diaghelper.h"
 #include "potential.h"

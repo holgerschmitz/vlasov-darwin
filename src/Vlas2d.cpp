@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include "Vlas2d.h"
 
 const int GlGridX = 256;

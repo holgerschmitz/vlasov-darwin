@@ -1,7 +1,8 @@
 // -*- C++ -*-
+// $Id$
+
 
 #include <string>
-#include "config.h"
 #include "numeric.h"
 #include "potential.h"
 #include "boundary.h"

@@ -1,6 +1,7 @@
-#include <fstream>
+// -*- C++ -*-
+// $Id$
 
-#include "config.h"
+#include <fstream>
 
 #ifndef DIAGHELPER_H
 #define DIAGHELPER_H

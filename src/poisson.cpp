@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include "poisson.h"
 
 extern "C" {

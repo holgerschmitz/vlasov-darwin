@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include "opar.h"
 #include "index.h"
 #include <matrix.H>

@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include <strstream>
 #include <fstream>
 #include "vlasov.h"

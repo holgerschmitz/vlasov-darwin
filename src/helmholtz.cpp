@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #include "helmholtz.h"
 #include "Vlas2d.h"
 

@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 
 #include "Vlas2d.h"
 #include "wrapvlasov.h"

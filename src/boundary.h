@@ -1,7 +1,9 @@
+// -*- C++ -*-
+// $Id$
+
 #ifndef BOUNDARY_H
 #define BOUNDARY_H
 
-#include "config.h"
 #include "numeric.h"
 #include <mpi.h>
 

@@ -1,3 +1,6 @@
+// -*- C++ -*-
+// $Id$
+
 #ifndef POISSON_H
 #define POISSON_H
 
