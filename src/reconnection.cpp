@@ -191,7 +191,7 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
           dist(Xi[0],Xi[1],Vi[0],Vi[1],L[4])=0; 
           dist(Xi[0],Xi[1],Vi[0],Vi[1],H[4])=0; 
         }
-           
+        
       for (Vi[0] = L[2]; Vi[0] <= H[2]; ++Vi[0]) 
         for (Vi[2] = L[4]; Vi[2] <= H[4]; ++Vi[2]) {
           dist(Xi[0],Xi[1],Vi[0],L[3],Vi[2])=0; 
@@ -203,6 +203,7 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
           dist(Xi[0],Xi[1],L[2],Vi[1],Vi[2])=0; 
           dist(Xi[0],Xi[1],H[2],Vi[1],Vi[2])=0; 
         }
+	
     }
   //    std::cout << "Initialized " << Xi[0] << std::endl;
 }

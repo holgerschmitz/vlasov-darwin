@@ -160,7 +160,7 @@ template<
   template<class> class Scheme
 >
 double VlasovSpecies<ForceField,Advancer,Scheme>::densityError() {
-    const int *UBound = Distribution.getHigh();
+/*    const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
     double avg = 0;
 
@@ -178,6 +178,8 @@ double VlasovSpecies<ForceField,Advancer,Scheme>::densityError() {
     avg =  boundary->AvgReduce(avg);
     std::cout << "Total Error in density: " << avg - 1 << std::endl;
     return avg;
+*/
+    return 0;
 }
 
 template<
@@ -186,14 +188,15 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::correctDensityError(double err) {
-    const int *UBound = Distribution.getHigh();
+/*    const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
     for (int i=LBound[0]; i<=UBound[0]; ++i)
       for (int j=LBound[1]; j<=UBound[1]; ++j)
         for (int k=LBound[2]; k<=UBound[2]; ++k) 
           for (int l=LBound[3]; l<=UBound[3]; ++l) 
             for (int m=LBound[4]; m<=UBound[4]; ++m) 
-              Distribution(i,j,k,l,m) /= err;
+              Distribution(i,j,k,l,m) /= err
+*/
 }
 
 
