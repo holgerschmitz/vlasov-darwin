@@ -24,6 +24,7 @@
  */
 class Boundary : public Rebuildable {
   public:
+      Boundary() {}
       /** @brief We need a virtual destructor because the class has 
        *  virtual methods
        */
@@ -144,7 +145,9 @@ class MPIPeriodicSplitXBoundary : public Boundary {
        *  local piece of the distribution function in phase space
        */
       PhasePositionI Low, High;
+      void init(int argc, char **argv);
   public:
+      MPIPeriodicSplitXBoundary();
       /** @brief Constructor using the command line arguments.
        *  Sets up all the local variables and allocates memory
        *  for the buffers
@@ -242,13 +245,16 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
        *  local piece of the distribution function in phase space
        */
       PhasePositionI Low, High;
+      void init(int argc, char **argv);
   public:
+      MPIPeriodicSplitXYBoundary();
       /** @brief Constructor using the command line arguments.
        *  Sets up all the local variables and allocates memory
        *  for the buffers
        */
       MPIPeriodicSplitXYBoundary(int argc, char **argv);
-  
+      
+      
       /// Virtual destructor deleting all the allocated arrays
       ~MPIPeriodicSplitXYBoundary();
       

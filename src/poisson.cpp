@@ -3,6 +3,8 @@
 
 #include "poisson.h"
 
+#define hwscrt_ hwscrt
+
 extern "C" {
   void hwscrt_(
     double *a, double *b, int *m, int *mbdcnd, 

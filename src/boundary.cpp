@@ -104,10 +104,23 @@ const PositionI &SinglePeriodicBoundary::scalarHigh() const {
  *                 MPIPeriodicSplitXBoundary                    *
  ****************************************************************/
 
+MPIPeriodicSplitXBoundary::MPIPeriodicSplitXBoundary() :
+    Low(Parameters::instance().distLow()), 
+    High(Parameters::instance().distHigh())
+{
+  init(Parameters::instance().getArgc(), Parameters::instance().getArgv());
+} 
+
+
 MPIPeriodicSplitXBoundary::MPIPeriodicSplitXBoundary(int argc, char **argv) :
     Low(Parameters::instance().distLow()), 
     High(Parameters::instance().distHigh()) 
 {
+  init(argc,argv);
+}
+
+void MPIPeriodicSplitXBoundary::init(int argc, char **argv)
+{ 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
     
@@ -136,8 +149,8 @@ MPIPeriodicSplitXBoundary::MPIPeriodicSplitXBoundary(int argc, char **argv) :
     sendarr = new double[exchSize];
     recvarr = new double[exchSize];
     
-    PositionI low = Parameters.instance().gridLow();
-    PositionI high = Parameters.instance().gridHigh();
+    PositionI low = Parameters::instance().gridLow();
+    PositionI high = Parameters::instance().gridHigh();
     scalarSize = (high[0]-low[0]-1)
                 *(high[1]-low[1]-1);
 
@@ -277,12 +290,12 @@ const PhasePositionI &MPIPeriodicSplitXBoundary::DistHigh() const {
 }
 
 const PositionI &MPIPeriodicSplitXBoundary::scalarLow() const {
-    return Parameters.instance().gridLow();
+    return Parameters::instance().gridLow();
 ;
 }
 
 const PositionI &MPIPeriodicSplitXBoundary::scalarHigh() const {
-    return Parameters.instance().gridHigh();;
+    return Parameters::instance().gridHigh();;
 }
 
 double MPIPeriodicSplitXBoundary::AvgReduce(double val) {
@@ -295,9 +308,22 @@ double MPIPeriodicSplitXBoundary::AvgReduce(double val) {
  *                 MPIPeriodicSplitXYBoundary                    *
  ****************************************************************/
 
+MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary() :
+    Low(Parameters::instance().distLow()), 
+    High(Parameters::instance().distHigh())
+{
+  init(Parameters::instance().getArgc(), Parameters::instance().getArgv());
+} 
+
+
 MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary(int argc, char **argv) :
     Low(Parameters::instance().distLow()), 
     High(Parameters::instance().distHigh()) 
+{
+  init(argc,argv);
+}
+
+void MPIPeriodicSplitXYBoundary::init(int argc, char **argv)
 { 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD,&ComSize);
@@ -345,8 +371,8 @@ MPIPeriodicSplitXYBoundary::MPIPeriodicSplitXYBoundary(int argc, char **argv) :
     sendarry = new double[exchSize[1]];
     recvarry = new double[exchSize[1]];
     
-    PositionI low = Parameters.instance().gridLow();
-    PositionI high = Parameters.instance().gridHigh();
+    PositionI low = Parameters::instance().gridLow();
+    PositionI high = Parameters::instance().gridHigh();
     scalarSize = (high[0]-low[0]-1)
                 *(high[1]-low[1]-1);
                 
@@ -533,11 +559,11 @@ const PhasePositionI &MPIPeriodicSplitXYBoundary::DistHigh() const {
 }
 
 const PositionI &MPIPeriodicSplitXYBoundary::scalarLow() const {
-    return Parameters.instance().gridLow();
+    return Parameters::instance().gridLow();
 }
 
 const PositionI &MPIPeriodicSplitXYBoundary::scalarHigh() const {
-    return Parameters.instance().gridHigh();
+    return Parameters::instance().gridHigh();
 }
 
 

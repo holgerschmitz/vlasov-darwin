@@ -1,6 +1,6 @@
 include $(HOME)/src/makeinclude/include.mak
 
-OFLAGS  = $(X_OFLAGS) -DNDEBUG -g
+OFLAGS  = $(X_OFLAGS) -DNDEBUG
 
 BASE_CXXFLAGS = $(OFLAGS) -I. $(X_INC) $(X_NO_AUTO_INCLUDE)
 
@@ -25,8 +25,7 @@ HEADERS = $(VLASOV_HEADERS)
 
 LDFLAGS = $(X_LIB)
 
-HDFLIBS = -lmfhdf -ldf -ljpeg -lz
-LOADLIBS = $(HDFLIBS) -lutil_mt -lmatrix_mt -lcyclic_mt -lm
+LOADLIBS = $(X_HDF_LIBS) -lcyclic_mt -lm
 
 BINARY_PREFIX = $(X_ROOT_DIR)/bin/$(X_OSTYPE)
 
@@ -51,10 +50,10 @@ test_helmholtz:  helmholtz.o Vlas2d.o test_helmholtz.o
 	$(CXX)  $^ -o $@ $(LDFLAGS) $(LOADLIBS)
 
 .s.o:
-	$(COMPILE) -c $<
+	$(COMPILE) $(INCLUDE) -c $<
 
 .S.o:
-	$(COMPILE) -c $<
+	$(COMPILE) $(INCLUDE) -c $<
 
 clean:
 	-rm -f *.o core vlasov vlasov_es vlasov_const
