@@ -589,8 +589,8 @@ void VlasovReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       double N_pert = vz1*cos(PIl*Xi[0]/Nx);
       double N;
       double N1 = (N0-N_pert)*sc1*sc1;
-//      double N2 = (N0+N_pert)*sc2*sc2;
-      double N2 = (N0-N_pert)*sc2*sc2;
+      double N2 = (N0+N_pert)*sc2*sc2;
+//      double N2 = (N0-N_pert)*sc2*sc2;
       
       if ( Xi[1]<=GlMid )
       {

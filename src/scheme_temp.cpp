@@ -55,6 +55,7 @@ void PosFluxCons3rdOrder<ForceField>
     
 //    CheckDensity(Distribution,"XEnd");
     boundary->exchangeX(Distribution);
+    boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"XDone");
     
 }
@@ -114,6 +115,7 @@ void PosFluxCons3rdOrder<ForceField>
 //    CheckDensity(Distribution,"YEnd");
     
     boundary->exchangeY(Distribution);
+    boundary->exchangeX(Distribution);
 //    CheckDensity(Distribution,"YDone");
     
 }
@@ -443,16 +445,31 @@ void PosFluxCons3rdOrder<ForceField>
 
     f_infty = boundary->MaxReduce(new_f_infty);
 }
+
+//#define FULL_LIMIT
+//#define NO_LIMIT
+
 /** @todo The epsilon limiters do not go well with the Runge Kutta integration.
  *  Find a solution that does not involve commenting lines.
  *  @todo Spend some time thinking about and checking the limiter, (velocity dependent force, large timesteps, boundary)
  */
 template<class ForceField>
-inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp) {
-//    double fdiff = fjp-fj;
-    //    double fexc = 2*(f_infty-fj);
-    //  if (fexc<0) 
-    //    return 0;
+inline double PosFluxCons3rdOrder<ForceField>
+  ::epsilonLeft
+    (
+      double fj, 
+      double fjp
+    ) 
+{
+
+#ifdef NO_LIMIT
+  return 1.;
+#endif
+
+//  double fdiff = fjp-fj;
+//  double fexc = 2*(f_infty-fj);
+//  if (fexc<0) 
+//    return 0;
 
 //    if (2*fj<fdiff)
 //        return 2*fj/fdiff;
@@ -460,53 +477,69 @@ inline double PosFluxCons3rdOrder<ForceField>::epsilonLeft(double fj, double fjp
 //    if (fexc < (-fdiff) )
 //        return -fexc/fdiff;
 //    else 
-        return 1.;
-// 
-// //     double fexc=2*(f_infty-fj);    
-//      double fdiff_safe = fdiff + double(fdiff==0);
-//  
-//      double result[3];
-//      result[0] = 1.;
-//      result[1] = 2*fj/fdiff_safe;
-// //     result[2] = -fexc/fdiff_safe;
-//      
-//      int res1 = (2*fj<fdiff);
-// //     int res2 = (fexc < (-fdiff) );
-//      
-// //     return result[res1*(1-res2) + 2*(1-res1)*res2];
-//      return result[res1];
 //        return 1.;
+
+  double fdiff = fjp-fj;
+  double fdiff_safe = fdiff + double(fdiff==0);
+
+  double result[3];
+  result[0] = 1.;
+  result[1] = 2*fj/fdiff_safe;
+
+  int res1 = (2*fj<fdiff);
+
+#ifdef FULL_LIMIT
+  double fexc=2*(f_infty-fj);    
+  result[2] = -fexc/fdiff_safe;
+  int res2 = (fexc < (-fdiff) );
+  return result[res1*(1-res2) + 2*(1-res1)*res2];
+#else     
+  return result[res1];
+#endif
 }
 
 template<class ForceField>
-inline double PosFluxCons3rdOrder<ForceField>::epsilonRight(double fj, double fjm) {
+inline double PosFluxCons3rdOrder<ForceField>
+  ::epsilonRight
+    (
+      double fj, 
+      double fjm
+    ) 
+{
+
+#ifdef NO_LIMIT
+  return 1.;
+#endif
+
 //    double fdiff = fjm-fj;
-    //    double fexc = 2*(f_infty-fj);
-    //    if (fexc<0) 
-    //        return 0;
+//    double fexc = 2*(f_infty-fj);
+//    if (fexc<0) 
+//        return 0;
 //    if (2*fj<fdiff)
 //      return 2*fj/fdiff;
 //    double fexc = 2*(f_infty-fj);
 //    if (fexc < (-fdiff) )
 //        return -fexc/fdiff;
 //    else 
-      return 1.;
+//      return 1.;
 
-//     double fexc=2*(f_infty-fj);    
-//      double fdiff_safe = fdiff + double(fdiff==0);
-//  
-//      double result[3];
-//      result[0] = 1.;
-//      result[1] = 2*fj/fdiff_safe;
-// //     result[2] = -fexc/fdiff_safe;
-//      
-//      int res1 = (2*fj<fdiff);
-// //     int res2 = (fexc < (-fdiff) );
-//      
-// //     return result[res1*(1-res2) + 2*(1-res1)*res2];
-//      return result[res1];
-//        return 1.;
+//       
+  double fdiff = fjm-fj;
+  double fdiff_safe = fdiff + double(fdiff==0);
 
+  double result[3];
+  result[0] = 1.;
+  result[1] = 2*fj/fdiff_safe;
+  int res1 = (2*fj<fdiff);
+
+#ifdef FULL_LIMIT
+  double fexc=2*(f_infty-fj); 
+  result[2] = -fexc/fdiff_safe;
+  int res2 = (fexc < (-fdiff) );
+  return result[res1*(1-res2) + 2*(1-res1)*res2];
+#else
+  return result[res1];
+#endif
 }
 
 
