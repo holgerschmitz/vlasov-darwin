@@ -12,16 +12,18 @@
  *  ValsovAdvancerBase class.
  */
 class VlasovInitialiser : public Rebuildable {
-    public:
-        /** @brief  Should be overridden by the subclass to initialise
-         *  the distribution.
-         *
-         *  The distribution is passed by reference to allow changing.
-         *  The VelRange parameter speciefies in which velocity range
-         *  the distrbution is defined: The reqion is given by 
-         *  [ -VelRange : +VelRange ]
-         */
-        virtual void initialise(ForceFieldBase *pVlasov)=0;
+  public:
+    /** @brief  Should be overridden by the subclass to initialise
+     *  the distribution.
+     *
+     *  The distribution is passed by reference to allow changing.
+     *  The VelRange parameter speciefies in which velocity range
+     *  the distrbution is defined: The reqion is given by 
+     *  [ -VelRange : +VelRange ]
+     */
+    virtual void initialise(ForceFieldBase *pVlasov)=0;
+    
+    virtual bool restart() { return false; }    
 };
 
 /** @brief Initialises the Vlasov distribution function with a
@@ -196,6 +198,8 @@ class VlasovHDFInit : public VlasovInitialiser {
        *  Read from the HDF file
        */
       void initialise(ForceFieldBase *pVlasov);
+      
+      bool restart() { return true; }  
     protected:
       PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };

@@ -22,7 +22,10 @@ class SimpleAdvance  : public Scheme<ForceField> {
     
   public:
       SimpleAdvance(SpeciesData &data) 
-          : InitState(-1), Scheme<ForceField>(data) {}
+          : InitState(-1), Scheme<ForceField>(data) 
+      {
+        if (init->restart()) InitState = 0;
+      }
 };
 
 template<
@@ -55,7 +58,10 @@ class LeapFrogAdvance  : public Scheme<ForceField> {
     
   public:
       LeapFrogAdvance(SpeciesData &data) 
-          : InitState(-2), Scheme<ForceField>(data) {}
+          : InitState(-2), Scheme<ForceField>(data) 
+      {
+        if (init->restart()) InitState = 0;
+      }
 };
 
 template<
@@ -91,10 +97,15 @@ class SimpleLeapFrogAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme
   private:
       int InitState;
   public:
-      SimpleLeapFrogAdvance(SpeciesData &data) 
-          : InitState(-2), SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) {}
-      /// Advance the distribution function one timestep
-      void advance(double timestep);
+    SimpleLeapFrogAdvance(SpeciesData &data) 
+      : InitState(-2), 
+        SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) 
+    {
+      if (init->restart()) InitState = 0;
+    }
+    
+    /// Advance the distribution function one timestep
+    void advance(double timestep);
 };
 
 template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>

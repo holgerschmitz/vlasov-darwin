@@ -3,7 +3,7 @@
 #include "pparabolic.h"
 #include "findiff.h"
 
-#define POS_FLUX_3_TIMESPLIT
+#define POS_FLUX_3_BACKTRACING
 
 #ifdef POS_FLUX_3_BACKTRACING
   #define SCHEME_TYPE PosFluxCons3rdOrder
