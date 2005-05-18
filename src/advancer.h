@@ -24,7 +24,7 @@ class SimpleAdvance  : public Scheme<ForceField> {
       SimpleAdvance(SpeciesData &data) 
           : InitState(-1), Scheme<ForceField>(data) 
       {
-        if (init->restart()) InitState = 0;
+        //if (init->restart()) InitState = 0;
       }
 };
 

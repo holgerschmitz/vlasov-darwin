@@ -1,8 +1,11 @@
 template<class ForceField>
 void FiniteDiffScheme<ForceField>::initDist()
 {
-  TempDist = Distribution;
-  CurrentDist = Distribution;
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
+    
+  TempDist.resize(LBound,UBound);
+  CurrentDist.resize(LBound,UBound);
 }
 
 template<class ForceField>
@@ -78,7 +81,10 @@ void FiniteDiffScheme<ForceField>
 template<class ForceField>
 void FiniteDiffSchemeRK2<ForceField>::initDist()
 {
-  D1 = Distribution;
+  const int *UBound = Distribution.getHigh();
+  const int *LBound = Distribution.getLow();
+    
+  D1.resize(LBound,UBound);
 }
 
 template<class ForceField>
@@ -87,7 +93,7 @@ void FiniteDiffSchemeRK2<ForceField>
 {
     const int *UBound = Distribution.getHigh();
     const int *LBound = Distribution.getLow();
-
+    
     PositionI Xi;
     VelocityI Vi;
     
@@ -142,7 +148,7 @@ void FiniteDiffSchemeRK2<ForceField>
 template<class ForceField>
 void FiniteDiffSchemeRK2<ForceField>
         ::advanceAll(double timestep) 
-{
+{        
     forwardDist(D1, Distribution, 0.5*timestep);
     forwardDist(Distribution, D1, timestep);
 }

@@ -3,7 +3,7 @@
 #include "pparabolic.h"
 #include "findiff.h"
 
-#define POS_FLUX_3_BACKTRACING
+#define FINITE_DIFF
 
 #ifdef POS_FLUX_3_BACKTRACING
   #define SCHEME_TYPE PosFluxCons3rdOrder
@@ -18,7 +18,7 @@
 #endif
 
 #ifdef FINITE_DIFF
-  #define SCHEME_TYPE FiniteDiffScheme
+  #define SCHEME_TYPE FiniteDiffSchemeRK2
   #define ADVANCE_TYPE SimpleAdvance
   #define FORCE_TYPE GenericEMForceDirect
 #endif

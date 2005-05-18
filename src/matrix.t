@@ -169,8 +169,17 @@ void Matrix<T, rank>::resize(const int* d)
 template<class T, int rank>
 void Matrix<T, rank>::resize(const int* l, const int* h)
 {
-  deleteData();
-  newData(l, h);
+  bool needresize = false;
+  for (int i = 0; i < rank; i++)
+  {
+    needresize = needresize || (l[i] != lo[i]) || (h[i] != hi[i]);
+  }
+  
+  if (needresize)
+  {
+    deleteData();
+    newData(l, h);
+  }
 }
 
 template<class T, int rank>
