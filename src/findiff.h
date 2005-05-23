@@ -27,7 +27,8 @@ class FiniteDiffScheme : public ForceField {
 template<class ForceField>
 class FiniteDiffSchemeRK2 : public ForceField {
   private:
-      void forwardDist(VlasovDist &rhs, VlasovDist &lhs, double timestep); 
+      void forwardDist(VlasovDist &rhs, VlasovDist &lhs, double timestep);
+      int RKState;
   protected:
       /// A maximum value of the distribution function
       double f_infty;
@@ -39,7 +40,8 @@ class FiniteDiffSchemeRK2 : public ForceField {
       
       void initDist();
   public:
-      FiniteDiffSchemeRK2(SpeciesData &data) : ForceField(data) {}
+      FiniteDiffSchemeRK2(SpeciesData &data)
+        : ForceField(data), RKState(0) {}
 };
 
 #include "findiff.t"

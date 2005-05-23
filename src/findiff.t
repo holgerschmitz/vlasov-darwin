@@ -148,7 +148,16 @@ void FiniteDiffSchemeRK2<ForceField>
 template<class ForceField>
 void FiniteDiffSchemeRK2<ForceField>
         ::advanceAll(double timestep) 
-{        
-    forwardDist(D1, Distribution, 0.5*timestep);
-    forwardDist(Distribution, D1, timestep);
+{   
+  switch (RKState)
+  {
+    case 0:
+      forwardDist(D1, Distribution, 0.5*timestep);
+      RKState = 1;
+      break;
+    case 1:
+      forwardDist(Distribution, D1, timestep);
+      RKState = 0;
+      break;
+  }
 }
