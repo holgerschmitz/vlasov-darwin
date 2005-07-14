@@ -449,10 +449,6 @@ void PosFluxCons3rdOrder<ForceField>
 //#define FULL_LIMIT
 //#define NO_LIMIT
 
-/** @todo The epsilon limiters do not go well with the Runge Kutta integration.
- *  Find a solution that does not involve commenting lines.
- *  @todo Spend some time thinking about and checking the limiter, (velocity dependent force, large timesteps, boundary)
- */
 template<class ForceField>
 inline double PosFluxCons3rdOrder<ForceField>
   ::epsilonLeft
@@ -465,19 +461,6 @@ inline double PosFluxCons3rdOrder<ForceField>
 #ifdef NO_LIMIT
   return 1.;
 #endif
-
-//  double fdiff = fjp-fj;
-//  double fexc = 2*(f_infty-fj);
-//  if (fexc<0) 
-//    return 0;
-
-//    if (2*fj<fdiff)
-//        return 2*fj/fdiff;
-//    double fexc=2*(f_infty-fj);    
-//    if (fexc < (-fdiff) )
-//        return -fexc/fdiff;
-//    else 
-//        return 1.;
 
   double fdiff = fjp-fj;
   double fdiff_safe = fdiff + double(fdiff==0);
@@ -511,19 +494,6 @@ inline double PosFluxCons3rdOrder<ForceField>
   return 1.;
 #endif
 
-//    double fdiff = fjm-fj;
-//    double fexc = 2*(f_infty-fj);
-//    if (fexc<0) 
-//        return 0;
-//    if (2*fj<fdiff)
-//      return 2*fj/fdiff;
-//    double fexc = 2*(f_infty-fj);
-//    if (fexc < (-fdiff) )
-//        return -fexc/fdiff;
-//    else 
-//      return 1.;
-
-//       
   double fdiff = fjm-fj;
   double fdiff_safe = fdiff + double(fdiff==0);
 

@@ -443,7 +443,7 @@ double GenericEMForceBoris2<FieldType>
     double Vmz = vz+0.5*Ez*dt;
     
     double Ax = 1-sy*ty-sz*tz;
-    double Vmx = (Vpx - Vmy*(sz+sy*tx) - Vmz*(sy-sz*tx)) / Ax;
+    double Vmx = (Vpx - Vmy*(sz+sy*tx) + Vmz*(sy-sz*tx)) / Ax;
     
     // Rotate
     

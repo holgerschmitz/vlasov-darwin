@@ -98,21 +98,24 @@ void SinglePeriodicBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
-    // only one boundary cell
-    int mx0=UBound[0], mx1=mx0-1;
-    int lx0=LBound[0], lx1=lx0+1;
-
-    int my0=UBound[1], my1=my0-1;
-    int ly0=LBound[1], ly1=ly0+1;
     
-    for (int i = lx0; i<=mx0; ++i) {
-        field(i,ly0) = field(i,my1);
-        field(i,my0) = field(i,ly1);
-    }
-    for (int j = ly0; j<=my0; ++j) {
-        field(lx0,j) = field(mx1,j);
-        field(mx0,j) = field(lx1,j);
-    }       
+  getNumBoundary(field).apply(field);
+
+//     // only one boundary cell
+//     int mx0=UBound[0], mx1=mx0-1;
+//     int lx0=LBound[0], lx1=lx0+1;
+// 
+//     int my0=UBound[1], my1=my0-1;
+//     int ly0=LBound[1], ly1=ly0+1;
+//     
+//     for (int i = lx0; i<=mx0; ++i) {
+//         field(i,ly0) = field(i,my1);
+//         field(i,my0) = field(i,ly1);
+//     }
+//     for (int j = ly0; j<=my0; ++j) {
+//         field(lx0,j) = field(mx1,j);
+//         field(mx0,j) = field(lx1,j);
+//     }       
 }
 
 const NumBoundary& SinglePeriodicBoundary::getNumBoundary(ScalarField &) const
@@ -362,21 +365,23 @@ void MPIPeriodicSplitXBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *LBound = field.getLow();
     
     
-    // only one boundary cell
-    int mx0=UBound[0], mx1=mx0-1;
-    int lx0=LBound[0], lx1=lx0+1;
-
-    int my0=UBound[1], my1=my0-1;
-    int ly0=LBound[1], ly1=ly0+1;
-    
-    for (int i = lx0; i<=mx0; ++i) {
-        field(i,ly0) = field(i,my1);
-        field(i,my0) = field(i,ly1);
-    }
-    for (int j = ly0; j<=my0; ++j) {
-        field(lx0,j) = field(mx1,j);
-        field(mx0,j) = field(lx1,j);
-    }       
+  getNumBoundary(field).apply(field);
+//     
+//     // only one boundary cell
+//     int mx0=UBound[0], mx1=mx0-1;
+//     int lx0=LBound[0], lx1=lx0+1;
+// 
+//     int my0=UBound[1], my1=my0-1;
+//     int ly0=LBound[1], ly1=ly0+1;
+//     
+//     for (int i = lx0; i<=mx0; ++i) {
+//         field(i,ly0) = field(i,my1);
+//         field(i,my0) = field(i,ly1);
+//     }
+//     for (int j = ly0; j<=my0; ++j) {
+//         field(lx0,j) = field(mx1,j);
+//         field(mx0,j) = field(lx1,j);
+//     }       
 }
 
 const NumBoundary& MPIPeriodicSplitXBoundary::getNumBoundary(ScalarField &) const
@@ -724,22 +729,23 @@ void MPIPeriodicSplitXYBoundary::ScalarFieldReduce(ScalarField &field) const {
     const int *UBound = field.getHigh();
     const int *LBound = field.getLow();
     
-    
-    // only one boundary cell
-    int mx0=UBound[0], mx1=mx0-1;
-    int lx0=LBound[0], lx1=lx0+1;
+  getNumBoundary(field).apply(field);
 
-    int my0=UBound[1], my1=my0-1;
-    int ly0=LBound[1], ly1=ly0+1;
-    
-    for (int i = lx0; i<=mx0; ++i) {
-        field(i,ly0) = field(i,my1);
-        field(i,my0) = field(i,ly1);
-    }
-    for (int j = ly0; j<=my0; ++j) {
-        field(lx0,j) = field(mx1,j);
-        field(mx0,j) = field(lx1,j);
-    }       
+//     // only one boundary cell
+//     int mx0=UBound[0], mx1=mx0-1;
+//     int lx0=LBound[0], lx1=lx0+1;
+// 
+//     int my0=UBound[1], my1=my0-1;
+//     int ly0=LBound[1], ly1=ly0+1;
+//     
+//     for (int i = lx0; i<=mx0; ++i) {
+//         field(i,ly0) = field(i,my1);
+//         field(i,my0) = field(i,ly1);
+//     }
+//     for (int j = ly0; j<=my0; ++j) {
+//         field(lx0,j) = field(mx1,j);
+//         field(mx0,j) = field(lx1,j);
+//     }       
 }
 
 const NumBoundary& MPIPeriodicSplitXYBoundary::getNumBoundary(ScalarField &) const

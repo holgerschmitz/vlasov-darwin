@@ -385,19 +385,18 @@ void GEMReconnectionBoundary::exchangeY(VlasovDist &field) {
                 field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
                   = recvarry[arr_ind++];
     }
-// I will keep the initial distribution at the outer boundary
-//     else
-//     {
-// //      std::cerr << "Mirror Y - top\n";
-//       for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
-//         for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
-//           for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
-//             for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
-//               for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
-//                 field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
-//                   = field(Xi[0], 2*High[1]-3-Xi[1], 
-//                     Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
-//     }
+    else
+    {
+//      std::cerr << "Mirror Y - top\n";
+      for (Xi[0] = Low[0]; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = High[1]-1; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(Xi[0], 2*High[1]-3-Xi[1], 
+                    Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
+    }
     
                 
     arr_ind = 0;
@@ -487,8 +486,7 @@ const NumBoundary& GEMReconnectionBoundary::getNumBoundary(ScalarField &field) c
         break;
       case ScalarField::YComponent : 
         if (1==par) return evenYBound; 
-//        else return oddYBound;
-        else return evenXBound;
+        else return oddYBound;
         break;
       case ScalarField::ZComponent : 
         if (1==par) return evenZBound; 

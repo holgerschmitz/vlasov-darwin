@@ -3,11 +3,17 @@
 #include "pparabolic.h"
 #include "findiff.h"
 
-#define FINITE_DIFF
+#define POS_FLUX_3_BACKSUBS
 
-#ifdef POS_FLUX_3_BACKTRACING
+#ifdef POS_FLUX_3_BACKSUBS
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE SimpleLeapFrogAdvance
+  #define FORCE_TYPE GenericEMForceBoris2
+#endif
+
+#ifdef POS_FLUX_3_BACKSUBS_RK
+  #define SCHEME_TYPE PosFluxCons3rdOrder
+  #define ADVANCE_TYPE RungeKuttaAdvance
   #define FORCE_TYPE GenericEMForceBoris2
 #endif
 
