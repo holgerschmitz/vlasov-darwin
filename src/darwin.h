@@ -32,6 +32,9 @@ class Darwin {
   
       /// grid spacing
       PositionD dx;
+      
+      /// time step
+      double dt;
             
       /** @brief Volume of a grid cell in \f${\rm m}^3\f$ */
       double dV;		    
@@ -75,7 +78,7 @@ class Darwin {
       /** @brief Contains the charge and current densities 
        * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
        */
-      ScalarField den, jx, jy, jz;
+      ScalarField den, jx, jy, jz, jxold, jyold, jzold;
       
       /** @brief Contains the charge and current densities 
        * \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
@@ -86,6 +89,8 @@ class Darwin {
        *
        */
       ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
+      
+      bool initOldFields;
   public:  
 	    /// Construct passing the value of mainproc
 	    Darwin () {}

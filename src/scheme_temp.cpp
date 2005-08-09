@@ -202,6 +202,7 @@ void PosFluxCons3rdOrder<ForceField>
 //            }
             
             double &dl = Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2]);
+            Flux(lvx) = min(Flux(lvx), Dj(lvx));
             dl  = - Flux(lvx) + Dj(lvx);
     
             if (new_f_infty<dl) new_f_infty=dl;
@@ -213,6 +214,7 @@ void PosFluxCons3rdOrder<ForceField>
             }
             
             double &dh = Distribution(Xi[0], Xi[1], bvx, Vi[1], Vi[2]);
+            Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
             dh  = Flux(bvx-1) + Dj(bvx);
             if (new_f_infty<dh) new_f_infty=dh;
               
@@ -312,6 +314,7 @@ void PosFluxCons3rdOrder<ForceField>
 //            }
 
             double &dl = Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2]);
+            Flux(lvx) = min(Flux(lvx), Dj(lvx));
             dl  = - Flux(lvx) + Dj(lvx);
             
             if (new_f_infty<dl) new_f_infty=dl;
@@ -323,6 +326,7 @@ void PosFluxCons3rdOrder<ForceField>
             }
 
             double &dh = Distribution(Xi[0], Xi[1], Vi[0], bvx, Vi[2]);
+            Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
             dh = Flux(bvx-1) + Dj(bvx);
             if (new_f_infty<dh) new_f_infty=dh;
         }
@@ -424,6 +428,9 @@ void PosFluxCons3rdOrder<ForceField>
 //            }
 
             double &dl = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx);
+            
+            Flux(lvx) = min(Flux(lvx), Dj(lvx));
+            
             dl = - Flux(lvx) + Dj(lvx);
             if (new_f_infty<dl) new_f_infty=dl;
             
@@ -433,6 +440,9 @@ void PosFluxCons3rdOrder<ForceField>
                 if (new_f_infty<dd) new_f_infty=dd;
             }
             double &dh = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], bvx);
+            
+            Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
+            
             dh = Flux(bvx-1) + Dj(bvx);
             if (new_f_infty<dh) new_f_infty=dh;
         }

@@ -6,6 +6,9 @@
 #include "process.h"
 
 #include <fstream>
+
+// define DARWIN_NO_ET
+
 // ----------------------------------------------------------------------
 // Darwin
 
@@ -15,6 +18,7 @@ void Darwin::AddSpecies(EMDarwinForce* pS) {
 
 void Darwin::Init () 
 {
+  initOldFields = true;
   n0 = Parameters::instance().bgDensity();
   double VRatio = Parameters::instance().velocityRatio();
   csc = VRatio*VRatio;
@@ -29,6 +33,8 @@ void Darwin::Init ()
   
   dx[0] = Parameters::instance().gridSpace_x();
   dx[1] = Parameters::instance().gridSpace_y();
+
+  dt = Parameters::instance().dt();
   
   dV = Parameters::instance().volumeQuant();
 	
@@ -53,6 +59,16 @@ void Darwin::Init ()
   jz.resize(LBound.Data(),HBound.Data());
   jz.setComponent(ScalarField::ZComponent);
   jz.setParity(ScalarField::OddParity);
+
+  jxold.resize(LBound.Data(),HBound.Data());
+  jxold.setComponent(ScalarField::XComponent);
+  jxold.setParity(ScalarField::OddParity);
+  jyold.resize(LBound.Data(),HBound.Data());
+  jyold.setComponent(ScalarField::YComponent);
+  jyold.setParity(ScalarField::OddParity);
+  jzold.resize(LBound.Data(),HBound.Data());
+  jzold.setComponent(ScalarField::ZComponent);
+  jzold.setParity(ScalarField::OddParity);
 
   sx.resize(LBound.Data(),HBound.Data());
   sx.setComponent(ScalarField::XComponent);
@@ -138,6 +154,10 @@ void Darwin::Init ()
   jx.clear();
   jy.clear();
   jz.clear();
+
+  jxold.clear();
+  jyold.clear();
+  jzold.clear();
 
   sx.clear();
   sy.clear();
@@ -255,6 +275,17 @@ bool Darwin::Execute () {
 	    vyz(i,j) +=  dF*vvt[4];
 	    vzz(i,j) +=  dF*vvt[5];
       }
+  }
+  
+  if (initOldFields)
+  {
+    for (int i=lx0; i<=mx0; ++i) 
+      for (int j=ly0; j<=my0; ++j) {
+        jxold(i,j) = jx(i,j);
+        jyold(i,j) = jy(i,j);
+        jzold(i,j) = jz(i,j);
+      }
+    initOldFields = false;
   }
   
   /* *************************************
@@ -388,98 +419,114 @@ bool Darwin::Execute () {
       Lambda(i,j) = om2(i,j);
     }
   }
-           
+  
+
   // x-component of transverse electric field
   for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-                +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -om2(i,j)*Ex(i,j)                      /// om2*E
-                -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
+      In(i,j) = - ( jx(i,j)-jxold(i,j) )/dt + Lambda(i,j)*Etx(i,j);      
     }
   }
+
+           
+//   // x-component of transverse electric field
+//   for (int i=lx1; i<=mx1; ++i) {
+//     for (int j=ly1; j<=my1; ++j) {
+//       In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
+//                 +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+//                 -om2(i,j)*Ex(i,j)                      /// om2*E
+//                 -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
+//     }
+//   }
 
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::XComponent); 
   bound.ScalarFieldReduce(In);
 
-  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Etx));
+  helmh->solve(Etx,In,Lambda,bound.getNumBoundary(Etx));
     
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) 
-      Etx(i,j) = Out(i,j);
+//   for (int i=lx0; i<=mx0; ++i) 
+//     for (int j=ly0; j<=my0; ++j) 
+//       Etx(i,j) = Out(i,j);
+
+//  pois->solve(Etx,In,bound.getNumBoundary(Etx));
     
   // y-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) 
+  for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-                +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -om2(i,j)*Ey(i,j)                   /// om2*E
-                -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
+      In(i,j) = - ( jy(i,j)-jyold(i,j) )/dt + Lambda(i,j)*Ety(i,j);      
     }
+  }
+
+//   // y-component of transverse electric field
+//   for (int i=lx1; i<=mx1; ++i) 
+//     for (int j=ly1; j<=my1; ++j) {
+//       In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
+//                 +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+//                 -om2(i,j)*Ey(i,j)                   /// om2*E
+//                 -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
+//     }
 
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::YComponent); 
   bound.ScalarFieldReduce(In);
 
-  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Ety));
+   helmh->solve(Ety,In,Lambda,bound.getNumBoundary(Ety));
+//     
+//   for (int i=lx0; i<=mx0; ++i) 
+//     for (int j=ly0; j<=my0; ++j) {
+//       Ety(i,j) = Out(i,j);
+//     }
+
+//  pois->solve(Ety,In,bound.getNumBoundary(Ety));
     
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) {
-      Ety(i,j) = Out(i,j);
-    }
-    
+
   // z-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) 
+  for (int i=lx1; i<=mx1; ++i) {
     for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-                +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
+      In(i,j) = - ( jz(i,j)-jzold(i,j) )/dt + Lambda(i,j)*Ez(i,j);      
     }
+  }
+
+//   // z-component of transverse electric field
+//   for (int i=lx1; i<=mx1; ++i) 
+//     for (int j=ly1; j<=my1; ++j) {
+//       In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
+//                 +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+//                 -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
+//     }
     
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::ZComponent); 
   bound.ScalarFieldReduce(In);
 
-  helmh->solve(Out,In,Lambda,bound.getNumBoundary(Ez));
-    
-  for (int i=lx0; i<=mx0; ++i) 
-    for (int j=ly0; j<=my0; ++j) {
-      Ez(i,j) = Out(i,j);
-//      Ez(i,j) = 0;
-    }
+  helmh->solve(Ez,In,Lambda,bound.getNumBoundary(Ez));
+// 
+//   for (int i=lx0; i<=mx0; ++i) 
+//     for (int j=ly0; j<=my0; ++j) {
+// #ifdef DARWIN_NO_ET
+//       Ez(i,j) = 0;
+// #else
+//       Ez(i,j) = Out(i,j);
+// #endif
+//     }
            
+// #ifndef DARWIN_NO_ET
+//   pois->solve(Ez,In,bound.getNumBoundary(Ez));
+// #endif
+
   clearDiv(Etx, Ety);
 
   for (int i=lx0; i<=mx0; ++i) 
     for (int j=ly0; j<=my0; ++j) {
+#ifndef DARWIN_NO_ET
       Ex(i,j) += Etx(i,j);
       Ey(i,j) += Ety(i,j);
+#endif
+      jxold(i,j) = jx(i,j);
+      jyold(i,j) = jy(i,j);
+      jzold(i,j) = jz(i,j);
     }
-        
-//  double h=1./((mx1-lx0)*(my1-ly0));
-//
-//  double sumEx=0, sumEy=0, sumEz=0;
-//
-//  for(int j = ly1; j <= my1; j++) {
-//    for(int i = lx1; i <= mx1; i++) {
-//      sumEx += Ex(i,j);
-//      sumEy += Ey(i,j);
-////      sumEz += Ez(i,j);
-//    }
-//  }
-//
-//  sumEx *= h;
-//  sumEy *= h;
-//  sumEz *= h;
-//
-//  for(int j = ly0; j <= my0; j++) {
-//    for(int i = lx0; i <= mx0; i++) {
-//      Ex(i,j) -= sumEx;
-//      Ey(i,j) -= sumEy;
-////      Ez(i,j) -= sumEz;
-//    }
-//  }
 
   /* *************************************
    *  This should be it!
