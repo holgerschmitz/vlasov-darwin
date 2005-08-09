@@ -80,29 +80,29 @@ void Darwin::Init ()
   sz.setComponent(ScalarField::ZComponent);
   sz.setParity(ScalarField::OddParity);
 
-  vxx.resize(LBound.Data(),HBound.Data());
-  vxx.setComponent(ScalarField::ScalarComponent);
-  vxx.setParity(ScalarField::EvenParity);
-
-  vxy.resize(LBound.Data(),HBound.Data());
-  vxy.setComponent(ScalarField::XYComponent);
-  vxy.setParity(ScalarField::EvenParity);
-
-  vxz.resize(LBound.Data(),HBound.Data());
-  vxz.setComponent(ScalarField::XZComponent);
-  vxz.setParity(ScalarField::EvenParity);
-
-  vyy.resize(LBound.Data(),HBound.Data());
-  vyy.setComponent(ScalarField::ScalarComponent);
-  vyy.setParity(ScalarField::EvenParity);
-
-  vyz.resize(LBound.Data(),HBound.Data());
-  vyz.setComponent(ScalarField::YZComponent);
-  vyz.setParity(ScalarField::EvenParity);
-
-  vzz.resize(LBound.Data(),HBound.Data());
-  vzz.setComponent(ScalarField::ScalarComponent);
-  vzz.setParity(ScalarField::EvenParity);
+//   vxx.resize(LBound.Data(),HBound.Data());
+//   vxx.setComponent(ScalarField::ScalarComponent);
+//   vxx.setParity(ScalarField::EvenParity);
+// 
+//   vxy.resize(LBound.Data(),HBound.Data());
+//   vxy.setComponent(ScalarField::XYComponent);
+//   vxy.setParity(ScalarField::EvenParity);
+// 
+//   vxz.resize(LBound.Data(),HBound.Data());
+//   vxz.setComponent(ScalarField::XZComponent);
+//   vxz.setParity(ScalarField::EvenParity);
+// 
+//   vyy.resize(LBound.Data(),HBound.Data());
+//   vyy.setComponent(ScalarField::ScalarComponent);
+//   vyy.setParity(ScalarField::EvenParity);
+// 
+//   vyz.resize(LBound.Data(),HBound.Data());
+//   vyz.setComponent(ScalarField::YZComponent);
+//   vyz.setParity(ScalarField::EvenParity);
+// 
+//   vzz.resize(LBound.Data(),HBound.Data());
+//   vzz.setComponent(ScalarField::ScalarComponent);
+//   vzz.setParity(ScalarField::EvenParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
   Pot.setComponent(ScalarField::ScalarComponent);
@@ -223,12 +223,12 @@ bool Darwin::Execute () {
   sy.clear();
   sz.clear();
 
-  vxx.clear();
-  vxy.clear();
-  vxz.clear();
-  vyy.clear();
-  vyz.clear();
-  vzz.clear();
+//   vxx.clear();
+//   vxy.clear();
+//   vxz.clear();
+//   vyy.clear();
+//   vyz.clear();
+//   vzz.clear();
 	
   VelocityD jt;
   FixedArray<double,6> vvt;
@@ -267,13 +267,13 @@ bool Darwin::Execute () {
 	    sy(i,j) += dF2*jt[1];
 	    sz(i,j) += dF2*jt[2];
 
-	    vvt =  distVel->getVVTens(i,j);
-	    vxx(i,j) +=  dF*vvt[0];
-	    vxy(i,j) +=  dF*vvt[1];
-	    vxz(i,j) +=  dF*vvt[2];
-	    vyy(i,j) +=  dF*vvt[3];
-	    vyz(i,j) +=  dF*vvt[4];
-	    vzz(i,j) +=  dF*vvt[5];
+// 	    vvt =  distVel->getVVTens(i,j);
+// 	    vxx(i,j) +=  dF*vvt[0];
+// 	    vxy(i,j) +=  dF*vvt[1];
+// 	    vxz(i,j) +=  dF*vvt[2];
+// 	    vyy(i,j) +=  dF*vvt[3];
+// 	    vyz(i,j) +=  dF*vvt[4];
+// 	    vzz(i,j) +=  dF*vvt[5];
       }
   }
   

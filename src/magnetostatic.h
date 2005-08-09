@@ -78,10 +78,6 @@ class Magnetostatic {
        *  and \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
        */
       ScalarField om2, sx, sy, sz;
-      /** @brief The components of the \f${\bf vv}\f$ tensor
-       *
-       */
-      ScalarField vxx, vxy, vxz, vyy, vyz, vzz;
       
   public:  
 	    /// Construct passing the value of mainproc

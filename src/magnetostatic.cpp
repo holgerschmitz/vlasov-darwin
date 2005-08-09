@@ -65,30 +65,6 @@ void Magnetostatic::Init ()
   sz.setComponent(ScalarField::ZComponent);
   sz.setParity(ScalarField::OddParity);
 
-  vxx.resize(LBound.Data(),HBound.Data());
-  vxx.setComponent(ScalarField::ScalarComponent);
-  vxx.setParity(ScalarField::EvenParity);
-
-  vxy.resize(LBound.Data(),HBound.Data());
-  vxy.setComponent(ScalarField::ScalarComponent);
-  vxy.setParity(ScalarField::EvenParity);
-
-  vxz.resize(LBound.Data(),HBound.Data());
-  vxz.setComponent(ScalarField::ScalarComponent);
-  vxz.setParity(ScalarField::EvenParity);
-
-  vyy.resize(LBound.Data(),HBound.Data());
-  vyy.setComponent(ScalarField::ScalarComponent);
-  vyy.setParity(ScalarField::EvenParity);
-
-  vyz.resize(LBound.Data(),HBound.Data());
-  vyz.setComponent(ScalarField::ScalarComponent);
-  vyz.setParity(ScalarField::EvenParity);
-
-  vzz.resize(LBound.Data(),HBound.Data());
-  vzz.setComponent(ScalarField::ScalarComponent);
-  vzz.setParity(ScalarField::EvenParity);
-  
   Pot.resize(LBound.Data(),HBound.Data());
   Pot.setComponent(ScalarField::ScalarComponent);
   Pot.setParity(ScalarField::EvenParity);
@@ -161,13 +137,6 @@ void Magnetostatic::Init ()
   sy.clear();
   sz.clear();
 
-  vxx.clear();
-  vxy.clear();
-  vxz.clear();
-  vyy.clear();
-  vyz.clear();
-  vzz.clear();
-
   Pot.clear();
   Ax.clear();
   Ay.clear();
@@ -215,7 +184,6 @@ bool Magnetostatic::Execute () {
    *  Clearing densities and current densities
    */
   den.clear();
-  om2.clear();
     
   jx.clear();
   jy.clear();
@@ -224,13 +192,6 @@ bool Magnetostatic::Execute () {
   sx.clear();
   sy.clear();
   sz.clear();
-
-  vxx.clear();
-  vxy.clear();
-  vxz.clear();
-  vyy.clear();
-  vyz.clear();
-  vzz.clear();
 	
   VelocityD jt;
   FixedArray<double,6> vvt;
@@ -258,7 +219,6 @@ bool Magnetostatic::Execute () {
     for (int j=ly0; j<=my0; ++j) 
       for (int i=lx0; i<=mx0; ++i) {
       den(i,j) += dF*rho(i,j);
-      om2(i,j) += dF2*rho(i,j);
     
       jt = distVel->getJ(i,j);
       jx(i,j) += dF*jt[0];
@@ -269,72 +229,37 @@ bool Magnetostatic::Execute () {
       sy(i,j) += dF2*jt[1];
       sz(i,j) += dF2*jt[2];
 
-      vvt =  distVel->getVVTens(i,j);
-      vxx(i,j) +=  dF*vvt[0];
-      vxy(i,j) +=  dF*vvt[1];
-      vxz(i,j) +=  dF*vvt[2];
-      vyy(i,j) +=  dF*vvt[3];
-      vyz(i,j) +=  dF*vvt[4];
-      vzz(i,j) +=  dF*vvt[5];
       }
   }
 
-  // This is the same for every component
-  for (int i=lx0; i<=mx0; ++i) {
-    for (int j=ly0; j<=my0; ++j) {
-      Lambda(i,j) = om2(i,j);
-    }
-  }
+  /* *************************************
+   *  With the charge density we can first calculate the 
+   *  scalar potential Pot. 
+   *  By differentiating we get the longitudinal electric field.
+   *  This is stored provisionally in the Ex and Ey fields.
+   *  Remember: Ez = 0 in two dimensions
+   */
 
-//  std::cerr << "Ex\n";
-  for (int j=ly1; j<=my1; ++j) 
-    for (int i=lx1; i<=mx1; ++i) { 
-      In(i,j) = -(den(i+1,j) - den(i-1,j)) / (2*dx[0])
-              +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-                +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
+  for (int j=ly0; j<=my0; ++j) 
+    for (int i=lx0; i<=mx0; ++i) { 
+      In(i,j) = den(i,j)+n0;
+      //            std::cerr << "den " << i << " " << j << " " << In(i,j) << std::endl;
     }
     
-  In.setParity(ScalarField::OddParity);
-  In.setComponent(ScalarField::XComponent); 
-  bound.ScalarFieldReduce(In);
-
-  helmh->solve(Ex,In,Lambda,bound.getNumBoundary(Ex));
-
-//  std::cerr << "Ey\n";
-  for (int j=ly1; j<=my1; ++j) 
-    for (int i=lx1; i<=mx1; ++i) { 
-      In(i,j) = -(den(i,j+1) - den(i,j-1)) / (2*dx[1])
-              +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-                +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
-    }
+  pois->solve(Pot,In, bound.getNumBoundary(Pot));
     
-  In.setParity(ScalarField::OddParity);
-  In.setComponent(ScalarField::YComponent); 
-  bound.ScalarFieldReduce(In);
+  for (int i=lx1; i<=mx1; ++i) 
+    for (int j=ly0; j<=my0; ++j) 
+      Ex(i,j) = (Pot(i-1,j) - Pot(i+1,j)) / (2*dx[0]);
 
-  helmh->solve(Ey,In,Lambda,bound.getNumBoundary(Ey));
+  for (int i=lx0; i<=mx0; ++i) 
+    for (int j=ly1; j<=my1; ++j) 
+      Ey(i,j) = (Pot(i,j-1) - Pot(i,j+1)) / (2*dx[1]);
 
-//  std::cerr << "Ez\n";
-  for (int j=ly1; j<=my1; ++j) 
-    for (int i=lx1; i<=mx1; ++i) { 
-      In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-                +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-                -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
-    }
-    
-  In.setParity(ScalarField::OddParity);
-  In.setComponent(ScalarField::ZComponent); 
-  bound.ScalarFieldReduce(In);
-
-  helmh->solve(Ez,In,Lambda,bound.getNumBoundary(Ez));
-  
   bound.ScalarFieldReduce(Ex);
   bound.ScalarFieldReduce(Ey);
-  bound.ScalarFieldReduce(Ez);
-  
-  //clearDiv(Ax,Ay);
+
+
   
   /* *************************************
    * ... resulting in Bx and By
