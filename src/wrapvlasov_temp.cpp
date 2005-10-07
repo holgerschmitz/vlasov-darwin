@@ -32,6 +32,8 @@ template<
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
 
+  f_infty = 0;
+  
   std::cout << "INITIALIZING Vlasov Species" << std::endl;
 
   PhasePositionI Size;
@@ -119,50 +121,6 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::InterpolationInitStep(const Vlas
 }
 
 
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-double VlasovSpecies<ForceField,Advancer,Scheme>::densityError() {
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
-    double avg = 0;
-
-    for (int i=LBound[0]+2; i<=UBound[0]-2; ++i)
-      for (int j=LBound[1]+2; j<=UBound[1]-2; ++j)
-        for (int k=LBound[2]; k<=UBound[2]; ++k) 
-          for (int l=LBound[3]; l<=UBound[3]; ++l) 
-            for (int m=LBound[4]; m<=UBound[4]; ++m) 
-              avg += Distribution(i,j,k,l,m);
-    
-    avg = avg/double((UBound[0]-LBound[0]-3)*(UBound[1]-LBound[1]-3));
-    
-//    std::cout << "Partial Error in density: " << avg - 1 << std::endl;
-
-    avg =  boundary->AvgReduce(avg);
-    
-    if (boundary->master())
-      std::cout << "Total density: " << avg  << std::endl;
-    return avg/densityGoal;
-}
-
-template<
-  class ForceField, 
-  template<class, template<class> class> class Advancer,
-  template<class> class Scheme
->
-void VlasovSpecies<ForceField,Advancer,Scheme>::correctDensityError(double err) {
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
-    for (int i=LBound[0]; i<=UBound[0]; ++i)
-      for (int j=LBound[1]; j<=UBound[1]; ++j)
-        for (int k=LBound[2]; k<=UBound[2]; ++k) 
-          for (int l=LBound[3]; l<=UBound[3]; ++l) 
-            for (int m=LBound[4]; m<=UBound[4]; ++m) 
-              Distribution(i,j,k,l,m) /= err;
-
-}
 
 
 
@@ -178,12 +136,12 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
     if ( (tstep%20) == 0 ) {
 //        double err = densityError();
         if (densityGoal!=0) {
-          double err = densityError();
-          correctDensityError(err);
+          double err = densityError(Distribution);
+          correctDensityError(err, Distribution);
         } 
     }
     tstep++;
-    InterpolationInitStep(Distribution);
+    if (f_infty == 0) InterpolationInitStep(Distribution);
 //    cerr << "Advance\n";
     Advancer<ForceField,Scheme>::advance(dt);
 //    cerr << "Derived Fields\n";

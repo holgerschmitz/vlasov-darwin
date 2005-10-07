@@ -8,7 +8,7 @@
 #include <string>
 #include <unistd.h>
 
-
+int myLocalFiniteDiff4SchemeRK3Counter=0;
 bool VlasovDiagnostic = false;
 
 list<pVlasov> species;

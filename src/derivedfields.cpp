@@ -324,6 +324,10 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     for (int i=L[0]; i<=H[0]; ++i) {
       for (int j=L[1]; j<=H[1]; ++j) {
         
+        double &jxval = Jx(i,j);
+        double &jyval = Jy(i,j);
+        double &jzval = Jz(i,j);
+        
         for (vi[0]=L[2]; vi[0]<=H[2]; ++vi[0])
           for (vi[1]=L[3]; vi[1]<=H[3]; ++vi[1])
             for (vi[2]=L[4]; vi[2]<=H[4]; ++vi[2]) {
@@ -368,9 +372,9 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
 //                              + 24*(12*d - dmx + dpx)*Vm[1]))/576.;
 //
 
-              Jx(i,j) += V[0]*d;
-              Jy(i,j) += V[1]*d;
-              Jz(i,j) += V[2]*d;
+              jxval += V[0]*d;
+              jyval += V[1]*d;
+              jzval += V[2]*d;
 
 // 
 //               Vxy(i,j) += V[0]*V[1]*d;

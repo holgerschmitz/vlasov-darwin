@@ -84,6 +84,18 @@ class ForceFieldBase {
        */
       void resize(PhasePositionI low, PhasePositionI high);
 
+      /** Returns the density error.
+       *  The value returned is the total particle number density.
+       *  So in many cases the value of 1 means no error at all
+       */
+      double densityError(VlasovDist &distrib);
+  
+      /** @brief Corrects any errors in the density.
+       *  The FACTOR by which the density is perturbed is given as argument.
+       *  The distribution will be divided by that factor
+       */
+      void correctDensityError(double err, VlasovDist &distrib);
+
 // ACCESSOR METHODS
       
       /// Return the Charge

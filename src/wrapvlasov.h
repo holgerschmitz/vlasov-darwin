@@ -76,17 +76,6 @@ class VlasovSpecies
       void write(ostream &);
             
   private:
-      /** Returns the density error.
-       *  The value returned is actually the density itself.
-       *  So in normal cases the value of 1 means no error at all
-       */
-      double densityError();
-  
-      /** @brief Corrects any errors in the density.
-       *  The FACTOR by which the density is perturbed is given as argument.
-       *  The distribution will be divided by that factor
-       */
-      void correctDensityError(double err);
       
       /// Initialisation before a timestep
       void InterpolationInitStep(const VlasovDist &Dist);

@@ -365,25 +365,29 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
-    // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
-
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double CHM = Charge/Mass;
     
+    // Storing E and B field
+    double Ex = CHM*GetEx(Pos);
+    double Ey = CHM*GetEy(Pos);
+    double Ez = CHM*GetEz(Pos);
+
+    double Bx = CHM*GetBx(Pos);
+    double By = CHM*GetBy(Pos);
+    double Bz = CHM*GetBz(Pos);
+    
+    double dth = 0.5*dt;
+
     // Calculate V-minus
-    double Vmx = vx+0.5*Ex*dt;
-    double Vmy = vy+0.5*Ey*dt;
-    double Vmz = vz+0.5*Ez*dt;
+    double Vmx = vx+Ex*dth;
+    double Vmy = vy+Ey*dth;
+    double Vmz = vz+Ez*dth;
     
     // Rotate
     // a) Calculate t and s
-    double tx = 0.5*Bx*dt;
-    double ty = 0.5*By*dt;
-    double tz = 0.5*Bz*dt;
+    double tx = Bx*dth;
+    double ty = By*dth;
+    double tz = Bz*dth;
     
     double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
     double sy = sfact*ty;
@@ -397,7 +401,7 @@ double GenericEMForceBoris2<FieldType>
     double Vpx = Vmx + vpry*sz-vprz*sy;
     
     // Calculate new velocity minus old velocity
-    double Vdiffx = Vpx + 0.5*Ex*dt - vx;
+    double Vdiffx = Vpx + Ex*dth - vx;
     
    
     return Vdiffx;
@@ -415,19 +419,23 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
+    double CHM = Charge/Mass;
+    
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = CHM*GetEx(Pos);
+    double Ey = CHM*GetEy(Pos);
+    double Ez = CHM*GetEz(Pos);
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = CHM*GetBx(Pos);
+    double By = CHM*GetBy(Pos);
+    double Bz = CHM*GetBz(Pos);
+
+    double dth = 0.5*dt;
 
     // a) Calculate t and s
-    double tx = 0.5*Bx*dt;
-    double ty = 0.5*By*dt;
-    double tz = 0.5*Bz*dt;
+    double tx = Bx*dth;
+    double ty = By*dth;
+    double tz = Bz*dth;
     
     double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
     double sx = sfact*tx;
@@ -438,9 +446,9 @@ double GenericEMForceBoris2<FieldType>
     // so we first have to calculate Vmx from it
 
     // Calculate V-minus
-    double Vpx = vx-0.5*Ex*dt;
-    double Vmy = vy+0.5*Ey*dt;
-    double Vmz = vz+0.5*Ez*dt;
+    double Vpx = vx-Ex*dth;
+    double Vmy = vy+Ey*dth;
+    double Vmz = vz+Ez*dth;
     
     double Ax = 1-sy*ty-sz*tz;
     double Vmx = (Vpx - Vmy*(sz+sy*tx) + Vmz*(sy-sz*tx)) / Ax;
@@ -455,7 +463,7 @@ double GenericEMForceBoris2<FieldType>
     double Vpy = Vmy + vprz*sx-vprx*sz;
     
     // Calculate new velocity minus old velocity
-    double Vdiffy = Vpy + 0.5*Ey*dt - vy;
+    double Vdiffy = Vpy + Ey*dth - vy;
     
    
     return Vdiffy;
@@ -473,20 +481,25 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
+    double CHM = Charge/Mass;
+    
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = CHM*GetEx(Pos);
+    double Ey = CHM*GetEy(Pos);
+    double Ez = CHM*GetEz(Pos);
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = CHM*GetBx(Pos);
+    double By = CHM*GetBy(Pos);
+    double Bz = CHM*GetBz(Pos);
 
     // Rotate
     // a) Calculate t and s
-    double tx = 0.5*Bx*dt;
-    double ty = 0.5*By*dt;
-    double tz = 0.5*Bz*dt;
+    
+    double dth = 0.5*dt;
+    
+    double tx = Bx*dth;
+    double ty = By*dth;
+    double tz = Bz*dth;
     
     double sfact = 2.0/(1 + tx*tx + ty*ty + tz*tz);
     double sx = sfact*tx;
@@ -497,9 +510,9 @@ double GenericEMForceBoris2<FieldType>
     // so we first have to replace them with the old values
 
     // Calculate V-minus
-    double Vpx = vx-0.5*Ex*dt;
-    double Vpy = vy-0.5*Ey*dt;
-    double Vmz = vz+0.5*Ez*dt;
+    double Vpx = vx-Ex*dth;
+    double Vpy = vy-Ey*dth;
+    double Vmz = vz+Ez*dth;
     
     double ax = 1-sy*ty-sz*tz;
     double ay = 1-sx*tx-sz*tz;
@@ -520,7 +533,7 @@ double GenericEMForceBoris2<FieldType>
     double Vpz = Vmz + vprx*sy-vpry*sx;
     
     // Calculate new velocity minus old velocity
-    double Vdiffz = Vpz + 0.5*Ez*dt - vz;
+    double Vdiffz = Vpz + Ez*dth - vz;
     
    
     return Vdiffz;

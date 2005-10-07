@@ -142,7 +142,6 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
     
     int j_old; 
-    double new_f_infty = 0;
     for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
       for (Xi[1] = LBound[1]+2; Xi[1] < UBound[1]-1; ++Xi[1]) {
              
@@ -169,9 +168,12 @@ void PosFluxCons3rdOrder<ForceField>
 //                  errmsg = true;
 //                }
 
-                Dj(Vi[0]) = 0;
+                double &djref = Dj(Vi[0]);
+                
+                djref = 0;
                 for (int jj=j_old+1; jj<=min(j,bvx) ; ++jj)
-                  Dj(Vi[0]) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+                  djref += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
+                  
                 j_old=j;
                 
                 if ( (j>=lvx) && (j<=bvx) )
@@ -187,36 +189,20 @@ void PosFluxCons3rdOrder<ForceField>
             for (int jj=j_old+1; jj<=bvx; ++jj)
               Dj(bvx) += Distribution(Xi[0], Xi[1], jj, Vi[1], Vi[2]);
 
-//            for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
-//                double dn = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
-//                if (dn<0) {
-//                  
-//                  assert( false );
-//                  Flux(Vi[0]-1) += dn/2.0;
-//                  Flux(Vi[0]) -= dn/2.0;
-//                }
-////                else if (dn>f_infty) {
-////                  Flux(Vi[0]-1) -= (dn-f_infty)/2.0;
-////                  Flux(Vi[0]) += (dn-f_infty)/2.0;
-////                }
-//            }
             
             double &dl = Distribution(Xi[0], Xi[1], lvx, Vi[1], Vi[2]);
             Flux(lvx) = min(Flux(lvx), Dj(lvx));
             dl  = - Flux(lvx) + Dj(lvx);
     
-            if (new_f_infty<dl) new_f_infty=dl;
             
             for (Vi[0] = lvx+1; Vi[0] < bvx; ++Vi[0]) {
                 double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
                 dd = Flux(Vi[0]-1) - Flux(Vi[0]) + Dj(Vi[0]);
-                if (new_f_infty<dd) new_f_infty=dd;
             }
             
             double &dh = Distribution(Xi[0], Xi[1], bvx, Vi[1], Vi[2]);
             Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
             dh  = Flux(bvx-1) + Dj(bvx);
-            if (new_f_infty<dh) new_f_infty=dh;
               
         }
     }
@@ -224,7 +210,6 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VXDone");
-    f_infty = boundary->MaxReduce(new_f_infty);
 }
 
 template<class ForceField>
@@ -249,7 +234,6 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
 
     int j_old; 
-    double new_f_infty = 0;
     
     for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
       for (Xi[1] = LBound[1]+2; Xi[1] < UBound[1]-1; ++Xi[1]) {
@@ -281,9 +265,13 @@ void PosFluxCons3rdOrder<ForceField>
 //                  errmsg=true;
 //                }
 
-                Dj(Vi[1]) = 0;
+                double &djref = Dj(Vi[1]);
+                
+                djref = 0;
+                
                 for (int jj=j_old+1; jj<=min(j,bvx); ++jj)
-                  Dj(Vi[1]) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+                  djref += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
+                  
                 j_old=j;
                   
                 if ( (j>=lvx) && (j<=bvx) )
@@ -300,35 +288,18 @@ void PosFluxCons3rdOrder<ForceField>
             for (int jj=j_old+1; jj<=bvx; ++jj)
               Dj(bvx) += Distribution(Xi[0], Xi[1], Vi[0], jj, Vi[2]);
   
-//            for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
-//                double dn = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
-//                if (dn<0) {
-//                  assert( false );
-//                  Flux(Vi[1]-1) += dn/2.0;
-//                  Flux(Vi[1]) -= dn/2.0;
-//                } 
-////                else if (dn>f_infty) {
-////                  Flux(Vi[1]-1) -= (dn-f_infty)/2.0;
-////                  Flux(Vi[1]) += (dn-f_infty)/2.0;
-////                }
-//            }
-
             double &dl = Distribution(Xi[0], Xi[1], Vi[0], lvx, Vi[2]);
             Flux(lvx) = min(Flux(lvx), Dj(lvx));
             dl  = - Flux(lvx) + Dj(lvx);
             
-            if (new_f_infty<dl) new_f_infty=dl;
-
             for (Vi[1] = lvx+1; Vi[1] < bvx; ++Vi[1]) {
                 double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
                 dd = Flux(Vi[1]-1) - Flux(Vi[1]) + Dj(Vi[1]);
-                if (new_f_infty<dd) new_f_infty=dd;
             }
 
             double &dh = Distribution(Xi[0], Xi[1], Vi[0], bvx, Vi[2]);
             Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
             dh = Flux(bvx-1) + Dj(bvx);
-            if (new_f_infty<dh) new_f_infty=dh;
         }
     }
 //    CheckDensity(Distribution,"VYEnd");
@@ -336,7 +307,6 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeX(Distribution);
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VYDone");
-    f_infty = boundary->MaxReduce(new_f_infty);
 }
 
 
@@ -362,7 +332,6 @@ void PosFluxCons3rdOrder<ForceField>
     VelocityD Vflux;
 
     int j_old; // check initialization inside the loop!!
-    double new_f_infty = 0;
     
 //    cerr << "Advancing in vz\n";
     for (Xi[0] = LBound[0]+2; Xi[0] < UBound[0]-1; ++Xi[0]) 
@@ -393,10 +362,14 @@ void PosFluxCons3rdOrder<ForceField>
 //                  cerr << "Vz: deltaI out of bounds:" << deltaI << endl;
 //                  errmsg = true;
 //                }
+                
+                double &djref = Dj(Vi[2]);
+                
+                djref = 0;
+                int jjbound = min(j,bvx);
+                for (int jj=j_old+1; jj<=jjbound; ++jj)
+                  djref += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
 
-                Dj(Vi[2]) = 0;
-                for (int jj=j_old+1; jj<=min(j,bvx) ; ++jj)
-                  Dj(Vi[2]) += Distribution(Xi[0], Xi[1],Vi[0], Vi[1], jj);
                 j_old=j;
                   
                 //Flux(Vi[2]) = interpolateVz(Xi, Vi, j, alpha);
@@ -414,37 +387,22 @@ void PosFluxCons3rdOrder<ForceField>
             for (int jj=j_old+1; jj<=bvx; ++jj)
               Dj(bvx) += Distribution(Xi[0], Xi[1], Vi[0], Vi[1], jj);
   
-//            for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
-//                double dn = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
-//                if (dn<0) {
-//                  assert( false );
-//                  Flux(Vi[2]-1) += dn/2.0;
-//                  Flux(Vi[2]) -= dn/2.0;
-//                } 
-////                else if (dn>f_infty) {
-////                  Flux(Vi[2]-1) -= (dn-f_infty)/2.0;
-////                  Flux(Vi[2]) += (dn-f_infty)/2.0;
-////                }
-//            }
 
             double &dl = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], lvx);
             
             Flux(lvx) = min(Flux(lvx), Dj(lvx));
             
             dl = - Flux(lvx) + Dj(lvx);
-            if (new_f_infty<dl) new_f_infty=dl;
             
             for (Vi[2] = lvx+1; Vi[2] < bvx; ++Vi[2]) {
                 double &dd = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]);
                 dd = Flux(Vi[2]-1) - Flux(Vi[2]) + Dj(Vi[2]);
-                if (new_f_infty<dd) new_f_infty=dd;
             }
             double &dh = Distribution(Xi[0], Xi[1], Vi[0], Vi[1], bvx);
             
             Flux(bvx-1) = max(Flux(bvx-1), -Dj(bvx));
             
             dh = Flux(bvx-1) + Dj(bvx);
-            if (new_f_infty<dh) new_f_infty=dh;
         }
     }
 //    CheckDensity(Distribution,"VZEnd");
@@ -453,7 +411,6 @@ void PosFluxCons3rdOrder<ForceField>
     boundary->exchangeY(Distribution);
 //    CheckDensity(Distribution,"VZDone");
 
-    f_infty = boundary->MaxReduce(new_f_infty);
 }
 
 //#define FULL_LIMIT
@@ -567,25 +524,46 @@ double PosFluxCons3rdOrder<ForceField>::interpolateVx(
                 double alpha) {
     double fj  = Distribution(Xi[0],Xi[1],j  ,Vi[1],Vi[2]);
     double fjp, fjm;
-    if (j<=Distribution.getLow()[2])
-    {
-      fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
-      fjm = max(0.0,2*fj-fjp);
-    } else
-    if (j>=Distribution.getHigh()[2])
-    {
-      fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
-      fjp = max(0.0,2*fj-fjm);
-    } else
-    {
-      fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
-      fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
-    }
+    
+//     double fjparr[3], fjmarr[3];
+//     
+//     fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+//     fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+//     
+//     fjparr[0] = fjp;
+//     fjparr[1] = 0.0;
+//     fjparr[2] = 2*fj-fjm;
+//     fjmarr[0] = fjm;
+//     fjmarr[1] = 0.0;
+//     fjmarr[2] = 2*fj-fjp;
+//     
+//     int logicp1 = int(j >= Distribution.getHigh()[2]);
+//     int logicp2 = int( fjparr[2] > 0 );
+//     int logicm1 = int(j <= Distribution.getLow()[2]);
+//     int logicm2 = int( fjmarr[2] > 0 );
+//     
+//     fjp = fjparr[ logicp1*(1+logicp2) ];
+//     fjm = fjmarr[ logicm1*(1+logicm2) ];
+  
+  if (j<=Distribution.getLow()[2])
+  {
+    fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+    fjm = max(0.0,2*fj-fjp);
+  } else
+  if (j>=Distribution.getHigh()[2])
+  {
+    fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+    fjp = max(0.0,2*fj-fjm);
+  } else
+  {
+    fjp = Distribution(Xi[0],Xi[1],j+1,Vi[1],Vi[2]);
+    fjm = Distribution(Xi[0],Xi[1],j-1,Vi[1],Vi[2]);
+  }
 
-    double epsl = epsilonLeft(fj,fjp); // Slope Corrector
-    double epsr = epsilonRight(fj,fjm); // Slope Corrector
+  double epsl = epsilonLeft(fj,fjp); // Slope Corrector
+  double epsr = epsilonRight(fj,fjm); // Slope Corrector
 
-   return (1-alpha)*(fj
+  return (1-alpha)*(fj
                 +(1/6.)*alpha*(alpha + 1)*epsl*(-fj+fjp)
                 -(1/6.)*alpha*(alpha - 2)*epsr*(-fjm+fj));
 }

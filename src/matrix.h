@@ -107,9 +107,9 @@ class Matrix : public ValueChecker<T> {
     void resize(const Matrix<T, rank>& m);
 
     /** index operator, writing */
-    T& operator[](const int* pos); // write
+//    T& operator[](const int* pos); // write
     /** index operator, reading */
-    T  operator[](const int* pos) const; // read
+//    T  operator[](const int* pos) const; // read
     /** index operator, writing */
     T& operator()(int i);
     /** index operator, reading */
@@ -215,35 +215,35 @@ public:
 // -------------------------------------------------------------
 // inline functions
 
-template<class T, int rank>
-inline T& Matrix<T, rank>::operator[](const int* pos)
-{
-  assert((pos[rank-1] >= lo[rank-1]) && (pos[rank-1] <= hi[rank-1]));
-  int p = pos[rank-1]-lo[rank-1];
-      
-  for(int i = rank-2; i >= 0; i--) {
-    assert((pos[i] >= lo[i]) && (pos[i] <= hi[i]));
-    p = p*dims[i] + (pos[i]-lo[i]);
-  }
-
-  assert((p >= 0) && (p < size));
-
-  return matr[p];
-}
-
-template<class T, int rank>
-inline T Matrix<T, rank>::operator[](const int* pos) const
-{
-  assert((pos[rank-1] >= lo[rank-1]) && (pos[rank-1] <= hi[rank-1]));
-  int p = pos[rank-1];
-      
-  for(int i = rank-2; i >= 0; i--) {
-    assert((pos[i] >= lo[i]) && (pos[i] <= hi[i]));
-    p = p*dims[i] + pos[i];
-  }
-
-  return matr_fast[p];
-}
+// template<class T, int rank>
+// inline T& Matrix<T, rank>::operator[](const int* pos)
+// {
+//   assert((pos[rank-1] >= lo[rank-1]) && (pos[rank-1] <= hi[rank-1]));
+//   int p = pos[0]-lo[0];
+//       
+//   for(int i = 1; i < rank; i--) {
+//     assert((pos[i] >= lo[i]) && (pos[i] <= hi[i]));
+//     p = p*dims[i] + (pos[i]-lo[i]);
+//   }
+// 
+//   assert((p >= 0) && (p < size));
+// 
+//   return matr[p];
+// }
+// 
+// template<class T, int rank>
+// inline T Matrix<T, rank>::operator[](const int* pos) const
+// {
+//   assert((pos[rank-1] >= lo[rank-1]) && (pos[rank-1] <= hi[rank-1]));
+//   int p = pos[rank-1];
+//       
+//   for(int i = rank-2; i >= 0; i--) {
+//     assert((pos[i] >= lo[i]) && (pos[i] <= hi[i]));
+//     p = p*dims[i] + pos[i];
+//   }
+// 
+//   return matr_fast[p];
+// }
 
 template<class T, int rank> 
 inline T* Matrix<T, rank>::data()
@@ -291,7 +291,7 @@ inline  T& Matrix<T, rank>::operator ()(int i, int j)
   assert(rank == 2);
   assert((i >= lo[0]) && (i <= hi[0]));
   assert((j >= lo[1]) && (j <= hi[1]));
-  return checkValue(matr_fast[i + dims[0] * j]);
+  return checkValue(matr_fast[j + dims[1] * i]);
 }
 
 template<class T, int rank>
@@ -300,7 +300,7 @@ inline  T Matrix<T, rank>::operator ()(int i, int j) const
   assert(rank == 2);
   assert((i >= lo[0]) && (i <= hi[0]));
   assert((j >= lo[1]) && (j <= hi[1]));
-  return checkValue(matr_fast[i + dims[0] * j]);
+  return checkValue(matr_fast[j + dims[1] * i]);
 }
 
 template<class T, int rank>
@@ -310,7 +310,7 @@ inline  T& Matrix<T, rank>::operator ()(int i, int j, int k)
   assert((i >= lo[0]) && (i <= hi[0]));
   assert((j >= lo[1]) && (j <= hi[1]));
   assert((k >= lo[2]) && (k <= hi[2]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*k)]);
+  return checkValue(matr_fast[k + dims[2]*(j + dims[1]*i)]);
 }
 
 template<class T, int rank>
@@ -320,7 +320,7 @@ inline  T Matrix<T, rank>::operator ()(int i, int j, int k) const
   assert((i >= lo[0]) && (i <= hi[0]));
   assert((j >= lo[1]) && (j <= hi[1]));
   assert((k >= lo[2]) && (k <= hi[2]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*k)]);
+  return checkValue(matr_fast[k + dims[2]*(j + dims[1]*i)]);
 }
 
 template<class T, int rank>
@@ -331,7 +331,7 @@ inline  T& Matrix<T, rank>::operator ()(int i, int j, int k, int l)
   assert((j >= lo[1]) && (j <= hi[1]));
   assert((k >= lo[2]) && (k <= hi[2]));
   assert((l >= lo[3]) && (l <= hi[3]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*(k+dims[2]*l))]);
+  return checkValue(matr_fast[l + dims[3]*(k + dims[2]*(j+dims[1]*i))]);
 }
 
 template<class T, int rank>
@@ -342,7 +342,7 @@ inline  T Matrix<T, rank>::operator ()(int i, int j, int k, int l) const
   assert((j >= lo[1]) && (j <= hi[1]));
   assert((k >= lo[2]) && (k <= hi[2]));
   assert((l >= lo[3]) && (l <= hi[3]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*(k+dims[2]*l))]);
+  return checkValue(matr_fast[l + dims[3]*(k + dims[2]*(j+dims[1]*i))]);
 }
 
 template<class T, int rank>
@@ -354,7 +354,7 @@ inline  T& Matrix<T, rank>::operator ()(int i, int j, int k, int l, int m)
   assert((k >= lo[2]) && (k <= hi[2]));
   assert((l >= lo[3]) && (l <= hi[3]));
   assert((m >= lo[4]) && (m <= hi[4]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*(k+dims[2]*(l+dims[3]*m)))]);
+  return checkValue(matr_fast[m + dims[4]*(l + dims[3]*(k+dims[2]*(j+dims[1]*i)))]);
 }
 
 template<class T, int rank>
@@ -365,7 +365,7 @@ inline  T Matrix<T, rank>::operator ()(int i, int j, int k, int l, int m) const
   assert((j >= lo[1]) && (j <= hi[1]));
   assert((k >= lo[2]) && (k <= hi[2]));
   assert((m >= lo[4]) && (m <= hi[4]));
-  return checkValue(matr_fast[i + dims[0]*(j + dims[1]*(k+dims[2]*(l+dims[3]*m)))]);
+  return checkValue(matr_fast[m + dims[4]*(l + dims[3]*(k+dims[2]*(j+dims[1]*i)))]);
 }
 
 #include "matrix.t"

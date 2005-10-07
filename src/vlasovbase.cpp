@@ -63,6 +63,43 @@ void ForceFieldBase::resize(PhasePositionI low, PhasePositionI high) {
 }
 
 
+double ForceFieldBase::densityError(VlasovDist &distrib) {
+    const int *UBound = distrib.getHigh();
+    const int *LBound = distrib.getLow();
+    double avg = 0;
+
+    for (int i=LBound[0]+2; i<=UBound[0]-2; ++i)
+      for (int j=LBound[1]+2; j<=UBound[1]-2; ++j)
+        for (int k=LBound[2]; k<=UBound[2]; ++k) 
+          for (int l=LBound[3]; l<=UBound[3]; ++l) 
+            for (int m=LBound[4]; m<=UBound[4]; ++m)
+            {
+              avg += distrib(i,j,k,l,m);
+            }
+        
+    avg = avg/double((UBound[0]-LBound[0]-3)*(UBound[1]-LBound[1]-3));
+    
+    avg =  boundary->AvgReduce(avg);
+    
+    if (boundary->master())
+      std::cout << "Total density: " << avg  << std::endl;
+    return avg;
+}
+
+void ForceFieldBase::correctDensityError(double err, VlasovDist &distrib) {
+    if (boundary->master())
+      std::cout << "Correcting density: " << err  << std::endl;
+    const int *UBound = distrib.getHigh();
+    const int *LBound = distrib.getLow();
+    for (int i=LBound[0]; i<=UBound[0]; ++i)
+      for (int j=LBound[1]; j<=UBound[1]; ++j)
+        for (int k=LBound[2]; k<=UBound[2]; ++k) 
+          for (int l=LBound[3]; l<=UBound[3]; ++l) 
+            for (int m=LBound[4]; m<=UBound[4]; ++m) 
+              distrib(i,j,k,l,m) /= err;
+}
+
+
 pDistributionDerivedField ForceFieldBase::getDerivedField(std::string name) {
   return derivedFields.getField(name);
 }

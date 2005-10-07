@@ -119,7 +119,7 @@ Matrix<T, rank>& Matrix<T, rank>::operator=(const Matrix<T, rank>& _matr)
 {
   for (int d = 0; d < rank; d++) {
     if (_matr.lo[d] != lo[d] ||
-	_matr.hi[d] != hi[d]) {
+	    _matr.hi[d] != hi[d]) {
       deleteData();
       newData(_matr.lo, _matr.hi);
       break;
@@ -128,6 +128,7 @@ Matrix<T, rank>& Matrix<T, rank>::operator=(const Matrix<T, rank>& _matr)
 
   for (int i = 0; i < size; i++)
     matr[i] = checkValue(_matr.matr[i]);
+    
   return *this;
 }
  
@@ -211,10 +212,10 @@ void Matrix<T, rank>::newData(const int* l, const int* h)
   }
   matr = new T[size];
   if (matr==NULL) std::cerr << "Could not allocate memory!\n";
-  int p = -lo[rank-1];
+  int p = -lo[0];
 
-  for (d = rank-2; d >= 0 ; d--) {
-    p = p*dims[d] -lo[d];
+  for (d = 1; d < rank ; d++) {
+    p = p*dims[d] - lo[d];
   }
   matr_fast = matr + p;
 }

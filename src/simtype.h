@@ -29,6 +29,18 @@
   #define FORCE_TYPE GenericEMForceDirect
 #endif
 
+#ifdef FINITE_DIFF_RK3
+  #define SCHEME_TYPE FiniteDiffSchemeRK3
+  #define ADVANCE_TYPE SimpleAdvance
+  #define FORCE_TYPE GenericEMForceDirect
+#endif
+
+#ifdef FINITE_DIFF4_RK3
+  #define SCHEME_TYPE FiniteDiff4SchemeRK3
+  #define ADVANCE_TYPE SimpleAdvance
+  #define FORCE_TYPE GenericEMForceDirect
+#endif
+
 
 // Advancers can be one of the following:
 //    SimpleAdvance (funktioniert nur mit FiniteDiffScheme)
