@@ -232,24 +232,24 @@ void Matrix<T, rank>::newData(const int* l, const int* h)
 //   return os;
 // }
 // 
-// template<class T>
-// ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
-// {
-//   if (!matr) {
-//     os << "(undef)" << endl;
-//     return os;
-//   }
-//   
-//   for (int i = matr.lo[0]; i<= matr.hi[0]; ++i)
-//   {
-//     for (int j = matr.lo[1]; j<= matr.hi[1]; ++j)
-//     {
-//       os << i << " " << j << " " << matr(i,j)<< "\n";
-//     }
-//     os << std::endl;
-//   }
-//   return os;
-// }
+template<class T>
+ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
+{
+  if (!matr) {
+    os << "(undef)" << endl;
+    return os;
+  }
+  
+  for (int i = matr.getLow(0); i<= matr.getHigh(0); ++i)
+  {
+    for (int j = matr.getLow(1); j<= matr.getHigh(1); ++j)
+    {
+      os << i << " " << j << " " << matr(i,j)<< "\n";
+    }
+    os << std::endl;
+  }
+  return os;
+}
 
 
 // -----------------------------------------------------------------

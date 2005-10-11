@@ -67,6 +67,7 @@ class SimpleDiagnostic : public DiagnosticInterface {
       bool single_out;
   public:
       SimpleDiagnostic() { single_out=false; }
+      ~SimpleDiagnostic();
       void setField(Type*);
   protected:
       void open(const std::string &);

@@ -10,9 +10,15 @@ void SimpleDiagnostic<Type,StreamType>::open(const std::string &fname)
 }
 
 template<class Type, class StreamType>
+SimpleDiagnostic<Type,StreamType>::~SimpleDiagnostic()
+{
+  output.close();
+}
+
+template<class Type, class StreamType>
 void SimpleDiagnostic<Type,StreamType>::write()
 {
-   output << *field;
+  output << *field;
 }
 
 template<class Type, class StreamType>
