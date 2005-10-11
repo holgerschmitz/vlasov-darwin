@@ -147,64 +147,64 @@ NumArray<T> NumArray<T>::set(T t0, T t1, T t2, T t3, T t4)
 template<class T>
 void NumArray<T>::clear()
 {
-  for (int i = 0; i < len; i++)
-    arr[i] = 0;
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] = 0;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator*=(T t)
 {
-  for (int i = 0; i < len; i++)
-    arr[i] *= t;
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] *= t;
   return *this;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator/=(T t)
 {
-  for (int i = 0; i < len; i++)
-    arr[i] /= t;
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] /= t;
   return *this;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator+=(const NumArray<T>& _arr)
 {
-  assert(len == _arr.len);
-  for (int i = 0; i < len; i++)
-    arr[i] += _arr[i];
+  assert(this->len == _arr.len);
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] += _arr[i];
   return *this;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator-=(const NumArray<T>& _arr)
 {
-  assert(len == _arr.len);
-  for (int i = 0; i < len; i++)
-    arr[i] -= _arr[i];
+  assert(this->len == _arr.len);
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] -= _arr[i];
   return *this;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator+=(T t)
 {
-  for (int i = 0; i < len; i++)
-    arr[i] += t;
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] += t;
   return *this;
 }
 
 template<class T>
 NumArray<T>& NumArray<T>::operator-=(T t)
 {
-  for (int i = 0; i < len; i++)
-    arr[i] -= t;
+  for (int i = 0; i < this->len; i++)
+    this->arr[i] -= t;
   return *this;
 }
 
 template<class T>
 NumArray<T> NumArray<T>::operator+(const NumArray<T>& _arr) const
 {
-  assert(len == _arr.len);
+  assert(this->len == _arr.len);
   NumArray<T> tmp = *this;
   tmp += _arr;
   return tmp;
@@ -213,7 +213,7 @@ NumArray<T> NumArray<T>::operator+(const NumArray<T>& _arr) const
 template<class T>
 NumArray<T> NumArray<T>::operator-(const NumArray<T>& _arr) const
 {
-  assert(len == _arr.len);
+  assert(this->len == _arr.len);
   NumArray<T> tmp = *this;
   tmp -= _arr;
   return tmp;

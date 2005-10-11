@@ -5,8 +5,8 @@
 template<class ForceField>
 void FiniteDiffScheme<ForceField>::initDist()
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
     
   TempDist.resize(LBound,UBound);
   CurrentDist.resize(LBound,UBound);
@@ -16,15 +16,15 @@ template<class ForceField>
 void FiniteDiffScheme<ForceField>
         ::advanceAll(double timestep) {
     
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
+    const int *UBound = this->Distribution.getHigh();
+    const int *LBound = this->Distribution.getLow();
 
-                                       //  T | C | D |
-    Distribution.swap(CurrentDist);    //  T | D | C |
-    Distribution.swap(TempDist);       //  D | T | C |
-                                       // after the following we have   
-                                       //    | T | C | D
-
+                                              //  T | C | D |
+    this->Distribution.swap(CurrentDist);     //  T | D | C |
+    this->Distribution.swap(TempDist);        //  D | T | C |
+                                              // after the following we have   
+                                              //    | T | C | D
+  
     PositionI Xi;
     VelocityI Vi;
     
@@ -39,9 +39,9 @@ void FiniteDiffScheme<ForceField>
     int lvz = LBound[4]+1;
     int bvz = UBound[4]-1;
     
-    double dvx = deltaVx();
-    double dvy = deltaVy();
-    double dvz = deltaVz();
+    double dvx = this->deltaVx();
+    double dvy = this->deltaVy();
+    double dvz = this->deltaVz();
     
     for (Vi[2] = lvz; Vi[2] <= bvz; ++Vi[2])
       for (Vi[1] = lvy; Vi[1] <= bvy; ++Vi[1])	
@@ -49,14 +49,14 @@ void FiniteDiffScheme<ForceField>
           for (Xi[1] = ly;  Xi[1] <= by;  ++Xi[1])
             for (Xi[0] = lx;  Xi[0] <= bx;  ++Xi[0])
             {
-              VelocityD Vel = velocity(Vi);
-              VelocityD F = Force(Xi,Vel,timestep);
+              VelocityD Vel = this->velocity(Vi);
+              VelocityD F = this->Force(Xi,Vel,timestep);
               
               double dfx = (CurrentDist(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
-                          - CurrentDist(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*dx[0]);
+                          - CurrentDist(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*this->dx[0]);
 
               double dfy = (CurrentDist(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
-                          - CurrentDist(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*dx[1]);
+                          - CurrentDist(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*this->dx[1]);
 
               double dfvx = (CurrentDist(Xi[0], Xi[1], Vi[0]+1, Vi[1], Vi[2])
                            - CurrentDist(Xi[0], Xi[1], Vi[0]-1, Vi[1], Vi[2])) / (2*dvx);
@@ -67,14 +67,14 @@ void FiniteDiffScheme<ForceField>
               double dfvz = (CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]+1)
                            - CurrentDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]-1)) / (2*dvz);
                            
-              Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
+              this->Distribution(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) 
                 = TempDist(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
                    - 2*( timestep*(Vel[0]*dfx + Vel[1]*dfy)
                           + (F[0]*dfvx + F[1]*dfvy + F[2]*dfvz)
                         );
             }
-    boundary->exchangeX(Distribution);
-    boundary->exchangeY(Distribution);
+    this->boundary->exchangeX(this->Distribution);
+    this->boundary->exchangeY(this->Distribution);
     
 }
 
@@ -85,8 +85,8 @@ void FiniteDiffScheme<ForceField>
 template<class ForceField>
 void FiniteDiffSchemeRK2<ForceField>::initDist()
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
     
   D1.resize(LBound,UBound);
 }
@@ -95,8 +95,8 @@ template<class ForceField>
 void FiniteDiffSchemeRK2<ForceField>
         ::forwardDist(VlasovDist &rhs, VlasovDist &lhs, double timestep)
 {
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
+    const int *UBound = this->Distribution.getHigh();
+    const int *LBound = this->Distribution.getLow();
     
     PositionI Xi;
     VelocityI Vi;
@@ -112,9 +112,9 @@ void FiniteDiffSchemeRK2<ForceField>
     int lvz = LBound[4]+1;
     int bvz = UBound[4]-1;
     
-    double dvx = deltaVx();
-    double dvy = deltaVy();
-    double dvz = deltaVz();
+    double dvx = this->deltaVx();
+    double dvy = this->deltaVy();
+    double dvz = this->deltaVz();
     
     for (Vi[2] = lvz; Vi[2] <= bvz; ++Vi[2])
       for (Vi[1] = lvy; Vi[1] <= bvy; ++Vi[1])	
@@ -122,14 +122,14 @@ void FiniteDiffSchemeRK2<ForceField>
           for (Xi[1] = ly;  Xi[1] <= by;  ++Xi[1])
             for (Xi[0] = lx;  Xi[0] <= bx;  ++Xi[0])
             {
-              VelocityD Vel = velocity(Vi);
-              VelocityD F = Force(Xi,Vel,timestep);
+              VelocityD Vel = this->velocity(Vi);
+              VelocityD F = this->Force(Xi,Vel,timestep);
               
               double dfx = (rhs(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
-                          - rhs(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*dx[0]);
+                          - rhs(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*this->dx[0]);
 
               double dfy = (rhs(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
-                          - rhs(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*dx[1]);
+                          - rhs(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*this->dx[1]);
 
               double dfvx = (rhs(Xi[0], Xi[1], Vi[0]+1, Vi[1], Vi[2])
                            - rhs(Xi[0], Xi[1], Vi[0]-1, Vi[1], Vi[2])) / (2*dvx);
@@ -145,8 +145,8 @@ void FiniteDiffSchemeRK2<ForceField>
                           + (F[0]*dfvx + F[1]*dfvy + F[2]*dfvz)
                         );
             }
-    boundary->exchangeX(lhs);
-    boundary->exchangeY(lhs);
+    this->boundary->exchangeX(lhs);
+    this->boundary->exchangeY(lhs);
 }
 
 template<class ForceField>
@@ -156,11 +156,11 @@ void FiniteDiffSchemeRK2<ForceField>
   switch (RKState)
   {
     case 0:
-      forwardDist(D1, Distribution, 0.5*timestep);
+      forwardDist(D1, this->Distribution, 0.5*timestep);
       RKState = 1;
       break;
     case 1:
-      forwardDist(Distribution, D1, timestep);
+      forwardDist(this->Distribution, D1, timestep);
       RKState = 0;
       break;
   }
@@ -177,8 +177,8 @@ template<class ForceField>
 void FiniteDiffSchemeRK3<ForceField>
         ::forwardDist(VlasovDist &rhs, VlasovDist &lhs, double timestep)
 {
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
+    const int *UBound = this->Distribution.getHigh();
+    const int *LBound = this->Distribution.getLow();
     
     PositionI Xi;
     VelocityI Vi;
@@ -194,9 +194,9 @@ void FiniteDiffSchemeRK3<ForceField>
     int lvz = LBound[4]+1;
     int bvz = UBound[4]-1;
     
-    double dvx = deltaVx();
-    double dvy = deltaVy();
-    double dvz = deltaVz();
+    double dvx = this->deltaVx();
+    double dvy = this->deltaVy();
+    double dvz = this->deltaVz();
     
     for (Vi[2] = lvz; Vi[2] <= bvz; ++Vi[2])
       for (Vi[1] = lvy; Vi[1] <= bvy; ++Vi[1])	
@@ -204,14 +204,14 @@ void FiniteDiffSchemeRK3<ForceField>
           for (Xi[1] = ly;  Xi[1] <= by;  ++Xi[1])
             for (Xi[0] = lx;  Xi[0] <= bx;  ++Xi[0])
             {
-              VelocityD Vel = velocity(Vi);
-              VelocityD F = Force(Xi,Vel,timestep);
+              VelocityD Vel = this->velocity(Vi);
+              VelocityD F = this->Force(Xi,Vel,timestep);
               
               double dfx = (rhs(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
-                          - rhs(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*dx[0]);
+                          - rhs(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])) / (2*this->dx[0]);
 
               double dfy = (rhs(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
-                          - rhs(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*dx[1]);
+                          - rhs(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])) / (2*this->dx[1]);
 
               double dfvx = (rhs(Xi[0], Xi[1], Vi[0]+1, Vi[1], Vi[2])
                            - rhs(Xi[0], Xi[1], Vi[0]-1, Vi[1], Vi[2])) / (2*dvx);
@@ -227,18 +227,18 @@ void FiniteDiffSchemeRK3<ForceField>
                           + (F[0]*dfvx + F[1]*dfvy + F[2]*dfvz)
                         );
             }
-    boundary->exchangeX(lhs);
-    boundary->exchangeY(lhs);
+    this->boundary->exchangeX(lhs);
+    this->boundary->exchangeY(lhs);
     
-    double denErr = densityError(lhs)/numDensity;
-    correctDensityError(denErr, lhs);
+    double denErr = this->densityError(lhs)/numDensity;
+    this->correctDensityError(denErr, lhs);
 }
 
 template<class ForceField>
 void FiniteDiffSchemeRK3<ForceField>::initDist()
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
     
   T1Dist.resize(LBound,UBound);
   T2Dist.resize(LBound,UBound);
@@ -249,10 +249,10 @@ void FiniteDiffSchemeRK3<ForceField>::initDist()
         for (int l=LBound[3]; l<=UBound[3]; ++l) 
           for (int m=LBound[4]; m<=UBound[4]; ++m)
           {
-            T1Dist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+            T1Dist(i,j,k,l,m) = this->Distribution(i,j,k,l,m);
           }
-  if (boundary->master()) std::cout << "Initializing Density Error\n";
-  numDensity = densityError(Distribution);
+  if (this->boundary->master()) std::cout << "Initializing Density Error\n";
+  numDensity = this->densityError(this->Distribution);
 }
 
 
@@ -260,12 +260,12 @@ template<class ForceField>
 void FiniteDiffSchemeRK3<ForceField>
         ::advanceAll(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   switch (RKState) {
-      case 0: forwardDist(Distribution, T1Dist, timestep/3.);         
-              Distribution.swap(T1Dist);
+      case 0: forwardDist(this->Distribution, T1Dist, timestep/3.);         
+              this->Distribution.swap(T1Dist);
               
               for (int i=LBound[0]; i<=UBound[0]; ++i)
                 for (int j=LBound[1]; j<=UBound[1]; ++j)
@@ -273,21 +273,21 @@ void FiniteDiffSchemeRK3<ForceField>
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m)
                       {
-                        T2Dist(i,j,k,l,m) = 0.25*T1Dist(i,j,k,l,m) + 0.75*Distribution(i,j,k,l,m);
+                        T2Dist(i,j,k,l,m) = 0.25*T1Dist(i,j,k,l,m) + 0.75*this->Distribution(i,j,k,l,m);
                       }
 
               RKState = 1;
               break;
               
-      case 1: forwardDist(Distribution, T1Dist, 2*timestep/3.);         
-              Distribution.swap(T1Dist);
+      case 1: forwardDist(this->Distribution, T1Dist, 2*timestep/3.);         
+              this->Distribution.swap(T1Dist);
 
               RKState = 2;
               VlasovDiagnostic = true;
               break;
               
-      case 2: forwardDist(Distribution, T2Dist, 3*timestep/4.); 
-              Distribution.swap(T2Dist);
+      case 2: forwardDist(this->Distribution, T2Dist, 3*timestep/4.); 
+              this->Distribution.swap(T2Dist);
               
               for (int i=LBound[0]; i<=UBound[0]; ++i)
                 for (int j=LBound[1]; j<=UBound[1]; ++j)
@@ -295,7 +295,7 @@ void FiniteDiffSchemeRK3<ForceField>
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m) 
                       {
-                        T1Dist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+                        T1Dist(i,j,k,l,m) = this->Distribution(i,j,k,l,m);
                       } 
               RKState = 0;
               break;
@@ -315,8 +315,8 @@ void FiniteDiff4SchemeRK3<ForceField>
 {
     myLocalFiniteDiff4SchemeRK3Counter++;
 //    std::cerr << "forwardDist "<<myLocalFiniteDiff4SchemeRK3Counter<<"\n";
-    const int *UBound = Distribution.getHigh();
-    const int *LBound = Distribution.getLow();
+    const int *UBound = this->Distribution.getHigh();
+    const int *LBound = this->Distribution.getLow();
     
     PositionI Xi;
     VelocityI Vi;
@@ -332,9 +332,9 @@ void FiniteDiff4SchemeRK3<ForceField>
     int lvz = LBound[4]+1;
     int bvz = UBound[4]-1;
     
-    double dvx = deltaVx();
-    double dvy = deltaVy();
-    double dvz = deltaVz();
+    double dvx = this->deltaVx();
+    double dvy = this->deltaVy();
+    double dvz = this->deltaVz();
     
 //    std::cerr << "forwardDist -- in loop\n";
     for (Vi[2] = lvz; Vi[2] <= bvz; ++Vi[2])
@@ -349,18 +349,18 @@ void FiniteDiff4SchemeRK3<ForceField>
 //                  <<rhs(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2]) << "\n" << flush;
 //              }
  
-              VelocityD Vel = velocity(Vi);
-              VelocityD F = Force(Xi,Vel,timestep);
+              VelocityD Vel = this->velocity(Vi);
+              VelocityD F = this->Force(Xi,Vel,timestep);
 
               double dfx = (  rhs(Xi[0]-2, Xi[1], Vi[0], Vi[1], Vi[2])
                           - 8*rhs(Xi[0]-1, Xi[1], Vi[0], Vi[1], Vi[2])
                           + 8*rhs(Xi[0]+1, Xi[1], Vi[0], Vi[1], Vi[2])
-                          -   rhs(Xi[0]+2, Xi[1], Vi[0], Vi[1], Vi[2])) / (12.*dx[0]);
+                          -   rhs(Xi[0]+2, Xi[1], Vi[0], Vi[1], Vi[2])) / (12.*this->dx[0]);
  
               double dfy = (  rhs(Xi[0], Xi[1]-2, Vi[0], Vi[1], Vi[2])
                           - 8*rhs(Xi[0], Xi[1]-1, Vi[0], Vi[1], Vi[2])
                           + 8*rhs(Xi[0], Xi[1]+1, Vi[0], Vi[1], Vi[2])
-                          -   rhs(Xi[0], Xi[1]+2, Vi[0], Vi[1], Vi[2])) / (12.*dx[1]);
+                          -   rhs(Xi[0], Xi[1]+2, Vi[0], Vi[1], Vi[2])) / (12.*this->dx[1]);
 
               double dfvx;
               double dfvy = 0.01;
@@ -409,12 +409,12 @@ void FiniteDiff4SchemeRK3<ForceField>
                         );
             }
 //    std::cerr << "forwardDist -- Boundary\n";
-    boundary->exchangeX(lhs);
-    boundary->exchangeY(lhs);
+    this->boundary->exchangeX(lhs);
+    this->boundary->exchangeY(lhs);
 
 //    std::cerr << "forwardDist -- denErr\n";
-    double denErr = densityError(lhs)/numDensity;
-    correctDensityError(denErr, lhs);
+    double denErr = this->densityError(lhs)/numDensity;
+    this->correctDensityError(denErr, lhs);
 
 //    std::cerr << "forwardDist -- done\n";
 }
@@ -422,8 +422,8 @@ void FiniteDiff4SchemeRK3<ForceField>
 template<class ForceField>
 void FiniteDiff4SchemeRK3<ForceField>::initDist()
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
     
   T1Dist.resize(LBound,UBound);
   T2Dist.resize(LBound,UBound);
@@ -434,10 +434,10 @@ void FiniteDiff4SchemeRK3<ForceField>::initDist()
         for (int l=LBound[3]; l<=UBound[3]; ++l) 
           for (int m=LBound[4]; m<=UBound[4]; ++m)
           {
-            T1Dist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+            T1Dist(i,j,k,l,m) = this->Distribution(i,j,k,l,m);
           }
-  if (boundary->master()) std::cout << "Initializing Density Error\n";
-  numDensity = densityError(Distribution);
+  if (this->boundary->master()) std::cout << "Initializing Density Error\n";
+  numDensity = this->densityError(this->Distribution);
 }
 
 
@@ -446,12 +446,12 @@ void FiniteDiff4SchemeRK3<ForceField>
         ::advanceAll(double timestep) 
 {
 //  std::cerr << "advanceAll "<< RKState <<"\n";
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   switch (RKState) {
-      case 0: forwardDist(Distribution, T1Dist, timestep/3.);         
-              Distribution.swap(T1Dist);
+      case 0: forwardDist(this->Distribution, T1Dist, timestep/3.);         
+              this->Distribution.swap(T1Dist);
               
               for (int i=LBound[0]; i<=UBound[0]; ++i)
                 for (int j=LBound[1]; j<=UBound[1]; ++j)
@@ -459,21 +459,21 @@ void FiniteDiff4SchemeRK3<ForceField>
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m)
                       {
-                        T2Dist(i,j,k,l,m) = 0.25*T1Dist(i,j,k,l,m) + 0.75*Distribution(i,j,k,l,m);
+                        T2Dist(i,j,k,l,m) = 0.25*T1Dist(i,j,k,l,m) + 0.75*this->Distribution(i,j,k,l,m);
                       }
 
               RKState = 1;
               break;
               
-      case 1: forwardDist(Distribution, T1Dist, 2*timestep/3.);         
-              Distribution.swap(T1Dist);
+      case 1: forwardDist(this->Distribution, T1Dist, 2*timestep/3.);         
+              this->Distribution.swap(T1Dist);
 
               RKState = 2;
               VlasovDiagnostic = true;
               break;
               
-      case 2: forwardDist(Distribution, T2Dist, 3*timestep/4.); 
-              Distribution.swap(T2Dist);
+      case 2: forwardDist(this->Distribution, T2Dist, 3*timestep/4.); 
+              this->Distribution.swap(T2Dist);
               
               for (int i=LBound[0]; i<=UBound[0]; ++i)
                 for (int j=LBound[1]; j<=UBound[1]; ++j)
@@ -481,7 +481,7 @@ void FiniteDiff4SchemeRK3<ForceField>
                     for (int l=LBound[3]; l<=UBound[3]; ++l) 
                       for (int m=LBound[4]; m<=UBound[4]; ++m) 
                       {
-                        T1Dist(i,j,k,l,m) = Distribution(i,j,k,l,m);
+                        T1Dist(i,j,k,l,m) = this->Distribution(i,j,k,l,m);
                       } 
               RKState = 0;
               break;

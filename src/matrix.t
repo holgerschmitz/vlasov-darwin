@@ -220,36 +220,37 @@ void Matrix<T, rank>::newData(const int* l, const int* h)
   matr_fast = matr + p;
 }
 
-template<class T, int rank>
-ostream& operator<<(ostream& os, const Matrix<T, rank>& matr) 
-{
-  if (!matr) {
-    os << "(undef)" << endl;
-    return os;
-  }
-  os << "ostream& operator<<(ostream& os, const Matrix<T, rank>& matr)"
-     << endl << " not implemented" << endl;
-  return os;
-}
+// template<class T, int rank>
+// ostream& operator<<(ostream& os, const Matrix<T, rank>& matr) 
+// {
+//   if (!matr) {
+//     os << "(undef)" << endl;
+//     return os;
+//   }
+//   os << "ostream& operator<<(ostream& os, const Matrix<T, rank>& matr)"
+//      << endl << " not implemented" << endl;
+//   return os;
+// }
+// 
+// template<class T>
+// ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
+// {
+//   if (!matr) {
+//     os << "(undef)" << endl;
+//     return os;
+//   }
+//   
+//   for (int i = matr.lo[0]; i<= matr.hi[0]; ++i)
+//   {
+//     for (int j = matr.lo[1]; j<= matr.hi[1]; ++j)
+//     {
+//       os << i << " " << j << " " << matr(i,j)<< "\n";
+//     }
+//     os << std::endl;
+//   }
+//   return os;
+// }
 
-template<class T>
-ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
-{
-  if (!matr) {
-    os << "(undef)" << endl;
-    return os;
-  }
-  
-  for (int i = matr.lo[0]; i<= matr.hi[0]; ++i)
-  {
-    for (int j = matr.lo[1]; j<= matr.hi[1]; ++j)
-    {
-      os << i << " " << j << " " << matr(i,j)<< "\n";
-    }
-    os << std::endl;
-  }
-  return os;
-}
 
 // -----------------------------------------------------------------
 
@@ -270,17 +271,8 @@ NumMatrix<T, rank>::NumMatrix(const Matrix<T, rank>& _matr)
 template<class T, int rank>
 void NumMatrix<T, rank>::clear()
 { 
-  for (int i = 0; i < size; i++)
-    matr[i] = 0;
-}
-
-template<class T, int rank>
-double NumMatrix<T, rank>::max_norm()
-{
-  double maximum = abs(matr[0]);
-  for (int i = 0; i < size; i++)
-    maximum=max(maximum,double(abs(matr[i])));
-  return maximum;
+  for (int i = 0; i < this->size; i++)
+    this->matr[i] = 0;
 }
 
 template<class T, int rank>
@@ -320,8 +312,8 @@ T NumMatrix<T, rank>::interpol(const int* pos, const int* diff, int r) const
 template<class T, int rank>
 NumMatrix<T, rank>& NumMatrix<T, rank>::operator*=(T t)
 {
-  for (int i = 0; i < size; i++)
-    matr[i] *= t;
+  for (int i = 0; i < this->size; i++)
+    this->matr[i] *= t;
   return *this;
 }
 
@@ -329,8 +321,8 @@ template<class T, int rank>
 NumMatrix<T, rank>& NumMatrix<T, rank>::operator/=(T t)
 {
   T div = T(1./t);
-  for (int i = 0; i < size; i++)
-    matr[i] *= div;
+  for (int i = 0; i < this->size; i++)
+    this->matr[i] *= div;
   return *this;
 }
 
@@ -338,9 +330,9 @@ template<class T, int rank>
 NumMatrix<T, rank>& NumMatrix<T, rank>::operator+=(const NumMatrix<T, rank>& 
 						   _matr)
 {
-  assert(size == _matr.size);
-  for (int i = 0; i < size; i++)
-    matr[i] += _matr.matr[i];
+  assert(this->size == _matr.size);
+  for (int i = 0; i < this->size; i++)
+    this->matr[i] += _matr.matr[i];
   return *this;
 }
 
@@ -348,9 +340,9 @@ template<class T, int rank>
 NumMatrix<T, rank>& NumMatrix<T, rank>::operator-=(const NumMatrix<T, rank>& 
 						   _matr)
 {
-  assert(size == _matr.size);
-  for (int i = 0; i < size; i++)
-    matr[i] -= _matr.matr[i];
+  assert(this->size == _matr.size);
+  for (int i = 0; i < this->size; i++)
+    this->matr[i] -= _matr.matr[i];
   return *this;
 }
 
@@ -358,7 +350,7 @@ template<class T, int rank>
 NumMatrix<T, rank> NumMatrix<T, rank>::
   operator+(const NumMatrix<T, rank>& matr1) const
 {
-  assert(size == matr1.size);
+  assert(this->size == matr1.size);
   NumMatrix<T, rank> tmp = (*this);
   tmp += matr1; 
   return tmp;
@@ -368,7 +360,7 @@ template<class T, int rank>
 NumMatrix<T, rank> NumMatrix<T, rank>::
   operator-(const NumMatrix<T, rank>& matr1) const
 {
-  assert(size == matr1.size);
+  assert(this->size == matr1.size);
   NumMatrix<T, rank> tmp = (*this);
   tmp -= matr1; 
   return tmp;

@@ -10,8 +10,8 @@ using namespace std;
 template<class T, int rank>
 class Matrix;
 
-template<class T, int rank>
-ostream& operator<< (ostream&, const Matrix<T, rank>&);
+//template<class T, int rank>
+//ostream& operator<< (ostream&, const Matrix<T, rank>&);
 
 
 template<class T>
@@ -139,7 +139,7 @@ class Matrix : public ValueChecker<T> {
     int operator!=(const Matrix<T, rank>&) const;
 
     /** output to ostream */
-    friend ostream& operator<< <>(ostream&, const Matrix<T, rank>&);
+//    friend ostream& operator<< <>(ostream&, const Matrix<T, rank>&);
 
   protected:
     /** */
@@ -174,8 +174,6 @@ public:
 
   /** setting all elements of NumMatrix to zero */
   void clear();
-  /** maximum norm of all elements of NumMatrix */
-  double max_norm();
 
   /** mean value of direct neighborhood */
   T mean(const int *pos) const;

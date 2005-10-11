@@ -60,7 +60,7 @@ class LeapFrogAdvance  : public Scheme<ForceField> {
       LeapFrogAdvance(SpeciesData &data) 
           : InitState(-2), Scheme<ForceField>(data) 
       {
-        if (init->restart()) InitState = 0;
+        if (this->init->restart()) InitState = 0;
       }
 };
 
@@ -101,7 +101,7 @@ class SimpleLeapFrogAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme
       : InitState(-2), 
         SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) 
     {
-      if (init->restart()) InitState = 0;
+      if (this->init->restart()) InitState = 0;
     }
     
     /// Advance the distribution function one timestep

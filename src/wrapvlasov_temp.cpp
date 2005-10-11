@@ -32,7 +32,7 @@ template<
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
 
-  f_infty = 0;
+  this->f_infty = 0;
   
   std::cout << "INITIALIZING Vlasov Species" << std::endl;
 
@@ -42,31 +42,31 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::Init() {
     
   std::cout << "Resizing" << std::endl;
     
-  resize(boundary->DistLow(),boundary->DistHigh());
+  resize(this->boundary->DistLow(),this->boundary->DistHigh());
   ForceFieldBase::initialise();
     
-  pPot = Parameters::instance().getField();
-  pPot->AddSpecies(this);
+  this->pPot = Parameters::instance().getField();
+  this->pPot->AddSpecies(this);
 
   std::cout << "Resizing fields" << std::endl;
     
 	EKin.resize(Lowx.Data(),Highx.Data());
 
 
-	dx[0] = Parameters::instance().gridSpace_x();
-  dx[1] = Parameters::instance().gridSpace_y();
+	this->dx[0] = Parameters::instance().gridSpace_x();
+  this->dx[1] = Parameters::instance().gridSpace_y();
     
-  for (int i=0; i<2; ++i) BoxRange[i]=(Highx[i]-Lowx[i]-1)*dx[i];
+  for (int i=0; i<2; ++i) this->BoxRange[i]=(Highx[i]-Lowx[i]-1)*this->dx[i];
     
-  std::cout << "Init Base " << BoxRange << " " << VRange << std::endl;
+  std::cout << "Init Base " << this->BoxRange << " " << this->VRange << std::endl;
        
        
-  std::cout << "Init Field " << Charge/Mass << " " << VRange << std::endl;
-  ForceField::Init(dx[0]/dt);
+  std::cout << "Init Field " << this->Charge/this->Mass << " " << this->VRange << std::endl;
+  ForceField::Init(this->dx[0]/dt);
   
   for (
-    ForceFieldBase::DerivedDiagList::iterator it=diaglist.begin();
-    it !=diaglist.end();
+    ForceFieldBase::DerivedDiagList::iterator it=this->diaglist.begin();
+    it !=this->diaglist.end();
     ++it
   )
   {
@@ -82,8 +82,8 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::write(ostream &O) {
-    const int *L = Distribution.getLow();
-    const int *H = Distribution.getHigh();
+    const int *L = this->Distribution.getLow();
+    const int *H = this->Distribution.getHigh();
 
     for (int i=L[0]; i<=H[0]; ++i)
       for (int j=L[1]; j<=H[1]; ++j)
@@ -92,7 +92,7 @@ void VlasovSpecies<ForceField,Advancer,Scheme>::write(ostream &O) {
             for (int m=L[4]; m<=H[4]; ++m) 
                 O << i << " " << j << " " << 
                     k << " " << l << " " << 
-                    m << " " << Distribution(i,j,k,l,m) << endl;
+                    m << " " << this->Distribution(i,j,k,l,m) << endl;
             O << endl;
           }
             
@@ -106,18 +106,18 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::InterpolationInitStep(const VlasovDist &Dist) {
-  f_infty = 0;
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  this->f_infty = 0;
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
   
   for (int i=LBound[0]; i<=UBound[0]; ++i)
     for (int j=LBound[1]; j<=UBound[1]; ++j)
       for (int k=LBound[2]; k<=UBound[2]; ++k) 
         for (int l=LBound[3]; l<=UBound[3]; ++l) 
           for (int m=LBound[4]; m<=UBound[4]; ++m) 
-            f_infty = max(f_infty,Distribution(i,j,k,l,m));
+            this->f_infty = max(this->f_infty,this->Distribution(i,j,k,l,m));
             
-  f_infty = boundary->MaxReduce(f_infty);
+  this->f_infty = this->boundary->MaxReduce(this->f_infty);
 }
 
 
@@ -133,19 +133,19 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
-    if ( (tstep%20) == 0 ) {
+    if ( (this->tstep%20) == 0 ) {
 //        double err = densityError();
         if (densityGoal!=0) {
-          double err = densityError(Distribution);
-          correctDensityError(err, Distribution);
+          double err = this->densityError(this->Distribution);
+          this->correctDensityError(err, this->Distribution);
         } 
     }
-    tstep++;
-    if (f_infty == 0) InterpolationInitStep(Distribution);
+    this->tstep++;
+    if (this->f_infty == 0) InterpolationInitStep(this->Distribution);
 //    cerr << "Advance\n";
     Advancer<ForceField,Scheme>::advance(dt);
 //    cerr << "Derived Fields\n";
-    derivedFields.update(*this);
+    this->derivedFields.update(*this);
 }
 
 

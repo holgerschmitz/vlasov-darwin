@@ -7,8 +7,8 @@ template<class ForceField>
 void PParabolicScheme<ForceField>
         ::advanceSpace_x(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   PositionI Xi;
   VelocityI Vi;
@@ -25,10 +25,10 @@ void PParabolicScheme<ForceField>
   
   NumMatrix<double, 1> v(&lx,&bx);
   NumMatrix<double, 1> f(&lx,&bx);
-  BoundX bound(boundary);
+  BoundX bound(this->boundary);
   
   for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) {
-    double deltax = -timestep*velocity(Vi)[0]/dx[0];
+    double deltax = -timestep*this->velocity(Vi)[0]/this->dx[0];
 
     for (Xi[1] = LBound[1]; Xi[1] <= UBound[1]; ++Xi[1])
       for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
@@ -38,16 +38,16 @@ void PParabolicScheme<ForceField>
           // Copy into temporary field
           for (Xi[0] = lx; Xi[0] <= bx; ++Xi[0]) 
           {
-            f(Xi[0]) = Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
+            f(Xi[0]) = this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
             v(Xi[0]) = deltax;
           }
           
-          oneDimPpm(f,v,lx,bx, &bound);
+          this->oneDimPpm(f,v,lx,bx, &bound);
           
           // Copy back from temporary field
           for (Xi[0] = lx; Xi[0] <= bx; ++Xi[0]) 
           {
-            Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Xi[0]);
+            this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Xi[0]);
           }
         }
   }
@@ -58,8 +58,8 @@ template<class ForceField>
 void PParabolicScheme<ForceField>
         ::advanceSpace_y(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   PositionI Xi;
   VelocityI Vi;
@@ -76,10 +76,10 @@ void PParabolicScheme<ForceField>
   
   NumMatrix<double, 1> v(&lx,&bx);
   NumMatrix<double, 1> f(&lx,&bx);
-  BoundY bound(boundary);
+  BoundY bound(this->boundary);
   
   for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) {
-    double deltax = -timestep*velocity(Vi)[1]/dx[1];
+    double deltax = -timestep*this->velocity(Vi)[1]/this->dx[1];
 
     for (Xi[0] = LBound[0]; Xi[0] <= UBound[0]; ++Xi[0])
       for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) 
@@ -89,16 +89,16 @@ void PParabolicScheme<ForceField>
           // Copy into temporary field
           for (Xi[1] = lx; Xi[1] <= bx; ++Xi[1]) 
           {
-            f(Xi[1]) = Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
+            f(Xi[1]) = this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
             v(Xi[1]) = deltax;
           }
           
-          oneDimPpm(f,v,lx,bx, &bound);
+          this->oneDimPpm(f,v,lx,bx, &bound);
           
           // Copy back from temporary field
           for (Xi[1] = lx; Xi[1] <= bx; ++Xi[1]) 
           {
-            Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Xi[1]);
+            this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Xi[1]);
           }
         }
   }
@@ -109,8 +109,8 @@ template<class ForceField>
 void PParabolicScheme<ForceField>
         ::advanceVel_x(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   PositionI Xi;
   VelocityI Vi;
@@ -144,19 +144,19 @@ void PParabolicScheme<ForceField>
           for (Vi[0] = lvx; Vi[0] <= bvx; ++Vi[0]) {
             
             Vflux[0] = Vi[0]+0.5;
-            VelocityD Vel = velocity(Vflux);
-            double F = ForceX(Xi,Vel,timestep);
+            VelocityD Vel = this->velocity(Vflux);
+            double F = this->ForceX(Xi,Vel,timestep);
              
-            f(Vi[0]) = Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
-            v(Vi[0]) = -F/deltaVx();
+            f(Vi[0]) = this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
+            v(Vi[0]) = -F/this->deltaVx();
           }            
           
-          oneDimPpm(f,v,lvx,bvx, &bound);
+          this->oneDimPpm(f,v,lvx,bvx, &bound);
             
           // Copy back from temporary field
           for (Vi[0] = lvx; Vi[0] <= bvx; ++Vi[0]) 
           {
-            Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[0]);
+            this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[0]);
           }
         }
            
@@ -166,8 +166,8 @@ template<class ForceField>
 void PParabolicScheme<ForceField>
         ::advanceVel_y(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   PositionI Xi;
   VelocityI Vi;
@@ -201,19 +201,19 @@ void PParabolicScheme<ForceField>
           for (Vi[1] = lvx; Vi[1] <= bvx; ++Vi[1]) {
             
             Vflux[1] = Vi[1]+0.5;
-            VelocityD Vel = velocity(Vflux);
-            double F = ForceY(Xi,Vel,timestep);
+            VelocityD Vel = this->velocity(Vflux);
+            double F = this->ForceY(Xi,Vel,timestep);
              
-            f(Vi[1]) = Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
-            v(Vi[1]) = -F/deltaVx();
+            f(Vi[1]) = this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
+            v(Vi[1]) = -F/this->deltaVx();
           }            
           
-          oneDimPpm(f,v,lvx,bvx, &bound);
+          this->oneDimPpm(f,v,lvx,bvx, &bound);
             
           // Copy back from temporary field
           for (Vi[1] = lvx; Vi[1] <= bvx; ++Vi[1]) 
           {
-            Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[1]);
+            this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[1]);
           }
         }
            
@@ -223,8 +223,8 @@ template<class ForceField>
 void PParabolicScheme<ForceField>
         ::advanceVel_z(double timestep) 
 {
-  const int *UBound = Distribution.getHigh();
-  const int *LBound = Distribution.getLow();
+  const int *UBound = this->Distribution.getHigh();
+  const int *LBound = this->Distribution.getLow();
 
   PositionI Xi;
   VelocityI Vi;
@@ -258,11 +258,11 @@ void PParabolicScheme<ForceField>
           for (Vi[2] = lvx; Vi[2] <= bvx; ++Vi[2]) {
             
             Vflux[2] = Vi[2]+0.5;
-            VelocityD Vel = velocity(Vflux);
-            double F = ForceZ(Xi,Vel,timestep);
+            VelocityD Vel = this->velocity(Vflux);
+            double F = this->ForceZ(Xi,Vel,timestep);
              
-            f(Vi[2]) = Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
-            v(Vi[2]) = -F/deltaVx();
+            f(Vi[2]) = this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]);
+            v(Vi[2]) = -F/this->deltaVx();
           }            
           
           oneDimPpm(f,v,lvx,bvx, &bound);
@@ -270,7 +270,7 @@ void PParabolicScheme<ForceField>
           // Copy back from temporary field
           for (Vi[2] = lvx; Vi[2] <= bvx; ++Vi[2]) 
           {
-            Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[2]);
+            this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) = f(Vi[2]);
           }
         }
            

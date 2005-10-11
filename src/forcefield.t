@@ -72,13 +72,13 @@ VelocityD GenericEMForce<FieldType>
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+    double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+    double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+    double By = this->Charge*this->GetBy(Pos)/this->Mass;
+    double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
 
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -128,13 +128,13 @@ double GenericEMForce<FieldType>
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+    double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+    double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+    double By = this->Charge*this->GetBy(Pos)/this->Mass;
+    double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
     
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -178,13 +178,13 @@ double GenericEMForce<FieldType>
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+    double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+    double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+    double By = this->Charge*this->GetBy(Pos)/this->Mass;
+    double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
 
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -228,13 +228,13 @@ double GenericEMForce<FieldType>
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+    double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+    double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+    double By = this->Charge*this->GetBy(Pos)/this->Mass;
+    double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
 
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -310,13 +310,13 @@ VelocityD GenericEMForceBoris2<FieldType>
     double vz = Vel[2];
     
     // Storing E and B field
-    double Ex = Charge*GetEx(Pos)/Mass;
-    double Ey = Charge*GetEy(Pos)/Mass;
-    double Ez = Charge*GetEz(Pos)/Mass;
+    double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+    double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+    double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
 
-    double Bx = Charge*GetBx(Pos)/Mass;
-    double By = Charge*GetBy(Pos)/Mass;
-    double Bz = Charge*GetBz(Pos)/Mass;
+    double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+    double By = this->Charge*this->GetBy(Pos)/this->Mass;
+    double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
 
     // Calculate V-minus
     double Vmx = vx+0.5*Ex*dt;
@@ -365,16 +365,16 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
-    double CHM = Charge/Mass;
+    double CHM = this->Charge/this->Mass;
     
     // Storing E and B field
-    double Ex = CHM*GetEx(Pos);
-    double Ey = CHM*GetEy(Pos);
-    double Ez = CHM*GetEz(Pos);
+    double Ex = CHM*this->GetEx(Pos);
+    double Ey = CHM*this->GetEy(Pos);
+    double Ez = CHM*this->GetEz(Pos);
 
-    double Bx = CHM*GetBx(Pos);
-    double By = CHM*GetBy(Pos);
-    double Bz = CHM*GetBz(Pos);
+    double Bx = CHM*this->GetBx(Pos);
+    double By = CHM*this->GetBy(Pos);
+    double Bz = CHM*this->GetBz(Pos);
     
     double dth = 0.5*dt;
 
@@ -419,16 +419,16 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
-    double CHM = Charge/Mass;
+    double CHM = this->Charge/this->Mass;
     
     // Storing E and B field
-    double Ex = CHM*GetEx(Pos);
-    double Ey = CHM*GetEy(Pos);
-    double Ez = CHM*GetEz(Pos);
+    double Ex = CHM*this->GetEx(Pos);
+    double Ey = CHM*this->GetEy(Pos);
+    double Ez = CHM*this->GetEz(Pos);
 
-    double Bx = CHM*GetBx(Pos);
-    double By = CHM*GetBy(Pos);
-    double Bz = CHM*GetBz(Pos);
+    double Bx = CHM*this->GetBx(Pos);
+    double By = CHM*this->GetBy(Pos);
+    double Bz = CHM*this->GetBz(Pos);
 
     double dth = 0.5*dt;
 
@@ -481,16 +481,16 @@ double GenericEMForceBoris2<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
-    double CHM = Charge/Mass;
+    double CHM = this->Charge/this->Mass;
     
     // Storing E and B field
-    double Ex = CHM*GetEx(Pos);
-    double Ey = CHM*GetEy(Pos);
-    double Ez = CHM*GetEz(Pos);
+    double Ex = CHM*this->GetEx(Pos);
+    double Ey = CHM*this->GetEy(Pos);
+    double Ez = CHM*this->GetEz(Pos);
 
-    double Bx = CHM*GetBx(Pos);
-    double By = CHM*GetBy(Pos);
-    double Bz = CHM*GetBz(Pos);
+    double Bx = CHM*this->GetBx(Pos);
+    double By = CHM*this->GetBy(Pos);
+    double Bz = CHM*this->GetBz(Pos);
 
     // Rotate
     // a) Calculate t and s
@@ -556,16 +556,16 @@ VelocityD GenericEMForceDirect<FieldType>
     double vy = Vel[1];
     double vz = Vel[2];
     
-    double af = dt*Charge/Mass;
+    double af = dt*this->Charge/this->Mass;
     
     // Storing E and B field
-    double Ex = GetEx(Pos);
-    double Ey = GetEy(Pos);
-    double Ez = GetEz(Pos);
+    double Ex = this->GetEx(Pos);
+    double Ey = this->GetEy(Pos);
+    double Ez = this->GetEz(Pos);
 
-    double Bx = GetBx(Pos);
-    double By = GetBy(Pos);
-    double Bz = GetBz(Pos);
+    double Bx = this->GetBx(Pos);
+    double By = this->GetBy(Pos);
+    double Bz = this->GetBz(Pos);
 
     // Calculate Force
     double Fx = Ex + vy*Bz - vz*By;
