@@ -1,7 +1,19 @@
-#include "advancer.h"
+//#include "advancer.h"
 #include "scheme.h"
 #include "pparabolic.h"
 #include "findiff.h"
+
+template<class, template<class> class>
+class SimpleAdvance;
+ 
+template<class, template<class> class>
+class SimpleLeapFrogAdvance;
+
+template<class, template<class> class>
+class RungeKuttaAdvance;
+
+template<class, template<class> class>
+class LeapFrogAdvance;
 
 #define POS_FLUX_3_BACKSUBS
 

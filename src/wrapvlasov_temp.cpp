@@ -133,13 +133,13 @@ template<
   template<class> class Scheme
 >
 void VlasovSpecies<ForceField,Advancer,Scheme>::Execute () {
-    if ( (this->tstep%20) == 0 ) {
+//    if ( (this->tstep%20) == 0 ) {
 //        double err = densityError();
-        if (densityGoal!=0) {
-          double err = this->densityError(this->Distribution);
-          this->correctDensityError(err, this->Distribution);
-        } 
-    }
+//        if (densityGoal!=0) {
+//          double err = this->densityError(this->Distribution);
+//          this->correctDensityError(err, this->Distribution);
+//        } 
+//    }
     this->tstep++;
     if (this->f_infty == 0) InterpolationInitStep(this->Distribution);
 //    cerr << "Advance\n";

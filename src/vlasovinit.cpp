@@ -507,7 +507,10 @@ VlasovHDFInit::~VlasovHDFInit() {}
 
 void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
 {
-  std::cerr << "Restert " << fname << std::endl;
+  std::cerr << "Restart " << fname << std::endl;
+  
+  Parameters::instance().setRestart(true);
+  
   std::string parsed=fname;
 
   std::ostringstream comrankstr;

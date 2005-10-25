@@ -65,9 +65,9 @@ class DistMomentVelocitiesBase : public DistributionDerivedField {
   protected:
       /// The current densities in x,y and z-direction
       ScalarField Jx, Jy, Jz;
-//       /// The mixed second order velocity moments of the distribution
-//       ScalarField Vxx, Vxy, Vxz;   
-//       ScalarField Vyy, Vyz, Vzz;
+      /// The mixed second order velocity moments of the distribution
+      ScalarField Vxx, Vxy, Vxz;   
+      ScalarField Vyy, Vyz, Vzz;
   public:
       DistMomentVelocitiesBase(Boundary *boundary_);
       const char* name() {return "vels";}
@@ -90,10 +90,10 @@ class DistMomentVelocitiesBase : public DistributionDerivedField {
       /// Returns the vector of the current density at a grid position
       VelocityD getJ(int i, int j);
 
-//       /** @brief Returns the values of the second order velocity moments
-//        *  in a six-component vector
-//        */
-//       FixedArray<double,6> getVVTens(int i, int j);
+      /** @brief Returns the values of the second order velocity moments
+       *  in a six-component vector
+       */
+      FixedArray<double,6> getVVTens(int i, int j);
       ScalarField& getField(std::string name);
 };    
 

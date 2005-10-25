@@ -80,29 +80,29 @@ void Darwin::Init ()
   sz.setComponent(ScalarField::ZComponent);
   sz.setParity(ScalarField::OddParity);
 
-//   vxx.resize(LBound.Data(),HBound.Data());
-//   vxx.setComponent(ScalarField::ScalarComponent);
-//   vxx.setParity(ScalarField::EvenParity);
-// 
-//   vxy.resize(LBound.Data(),HBound.Data());
-//   vxy.setComponent(ScalarField::XYComponent);
-//   vxy.setParity(ScalarField::EvenParity);
-// 
-//   vxz.resize(LBound.Data(),HBound.Data());
-//   vxz.setComponent(ScalarField::XZComponent);
-//   vxz.setParity(ScalarField::EvenParity);
-// 
-//   vyy.resize(LBound.Data(),HBound.Data());
-//   vyy.setComponent(ScalarField::ScalarComponent);
-//   vyy.setParity(ScalarField::EvenParity);
-// 
-//   vyz.resize(LBound.Data(),HBound.Data());
-//   vyz.setComponent(ScalarField::YZComponent);
-//   vyz.setParity(ScalarField::EvenParity);
-// 
-//   vzz.resize(LBound.Data(),HBound.Data());
-//   vzz.setComponent(ScalarField::ScalarComponent);
-//   vzz.setParity(ScalarField::EvenParity);
+  vxx.resize(LBound.Data(),HBound.Data());
+  vxx.setComponent(ScalarField::ScalarComponent);
+  vxx.setParity(ScalarField::EvenParity);
+
+  vxy.resize(LBound.Data(),HBound.Data());
+  vxy.setComponent(ScalarField::XYComponent);
+  vxy.setParity(ScalarField::EvenParity);
+
+  vxz.resize(LBound.Data(),HBound.Data());
+  vxz.setComponent(ScalarField::XZComponent);
+  vxz.setParity(ScalarField::EvenParity);
+
+  vyy.resize(LBound.Data(),HBound.Data());
+  vyy.setComponent(ScalarField::ScalarComponent);
+  vyy.setParity(ScalarField::EvenParity);
+
+  vyz.resize(LBound.Data(),HBound.Data());
+  vyz.setComponent(ScalarField::YZComponent);
+  vyz.setParity(ScalarField::EvenParity);
+
+  vzz.resize(LBound.Data(),HBound.Data());
+  vzz.setComponent(ScalarField::ScalarComponent);
+  vzz.setParity(ScalarField::EvenParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
   Pot.setComponent(ScalarField::ScalarComponent);
@@ -191,7 +191,8 @@ void Darwin::Init ()
 }
 
 bool Darwin::Execute () {
-    
+  // std::cerr << "bool Darwin::Execute ()\n";
+  if (Parameters::instance().isRestart()) std::cerr << "  restart\n";
   int i;
   double dF, dF2;
   
@@ -222,14 +223,16 @@ bool Darwin::Execute () {
   sx.clear();
   sy.clear();
   sz.clear();
-
-//   vxx.clear();
-//   vxy.clear();
-//   vxz.clear();
-//   vyy.clear();
-//   vyz.clear();
-//   vzz.clear();
-	
+  if (Parameters::instance().isRestart())
+  {
+    vxx.clear();
+    vxy.clear();
+    vxz.clear();
+    vyy.clear();
+    vyz.clear();
+    vzz.clear();
+  }
+  	
   VelocityD jt;
   FixedArray<double,6> vvt;
     
@@ -254,26 +257,30 @@ bool Darwin::Execute () {
     // ... and get it
     ScalarField &rho = distRho->getRho();
     for (int j=ly0; j<=my0; ++j) 
-      for (int i=lx0; i<=mx0; ++i) {
-	    den(i,j) += dF*rho(i,j);
-	    om2(i,j) += dF2*rho(i,j);
+      for (int i=lx0; i<=mx0; ++i) 
+      {
+	      den(i,j) += dF*rho(i,j);
+	      om2(i,j) += dF2*rho(i,j);
 
-	    jt = distVel->getJ(i,j);
-	    jx(i,j) += dF*jt[0];
-	    jy(i,j) += dF*jt[1];
-	    jz(i,j) += dF*jt[2];
+	      jt = distVel->getJ(i,j);
+	      jx(i,j) += dF*jt[0];
+	      jy(i,j) += dF*jt[1];
+	      jz(i,j) += dF*jt[2];
 
-	    sx(i,j) += dF2*jt[0];
-	    sy(i,j) += dF2*jt[1];
-	    sz(i,j) += dF2*jt[2];
+	      sx(i,j) += dF2*jt[0];
+	      sy(i,j) += dF2*jt[1];
+	      sz(i,j) += dF2*jt[2];
 
-// 	    vvt =  distVel->getVVTens(i,j);
-// 	    vxx(i,j) +=  dF*vvt[0];
-// 	    vxy(i,j) +=  dF*vvt[1];
-// 	    vxz(i,j) +=  dF*vvt[2];
-// 	    vyy(i,j) +=  dF*vvt[3];
-// 	    vyz(i,j) +=  dF*vvt[4];
-// 	    vzz(i,j) +=  dF*vvt[5];
+        if (Parameters::instance().isRestart())
+        {
+ 	        vvt =  distVel->getVVTens(i,j);
+ 	        vxx(i,j) +=  dF*vvt[0];
+ 	        vxy(i,j) +=  dF*vvt[1];
+ 	        vxz(i,j) +=  dF*vvt[2];
+ 	        vyy(i,j) +=  dF*vvt[3];
+ 	        vyz(i,j) +=  dF*vvt[4];
+ 	        vzz(i,j) +=  dF*vvt[5];
+        }
       }
   }
   
@@ -421,23 +428,28 @@ bool Darwin::Execute () {
   }
   
 
-  // x-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) {
-    for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = - ( jx(i,j)-jxold(i,j) )/dt + Lambda(i,j)*Etx(i,j);      
+
+  if (Parameters::instance().isRestart())
+  {       
+    // x-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) {
+      for (int j=ly1; j<=my1; ++j) {
+        In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
+                  +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                  -om2(i,j)*Ex(i,j)                      /// om2*E
+                  -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
+      }
     }
   }
-
-           
-//   // x-component of transverse electric field
-//   for (int i=lx1; i<=mx1; ++i) {
-//     for (int j=ly1; j<=my1; ++j) {
-//       In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-//                 +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-//                 -om2(i,j)*Ex(i,j)                      /// om2*E
-//                 -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
-//     }
-//   }
+  else
+  { 
+    // x-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) {
+      for (int j=ly1; j<=my1; ++j) {
+        In(i,j) = - ( jx(i,j)-jxold(i,j) )/dt + Lambda(i,j)*Etx(i,j);      
+      }
+    }
+  }
 
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::XComponent); 
@@ -451,22 +463,28 @@ bool Darwin::Execute () {
 
 //  pois->solve(Etx,In,bound.getNumBoundary(Etx));
     
-  // y-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) {
-    for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = - ( jy(i,j)-jyold(i,j) )/dt + Lambda(i,j)*Ety(i,j);      
+
+  if (Parameters::instance().isRestart())
+  {       
+    // y-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) 
+      for (int j=ly1; j<=my1; ++j) 
+      {
+        In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
+                  +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                  -om2(i,j)*Ey(i,j)                   /// om2*E
+                  -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
+      }
+  }
+  else
+  {
+    // y-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) {
+      for (int j=ly1; j<=my1; ++j) {
+        In(i,j) = - ( jy(i,j)-jyold(i,j) )/dt + Lambda(i,j)*Ety(i,j);      
+      }
     }
   }
-
-//   // y-component of transverse electric field
-//   for (int i=lx1; i<=mx1; ++i) 
-//     for (int j=ly1; j<=my1; ++j) {
-//       In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-//                 +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-//                 -om2(i,j)*Ey(i,j)                   /// om2*E
-//                 -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
-//     }
-
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::YComponent); 
   bound.ScalarFieldReduce(In);
@@ -480,22 +498,27 @@ bool Darwin::Execute () {
 
 //  pois->solve(Ety,In,bound.getNumBoundary(Ety));
     
-
-  // z-component of transverse electric field
-  for (int i=lx1; i<=mx1; ++i) {
-    for (int j=ly1; j<=my1; ++j) {
-      In(i,j) = - ( jz(i,j)-jzold(i,j) )/dt + Lambda(i,j)*Ez(i,j);      
+  if (Parameters::instance().isRestart())
+  {       
+    // z-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) 
+      for (int j=ly1; j<=my1; ++j) 
+      {
+        In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
+                  +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
+                  -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
+      }
+  }
+  else
+  {
+    // z-component of transverse electric field
+    for (int i=lx1; i<=mx1; ++i) {
+      for (int j=ly1; j<=my1; ++j) {
+        In(i,j) = - ( jz(i,j)-jzold(i,j) )/dt + Lambda(i,j)*Ez(i,j);      
+      }
     }
   }
-
-//   // z-component of transverse electric field
-//   for (int i=lx1; i<=mx1; ++i) 
-//     for (int j=ly1; j<=my1; ++j) {
-//       In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-//                 +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -grad (rho <vv>)
-//                 -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
-//     }
-    
+  
   In.setParity(ScalarField::OddParity);
   In.setComponent(ScalarField::ZComponent); 
   bound.ScalarFieldReduce(In);
@@ -532,7 +555,7 @@ bool Darwin::Execute () {
    *  This should be it!
    */
 
-//  cerr << "Done DARWIN\n";
+//  std::cerr << "bool Darwin::Execute () -- done\n";
 
   return false;
     

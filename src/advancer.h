@@ -4,6 +4,7 @@
 #include "vlasovbase.h"
 #include "scheme.h"
 #include "pparabolic.h"
+#include "globals.h"
 
 #ifndef ADVANCER_H
 #define ADVANCER_H
@@ -96,12 +97,15 @@ template<class ForceField, template<class> class Scheme = PosFluxCons3rdOrder>
 class SimpleLeapFrogAdvance : public SimpleLeapFrogAdvanceBase<ForceField,Scheme> {
   private:
       int InitState;
+      bool restarting;
   public:
     SimpleLeapFrogAdvance(SpeciesData &data) 
       : InitState(-2), 
         SimpleLeapFrogAdvanceBase<ForceField,Scheme>(data) 
     {
-      if (this->init->restart()) InitState = 0;
+      //if (this->init->restart()) InitState = 0;
+      restarting = (this->init->restart());
+      if (restarting) std::cout << "RESTARTING" << std::endl;
     }
     
     /// Advance the distribution function one timestep

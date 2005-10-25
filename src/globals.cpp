@@ -19,6 +19,7 @@ Parameters::Parameters() {
   Field = new FieldType();
   initialized = false;
   FieldDiag = NULL;
+  IsRestart = false;
 }
 
 void Parameters::init()

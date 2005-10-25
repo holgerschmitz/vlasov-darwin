@@ -122,24 +122,24 @@ DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_)
   Jz.setComponent(ScalarField::ZComponent);
   Jz.setParity(ScalarField::OddParity);
 
-//   Vxx.resize(Lowx.Data(),Highx.Data());
-//   Vxx.setComponent(ScalarField::ScalarComponent);
-//   Vxx.setParity(ScalarField::EvenParity);
-//   Vxy.resize(Lowx.Data(),Highx.Data());
-//   Vxy.setComponent(ScalarField::XYComponent);
-//   Vxy.setParity(ScalarField::EvenParity);
-//   Vxz.resize(Lowx.Data(),Highx.Data());
-//   Vxz.setComponent(ScalarField::XZComponent);
-//   Vxz.setParity(ScalarField::EvenParity);
-//   Vyy.resize(Lowx.Data(),Highx.Data());
-//   Vyy.setComponent(ScalarField::ScalarComponent);
-//   Vyy.setParity(ScalarField::EvenParity);
-//   Vyz.resize(Lowx.Data(),Highx.Data());
-//   Vyz.setComponent(ScalarField::YZComponent);
-//   Vyz.setParity(ScalarField::EvenParity);
-//   Vzz.resize(Lowx.Data(),Highx.Data());
-//   Vzz.setComponent(ScalarField::ScalarComponent);
-//   Vzz.setParity(ScalarField::EvenParity);
+  Vxx.resize(Lowx.Data(),Highx.Data());
+  Vxx.setComponent(ScalarField::ScalarComponent);
+  Vxx.setParity(ScalarField::EvenParity);
+  Vxy.resize(Lowx.Data(),Highx.Data());
+  Vxy.setComponent(ScalarField::XYComponent);
+  Vxy.setParity(ScalarField::EvenParity);
+  Vxz.resize(Lowx.Data(),Highx.Data());
+  Vxz.setComponent(ScalarField::XZComponent);
+  Vxz.setParity(ScalarField::EvenParity);
+  Vyy.resize(Lowx.Data(),Highx.Data());
+  Vyy.setComponent(ScalarField::ScalarComponent);
+  Vyy.setParity(ScalarField::EvenParity);
+  Vyz.resize(Lowx.Data(),Highx.Data());
+  Vyz.setComponent(ScalarField::YZComponent);
+  Vyz.setParity(ScalarField::EvenParity);
+  Vzz.resize(Lowx.Data(),Highx.Data());
+  Vzz.setComponent(ScalarField::ScalarComponent);
+  Vzz.setParity(ScalarField::EvenParity);
 }
     
 
@@ -150,39 +150,38 @@ VelocityD DistMomentVelocitiesBase::getJ(int i, int j) {
 
 
 
-// FixedArray<double,6> DistMomentVelocitiesBase::getVVTens(int i, int j) {    
-//     FixedArray<double,6> Result;
-//     
-//     Result[0] = Vxx(i,j);
-//     Result[1] = Vxy(i,j);
-//     Result[2] = Vxz(i,j);
-//     Result[3] = Vyy(i,j);
-//     Result[4] = Vyz(i,j);
-//     Result[5] = Vzz(i,j);
-//     
-//     return Result;
-//     
-// }
+FixedArray<double,6> DistMomentVelocitiesBase::getVVTens(int i, int j) {    
+    FixedArray<double,6> Result;
+    
+    Result[0] = Vxx(i,j);
+    Result[1] = Vxy(i,j);
+    Result[2] = Vxz(i,j);
+    Result[3] = Vyy(i,j);
+    Result[4] = Vyz(i,j);
+    Result[5] = Vzz(i,j);
+    
+    return Result;
+    
+}
 
 ScalarField& DistMomentVelocitiesBase::getField(std::string name) {
   if ("Jx"==name) return Jx;
   else
   if ("Jy"==name) return Jy;
   else
-//  if ("Jz"==name) 
-  return Jz;
-//   else
-//   if ("Vxx"==name) return Vxx;
-//   else
-//   if ("Vxy"==name) return Vxy;
-//   else
-//   if ("Vxz"==name) return Vxz;
-//   else
-//   if ("Vyy"==name) return Vyy;
-//   else
-//   if ("Vyz"==name) return Vyz;
-//   else
-//   return Vzz;
+  if ("Jz"==name) return Jz;
+  else
+  if ("Vxx"==name) return Vxx;
+  else
+  if ("Vxy"==name) return Vxy;
+  else
+  if ("Vxz"==name) return Vxz;
+  else
+  if ("Vyy"==name) return Vyy;
+  else
+  if ("Vyz"==name) return Vyz;
+  else
+  return Vzz;
 }
 
 void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
@@ -216,12 +215,15 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
   Jy.clear();
   Jz.clear();
 
-//   Vxx.clear();
-//   Vxy.clear();
-//   Vxz.clear();
-//   Vyy.clear();
-//   Vyz.clear();
-//   Vzz.clear();
+  if (Parameters::instance().isRestart())
+  {
+    Vxx.clear();
+    Vxy.clear();
+    Vxz.clear();
+    Vyy.clear();
+    Vyz.clear();
+    Vzz.clear();
+  }
 
   for (int i=L[0]; i<=H[0]; ++i) {
     for (int j=L[1]; j<=H[1]; ++j) {
@@ -235,14 +237,16 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
               Jx(i,j) += V[0]*d;
               Jy(i,j) += V[1]*d;
               Jz(i,j) += V[2]*d;
-              
-//               Vxx(i,j) += V[0]*V[0]*d;
-//               Vxy(i,j) += V[0]*V[1]*d;
-//               Vxz(i,j) += V[0]*V[2]*d;
-//               Vyy(i,j) += V[1]*V[1]*d;
-//               Vyz(i,j) += V[1]*V[2]*d;
-//               Vzz(i,j) += V[2]*V[2]*d;
-              
+
+              if (Parameters::instance().isRestart())
+              {
+                Vxx(i,j) += V[0]*V[0]*d;
+                Vxy(i,j) += V[0]*V[1]*d;
+                Vxz(i,j) += V[0]*V[2]*d;
+                Vyy(i,j) += V[1]*V[1]*d;
+                Vyz(i,j) += V[1]*V[2]*d;
+                Vzz(i,j) += V[2]*V[2]*d;
+              }
           }
     }
   }
@@ -252,12 +256,15 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
   boundary->ScalarFieldCombine(Jy);
   boundary->ScalarFieldCombine(Jz);
 
-//   boundary->ScalarFieldCombine(Vxx);
-//   boundary->ScalarFieldCombine(Vxy);
-//   boundary->ScalarFieldCombine(Vxz);
-//   boundary->ScalarFieldCombine(Vyy);
-//   boundary->ScalarFieldCombine(Vyz);
-//   boundary->ScalarFieldCombine(Vzz);
+  if (Parameters::instance().isRestart())
+  {
+    boundary->ScalarFieldCombine(Vxx);
+    boundary->ScalarFieldCombine(Vxy);
+    boundary->ScalarFieldCombine(Vxz);
+    boundary->ScalarFieldCombine(Vyy);
+    boundary->ScalarFieldCombine(Vyz);
+    boundary->ScalarFieldCombine(Vzz);
+  }
   
 //  static int cnt=1;
 //  ostringstream fname;
@@ -277,7 +284,9 @@ void DistMomentVelocitiesOne::calc(ForceFieldBase &vlasov) {
 }
 
 
-void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
+void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) 
+{
+//    std::cerr << "DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov)\n";
     VlasovDist &dist = vlasov.getDistribution();
 
     const PhasePositionI &DL = Parameters::instance().distLow();
@@ -310,12 +319,15 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     Jy.clear();
     Jz.clear();
 
-//     Vxx.clear();
-//     Vxy.clear();
-//     Vxz.clear();
-//     Vyy.clear();
-//     Vyz.clear();
-//     Vzz.clear();
+    if (Parameters::instance().isRestart())
+    {
+      Vxx.clear();
+      Vxy.clear();
+      Vxz.clear();
+      Vyy.clear();
+      Vyz.clear();
+      Vzz.clear();
+    }
 
     double dvx = vlasov.deltaVx();
     double dvy = vlasov.deltaVy();
@@ -335,12 +347,6 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               Vm = (vlasov.velocity(vi-VelocityI(1,1,1)) + V)*0.5;
 //              Vp = (vlasov.velocity(vi+VelocityI(1,1,1)) + V)*0.5;
               d = dist(i,j,vi[0],vi[1],vi[2]);
-//               dpx = (vi[0]<H[2])?dist(i,j,vi[0]+1,vi[1],vi[2]):0;
-//               dmx = (vi[0]>L[2])?dist(i,j,vi[0]-1,vi[1],vi[2]):0;
-//               dpy = (vi[1]<H[3])?dist(i,j,vi[0],vi[1]+1,vi[2]):0;
-//               dmy = (vi[1]>L[3])?dist(i,j,vi[0],vi[1]-1,vi[2]):0;
-//               dpz = (vi[2]<H[4])?dist(i,j,vi[0],vi[1],vi[2]+1):0;
-//               dmz = (vi[2]>L[4])?dist(i,j,vi[0],vi[1],vi[2]-1):0;
 
 //              dpxpy = ((vi[0]<H[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]+1,vi[1]+1,vi[2]):0;
 //              dmxpy = ((vi[0]>L[2])&&(vi[1]<H[3]))?dist(i,j,vi[0]-1,vi[1]+1,vi[2]):0;
@@ -376,24 +382,34 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
               jyval += V[1]*d;
               jzval += V[2]*d;
 
-// 
-//               Vxy(i,j) += V[0]*V[1]*d;
-//               Vxz(i,j) += V[0]*V[2]*d;
-//               Vyz(i,j) += V[1]*V[2]*d;
-// 
-// //            Only these are higher order schemes
-//           
-//               Vxx(i,j) += dvx*dvx*(59*d - 7*dmx + 8*dpx)/180. 
-//                         + dvx*Vm[0]*(d - dmx/12. + dpx/12.) 
-//                         + d*Vm[0]*Vm[0];
-// 
-//               Vyy(i,j) += dvy*dvy*(59*d - 7*dmy + 8*dpy)/180. 
-//                         + dvy*Vm[1]*(d - dmy/12. + dpy/12.) 
-//                         + d*Vm[1]*Vm[1];
-//                         
-//               Vzz(i,j) += dvz*dvz*(59*d - 7*dmz + 8*dpz)/180. 
-//                         + dvz*Vm[2]*(d - dmz/12. + dpz/12.) 
-//                         + d*Vm[2]*Vm[2];
+ 
+              if (Parameters::instance().isRestart())
+              {
+                dpx = (vi[0]<H[2])?dist(i,j,vi[0]+1,vi[1],vi[2]):0;
+                dmx = (vi[0]>L[2])?dist(i,j,vi[0]-1,vi[1],vi[2]):0;
+                dpy = (vi[1]<H[3])?dist(i,j,vi[0],vi[1]+1,vi[2]):0;
+                dmy = (vi[1]>L[3])?dist(i,j,vi[0],vi[1]-1,vi[2]):0;
+                dpz = (vi[2]<H[4])?dist(i,j,vi[0],vi[1],vi[2]+1):0;
+                dmz = (vi[2]>L[4])?dist(i,j,vi[0],vi[1],vi[2]-1):0;
+                
+                Vxy(i,j) += V[0]*V[1]*d;
+                Vxz(i,j) += V[0]*V[2]*d;
+                Vyz(i,j) += V[1]*V[2]*d;
+
+                //  Only these are higher order schemes
+
+                Vxx(i,j) += dvx*dvx*(59*d - 7*dmx + 8*dpx)/180. 
+                          + dvx*Vm[0]*(d - dmx/12. + dpx/12.) 
+                          + d*Vm[0]*Vm[0];
+
+                Vyy(i,j) += dvy*dvy*(59*d - 7*dmy + 8*dpy)/180. 
+                          + dvy*Vm[1]*(d - dmy/12. + dpy/12.) 
+                          + d*Vm[1]*Vm[1];
+
+                Vzz(i,j) += dvz*dvz*(59*d - 7*dmz + 8*dpz)/180. 
+                          + dvz*Vm[2]*(d - dmz/12. + dpz/12.) 
+                          + d*Vm[2]*Vm[2];
+              }
             }
         }
     }
@@ -413,12 +429,16 @@ void DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) {
     boundary->ScalarFieldCombine(Jy);
     boundary->ScalarFieldCombine(Jz);
 
-//     boundary->ScalarFieldCombine(Vxx);
-//     boundary->ScalarFieldCombine(Vxy);
-//     boundary->ScalarFieldCombine(Vxz);
-//     boundary->ScalarFieldCombine(Vyy);
-//     boundary->ScalarFieldCombine(Vyz);
-//     boundary->ScalarFieldCombine(Vzz);
+    if (Parameters::instance().isRestart())
+    {
+      boundary->ScalarFieldCombine(Vxx);
+      boundary->ScalarFieldCombine(Vxy);
+      boundary->ScalarFieldCombine(Vxz);
+      boundary->ScalarFieldCombine(Vyy);
+      boundary->ScalarFieldCombine(Vyz);
+      boundary->ScalarFieldCombine(Vzz);
+    }
+//  std::cerr << "DistMomentVelocitiesTwo::calc(ForceFieldBase &vlasov) -- done\n";
 }
 
 DistMomentHeatFluxBase::DistMomentHeatFluxBase(Boundary *boundary_) 

@@ -138,11 +138,15 @@ void SimpleLeapFrogAdvance<ForceField,Scheme>::advance(double timestep) {
   switch (InitState) {
       case -2: InitState = -1;
                break;
+               
       case -1: InitState = 0;
-              this->advanceStepA(timestep); 
-              break;
-      case 0: this->advanceStepFull(timestep); 
-              break;
+               if (restarting) this->advanceStepFull(timestep);
+               else this->advanceStepA(timestep); 
+               Parameters::instance().setRestart(false);
+               break;
+               
+      case 0:  this->advanceStepFull(timestep);
+               break;
   }
 }
 

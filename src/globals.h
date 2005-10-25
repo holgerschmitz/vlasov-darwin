@@ -36,6 +36,8 @@ class Parameters : public Rebuildable {
       VelocityD BField;
       VelocityD EField;
       
+      bool IsRestart;
+      
       int MGNu1;
       int MGNu2;
       int MGGamma;
@@ -69,6 +71,9 @@ class Parameters : public Rebuildable {
       
       const VelocityD& bField() { return BField; }
       const VelocityD& eField() { return EField; }
+      
+      bool isRestart() { return IsRestart; }
+      void setRestart(bool IsRestart_) { IsRestart = IsRestart_; }
       
       int mgNu1() { return MGNu1; }
       int mgNu2() { return MGNu2; }
