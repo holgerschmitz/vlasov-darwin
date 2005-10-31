@@ -1,6 +1,6 @@
 BEGIN{
-  Lx = 128;
-  Ly = 64;
+  Lx = 512;
+  Ly = 256;
   
   for (i=1; i<=sqrt(Lx*Ly); ++i)
   {
