@@ -336,6 +336,29 @@ class GenericEMForceDirect : public ForceBaseType {
                       const VelocityD &Vel,
                       double dt);
                       
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the x--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceX(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the y--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceY(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the z--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceZ(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
 };
 
 

@@ -4,6 +4,7 @@
 #include "wrapvlasov.h"
 #include "vlasovinit.h"
 #include "reconnection.h"
+#include "bernstein.h"
 #include "magnetostatic.h"
 
 Process *Process::process;
@@ -180,6 +181,8 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovTwoMaxwellInit, VlasovInitialiser>(&initialiser));
   (*pm)["wavegen"] 
       = WParameter(new ParameterRebuild<VlasovWaveGenInit, VlasovInitialiser>(&initialiser));
+  (*pm)["bernstein"] 
+      = WParameter(new ParameterRebuild<VlasovBernsteinInit, VlasovInitialiser>(&initialiser));
   (*pm)["gausstemp"] 
       = WParameter(new ParameterRebuild<VlasovGaussTempInit, VlasovInitialiser>(&initialiser));
   (*pm)["hdfrestart"] 

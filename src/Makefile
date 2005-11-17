@@ -10,20 +10,21 @@ VLASOV_SOURCES = darwin.cpp helmholtz.cpp numeric.cpp potential.cpp \
 		poisson.cpp vlasovinit.cpp  vlasovbase.cpp process.cpp \
 		derivedfields.cpp forcefield.cpp hdfstream.cpp task.cpp \
 		globals.cpp diagnostic.cpp fielddiag.cpp reconnection.cpp \
-		scalarfield.cpp magnetostatic.cpp
+		scalarfield.cpp magnetostatic.cpp bernstein.cpp
 
 VLASOV_HEADERS = darwin.h diaghelper.h index.h numeric.h opar.h \
 		parameter.h poisson.h potential.h stlpwrapper.h \
 		vlasov.h vlasovinit.h vlasovbase.h wrapvlasov.h scheme.h \
 		derivedfields.h forcefield.h hdfstream.h task.h parameter.h \
 		process.h globals.h diagnostic.h fielddiag.h reconnection.h \
-		numboundary.h magnetostatic.h
+		numboundary.h magnetostatic.h bernstein.h
 
 OBJECTS = boundary.o darwin.o diaghelper.o helmholtz.o numeric.o \
 		potential.o poisson.o wrapvlasov.o main.o \
 		vlasovinit.o vlasovbase.o forcefield.o process.o\
 		derivedfields.o hdfstream.o task.o globals.o diagnostic.o \
-		fielddiag.o reconnection.o scalarfield.o magnetostatic.o
+		fielddiag.o reconnection.o scalarfield.o magnetostatic.o \
+		bernstein.o
 
 HEADERS = $(VLASOV_HEADERS)
 
@@ -42,6 +43,11 @@ vlasov: $(OBJECTS)
 
 vlasov_es:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC
 vlasov_es: $(OBJECTS) 
+	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
+	cp $@ $(HOME)/bin/$(X_OSTYPE)/
+
+vlasov_esb_ts:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC_B
+vlasov_esb_ts: $(OBJECTS) 
 	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
 	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 

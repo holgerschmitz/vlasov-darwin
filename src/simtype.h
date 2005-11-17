@@ -15,8 +15,9 @@ class RungeKuttaAdvance;
 template<class, template<class> class>
 class LeapFrogAdvance;
 
-#define POS_FLUX_3_BACKSUBS
+#define POS_FLUX_3_TIMESPLIT
 
+// This is the standard simulation method
 #ifdef POS_FLUX_3_BACKSUBS
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE SimpleLeapFrogAdvance
@@ -33,6 +34,12 @@ class LeapFrogAdvance;
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE LeapFrogAdvance
   #define FORCE_TYPE GenericEMForce
+#endif
+
+#ifdef POS_FLUX_3_TIMESPLIT_FIRST_ORDER
+  #define SCHEME_TYPE PosFluxCons3rdOrder
+  #define ADVANCE_TYPE LeapFrogAdvance
+  #define FORCE_TYPE GenericEMForceDirect
 #endif
 
 #ifdef FINITE_DIFF
@@ -67,6 +74,7 @@ class LeapFrogAdvance;
 
 class Darwin;
 class GenericEMForceBase_ConstEB;
+class GenericEMForceBase_Electrostatic;
 template<class> class GenericEMForceBase_FullEM;
 
 template<class> class GenericEMForce;
@@ -76,6 +84,10 @@ template<class> class GenericEMForceDirect;
 typedef FORCE_TYPE<
   GenericEMForceBase_ConstEB
 > ConstEBFieldForce;
+
+typedef FORCE_TYPE<
+  GenericEMForceBase_Electrostatic
+> ESWithBFieldForce;
 
 typedef PtrWrapper<ConstEBFieldForce> pConstEBFieldForce;
 
@@ -96,6 +108,10 @@ typedef PtrWrapper<MagnetostaticForce> pMagnetostaticForce;
 
 #ifdef SIM_ELECTROSTATIC
 typedef EFieldForce ForceField;
+#endif
+
+#ifdef SIM_ELECTROSTATIC_B
+typedef ESWithBFieldForce ForceField;
 #endif
 
 #ifdef SIM_DARWIN

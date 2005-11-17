@@ -10,8 +10,8 @@
 // ----------------------------------------------------------------------
 // Potential
 
-void Potential::AddSpecies(EFieldForce* pS) { 	
-    species.push_back(pEFieldForce(pS));
+void Potential::AddSpecies(ForceFieldBase* pS) { 	
+    species.push_back(pForceFieldBase(pS));
 }
 
 /// Get parameters Nx and dx and initialize the potential grid
@@ -80,9 +80,9 @@ void Potential::Execute () {
 
     // iterate through the species
 	for (int s = species.size() - 1; s >= 0; s--) {
-		EFieldForce *pS = species[s];
+		ForceFieldBase *pS = species[s];
 
-		dF = pS->getCharge()/dV;
+		dF = pS->getCharge();
         
     DistMomentRho *distRho = pS->getDerivedRho();
         

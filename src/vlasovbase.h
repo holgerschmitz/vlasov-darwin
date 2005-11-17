@@ -187,7 +187,11 @@ class ForceFieldBase {
       
       pDistributionDerivedField getDerivedField(std::string);
       void addDerivedDiagnostic(VlasovDerivedDiagnostic*);
+      
+      virtual DistMomentRho *getDerivedRho() = 0;
 };
+
+typedef PtrWrapper<ForceFieldBase> pForceFieldBase;
 
 struct SpeciesData {
   double charge;

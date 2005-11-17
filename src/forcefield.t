@@ -575,3 +575,78 @@ VelocityD GenericEMForceDirect<FieldType>
     return VelocityD(Fx*af, Fy*af, Fz*af);
         
 }
+
+template<class FieldType>
+double GenericEMForceDirect<FieldType>
+                       ::ForceX(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vy = Vel[1];
+    double vz = Vel[2];
+    
+    double af = dt*this->Charge/this->Mass;
+    
+    // Storing E and B field
+    double Ex = this->GetEx(Pos);
+
+    double By = this->GetBy(Pos);
+    double Bz = this->GetBz(Pos);
+
+    // Calculate Force
+    double Fx = Ex + vy*Bz - vz*By;
+       
+    return Fx*af;
+        
+}
+
+template<class FieldType>
+double GenericEMForceDirect<FieldType>
+                       ::ForceY(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vz = Vel[2];
+    
+    double af = dt*this->Charge/this->Mass;
+    
+    // Storing E and B field
+    double Ey = this->GetEy(Pos);
+
+    double Bx = this->GetBx(Pos);
+    double Bz = this->GetBz(Pos);
+
+    // Calculate Force
+    double Fy = Ey + vz*Bx - vx*Bz;
+       
+    return Fy*af;
+        
+}
+
+template<class FieldType>
+double GenericEMForceDirect<FieldType>
+                       ::ForceZ(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+    // normalizing velocity
+    double vx = Vel[0];
+    double vy = Vel[1];
+    
+    double af = dt*this->Charge/this->Mass;
+    
+    // Storing E and B field
+    double Ez = this->GetEz(Pos);
+
+    double Bx = this->GetBx(Pos);
+    double By = this->GetBy(Pos);
+
+    // Calculate Force
+    double Fz = Ez + vx*By - vy*Bx;
+       
+    return Fz*af;
+        
+}

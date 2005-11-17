@@ -21,9 +21,8 @@
 #include <vector>
 #include <string>
 
-class EFieldForce;
-typedef PtrWrapper<EFieldForce> pEFieldForce;
-
+class ForceFieldBase;
+typedef PtrWrapper<ForceFieldBase> pForceFieldBase;
 
 /** @brief The class for calculating the electrostatic potential.
  *  At the moment only completely periodic boundary conditions 
@@ -49,7 +48,7 @@ class Potential {
 		  ScalarField den;
         
       /// Container of all the Species that contribute to the charge density   
-  		vector<pEFieldForce> species;
+  		vector<pForceFieldBase> species;
            
       /// A temporary field used for the poisson solver              
       ScalarField In;
@@ -93,7 +92,7 @@ class Potential {
       /** @brief Adds a species to the list of species that need 
        *  contribute to the charge density
        */
-      void AddSpecies(EFieldForce* pS);
+      void AddSpecies(ForceFieldBase* pS);
 }; // Potential
 
 /// Helper function to write a scalar potential into a file
