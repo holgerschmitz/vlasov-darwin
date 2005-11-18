@@ -15,13 +15,19 @@ class RungeKuttaAdvance;
 template<class, template<class> class>
 class LeapFrogAdvance;
 
-#define POS_FLUX_3_TIMESPLIT
+#define POS_FLUX_3_TESTING
 
 // This is the standard simulation method
 #ifdef POS_FLUX_3_BACKSUBS
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE SimpleLeapFrogAdvance
   #define FORCE_TYPE GenericEMForceBoris2
+#endif
+
+#ifdef POS_FLUX_3_TESTING
+  #define SCHEME_TYPE PosFluxCons3rdOrder
+  #define ADVANCE_TYPE SimpleLeapFrogAdvance
+  #define FORCE_TYPE GenericEMForceExactBackSubs
 #endif
 
 #ifdef POS_FLUX_3_BACKSUBS_RK
@@ -79,6 +85,8 @@ template<class> class GenericEMForceBase_FullEM;
 
 template<class> class GenericEMForce;
 template<class> class GenericEMForceBoris2;
+template<class> class GenericEMForceExact;
+template<class> class GenericEMForceExactBackSubs;
 template<class> class GenericEMForceDirect;
 
 typedef FORCE_TYPE<

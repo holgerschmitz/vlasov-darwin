@@ -542,6 +542,496 @@ double GenericEMForceBoris2<FieldType>
 
 
 //********************************************************************
+//********** GenericEMForceExact  **************************
+//********************************************************************
+
+template<class FieldType>
+VelocityD GenericEMForceExact<FieldType>
+                       ::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
+                + vtz*(ebx*ebz*mcosp+eby*sinp) 
+                + vty*(ebx*eby*mcosp-ebz*sinp);
+                
+  double vtnewy = vty*(mcosp*eby*eby + cosp) 
+                + vtz*(eby*ebz*mcosp-ebx*sinp) 
+                + vtx*(ebx*eby*mcosp+ebz*sinp);
+                
+  double vtnewz = vtz*(mcosp*ebz*ebz + cosp) 
+                + vty*(eby*ebz*mcosp+ebx*sinp) 
+                + vtx*(ebx*ebz*mcosp-eby*sinp);
+
+  double Vdiffx = vtnewx-vtx + deltaPar*ebx;
+  double Vdiffy = vtnewy-vty + deltaPar*eby;
+  double Vdiffz = vtnewz-vtz + deltaPar*ebz;
+  
+  return VelocityD(Vdiffx, Vdiffy, Vdiffz);
+        
+}
+
+template<class FieldType>
+double GenericEMForceExact<FieldType>
+                       ::ForceX(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
+                + vtz*(ebx*ebz*mcosp+eby*sinp) 
+                + vty*(ebx*eby*mcosp-ebz*sinp);
+
+  double Vdiffx = vtnewx-vtx + deltaPar*ebx;
+  
+  return Vdiffx;
+        
+}
+
+template<class FieldType>
+double GenericEMForceExact<FieldType>
+                       ::ForceY(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+                
+  double vtnewy = vty*(mcosp*eby*eby + cosp) 
+                + vtz*(eby*ebz*mcosp-ebx*sinp) 
+                + vtx*(ebx*eby*mcosp+ebz*sinp);
+  
+  double Vdiffy = vtnewy-vty + deltaPar*eby;
+
+  return Vdiffy;
+        
+}
+
+template<class FieldType>
+double GenericEMForceExact<FieldType>
+                       ::ForceZ(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtnewz = vtz*(mcosp*ebz*ebz + cosp) 
+                + vty*(eby*ebz*mcosp+ebx*sinp) 
+                + vtx*(ebx*ebz*mcosp-eby*sinp);
+                
+  double Vdiffz = vtnewz-vtz + deltaPar*ebz;
+  
+  return Vdiffz;
+        
+}
+
+
+//********************************************************************
+//********** GenericEMForceExactBackSubs  **************************
+//********************************************************************
+
+template<class FieldType>
+VelocityD GenericEMForceExactBackSubs<FieldType>
+                       ::Force(const PositionI &Pos, 
+                               const VelocityD &Vel,
+                               double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
+                + vtz*(ebx*ebz*mcosp+eby*sinp) 
+                + vty*(ebx*eby*mcosp-ebz*sinp);
+                
+  double vtnewy = vty*(mcosp*eby*eby + cosp) 
+                + vtz*(eby*ebz*mcosp-ebx*sinp) 
+                + vtx*(ebx*eby*mcosp+ebz*sinp);
+                
+  double vtnewz = vtz*(mcosp*ebz*ebz + cosp) 
+                + vty*(eby*ebz*mcosp+ebx*sinp) 
+                + vtx*(ebx*ebz*mcosp-eby*sinp);
+
+  double Vdiffx = vtnewx-vtx + deltaPar*ebx;
+  double Vdiffy = vtnewy-vty + deltaPar*eby;
+  double Vdiffz = vtnewz-vtz + deltaPar*ebz;
+  
+  return VelocityD(Vdiffx, Vdiffy, Vdiffz);
+        
+}
+
+template<class FieldType>
+double GenericEMForceExactBackSubs<FieldType>
+                       ::ForceX(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
+                + vtz*(ebx*ebz*mcosp+eby*sinp) 
+                + vty*(ebx*eby*mcosp-ebz*sinp);
+
+  double Vdiffx = vtnewx-vtx + deltaPar*ebx;
+  
+  return Vdiffx;
+        
+}
+
+template<class FieldType>
+double GenericEMForceExactBackSubs<FieldType>
+                       ::ForceY(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  
+  double vtnewx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+
+  double vtx = (
+                   vtnewx - ebx*(eby*vty + ebz*vtz)*mcosp
+                 + (ebz*vty-eby*vtz)*sinp
+               )/(mcosp*ebx*ebx + cosp);
+                
+  double vtnewy = vty*(mcosp*eby*eby + cosp) 
+                + vtz*(eby*ebz*mcosp-ebx*sinp) 
+                + vtx*(ebx*eby*mcosp+ebz*sinp);
+
+  double Vdiffy = vtnewy-vty + deltaPar*eby;
+  
+  return Vdiffy;
+        
+}
+
+template<class FieldType>
+double GenericEMForceExactBackSubs<FieldType>
+                       ::ForceZ(const PositionI &Pos, 
+                                const VelocityD &Vel,
+                                double dt) {
+    
+  // normalizing velocity
+  double vx = Vel[0];
+  double vy = Vel[1];
+  double vz = Vel[2];
+
+  // Storing E and B field
+  double Ex = this->Charge*this->GetEx(Pos)/this->Mass;
+  double Ey = this->Charge*this->GetEy(Pos)/this->Mass;
+  double Ez = this->Charge*this->GetEz(Pos)/this->Mass;
+
+  double Bx = this->Charge*this->GetBx(Pos)/this->Mass;
+  double By = this->Charge*this->GetBy(Pos)/this->Mass;
+  double Bz = this->Charge*this->GetBz(Pos)/this->Mass;
+
+  double blength = sqrt(Bx*Bx+By*By+Bz*Bz);
+//  double blength2 = blength*blength;
+  
+  double ebx = Bx/blength;
+  double eby = By/blength;
+  double ebz = Bz/blength;
+  
+  double vpar = vx*ebx + vy*eby + vz*ebz;
+  double Epar = Ex*ebx + Ey*eby + Ez*ebz;
+  
+  double deltaPar = Epar*dt;
+  
+  double Eperpx = Ex - Epar*ebx;
+  double Eperpy = Ey - Epar*eby;
+  double Eperpz = Ez - Epar*ebz;
+  
+  double vtnewx = vx - vpar*ebx - (Eperpy*ebz - Eperpz*eby) / blength;
+  double vtnewy = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
+  double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
+
+  double cosp = cos(blength*dt);
+  double mcosp = 1-cosp;
+  double sinp = sin(blength*dt);
+  
+  double vtx = 
+    (
+       vtnewx * (mcosp*eby*eby + cosp)
+      +vtnewy * (-mcosp*ebx*eby + sinp*ebz)
+      +vtz * (mcosp*ebx*ebz )
+    )
+    /(
+       mcosp*ebz*ebz + cosp
+     );
+
+  double vty = 
+    (
+       vtnewx * (-mcosp*ebx*eby - ebz*sinp)
+      +vtnewy * (mcosp*ebx*ebx + cosp)
+      +vtz * (mcosp*eby*ebz)
+    )
+    /(
+       mcosp*ebz*ebz + cosp
+     );
+     
+  
+  
+  double vtnewz = vtz*(mcosp*ebz*ebz + cosp) 
+                + vty*(eby*ebz*mcosp+ebx*sinp) 
+                + vtx*(ebx*ebz*mcosp-eby*sinp);
+                
+  double Vdiffz = vtnewz-vtz + deltaPar*ebz;
+  
+  return Vdiffz;
+        
+}
+
+
+//********************************************************************
 //********** GenericEMForceDirect  **************************
 //********************************************************************
 

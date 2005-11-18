@@ -319,6 +319,106 @@ class GenericEMForceBoris2 : public ForceBaseType {
  *  method to work together with the VlasovSpecies.
  */
 template<class ForceBaseType>
+class GenericEMForceExact : public ForceBaseType {
+  public:
+      
+      GenericEMForceExact(SpeciesData &data) : ForceBaseType(data) {}
+      
+      /// Returns the reference to the electric field energy
+//      ScalarField &FieldEnergy();
+
+      /** The force at one position given the velocity.
+       *  Actually the displacement in the velocity space is returned.
+       *  The scheme of Boris is used for calculating the acceleration
+       *  The Boris scheme has been checked on simple trajectory integration.
+       */
+      VelocityD Force(const PositionI &Pos, 
+                      const VelocityD &Vel,
+                      double dt);
+                      
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the x--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceX(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the y--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceY(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the z--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceZ(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+};
+
+/** @brief Implements a force field that plugs into the concrete advancers
+ *  taking the force from a electromagetic field specified as template
+ *  parameter.
+ *
+ *  Implements the Force method for the Advancer and the Init and MakeParamMap
+ *  method to work together with the VlasovSpecies.
+ */
+template<class ForceBaseType>
+class GenericEMForceExactBackSubs : public ForceBaseType {
+  public:
+      
+      GenericEMForceExactBackSubs(SpeciesData &data) : ForceBaseType(data) {}
+      
+      /// Returns the reference to the electric field energy
+//      ScalarField &FieldEnergy();
+
+      /** The force at one position given the velocity.
+       *  Actually the displacement in the velocity space is returned.
+       *  The scheme of Boris is used for calculating the acceleration
+       *  The Boris scheme has been checked on simple trajectory integration.
+       */
+      VelocityD Force(const PositionI &Pos, 
+                      const VelocityD &Vel,
+                      double dt);
+                      
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the x--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceX(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the y--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceY(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+
+      /** The forces individually by component. Calculation is the same as in 
+       *  the Force method but all operations not needed by the z--component
+       *  are omitted. This method is therefore slightly faster.
+       */
+      double ForceZ(const PositionI &Pos, 
+                    const VelocityD &Vel,
+                    double dt);
+};
+
+/** @brief Implements a force field that plugs into the concrete advancers
+ *  taking the force from a electromagetic field specified as template
+ *  parameter.
+ *
+ *  Implements the Force method for the Advancer and the Init and MakeParamMap
+ *  method to work together with the VlasovSpecies.
+ */
+template<class ForceBaseType>
 class GenericEMForceDirect : public ForceBaseType {
   public:
       
