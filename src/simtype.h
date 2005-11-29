@@ -15,7 +15,7 @@ class RungeKuttaAdvance;
 template<class, template<class> class>
 class LeapFrogAdvance;
 
-#define POS_FLUX_3_TESTING
+#define POS_FLUX_3_BACKSUBS
 
 // This is the standard simulation method
 #ifdef POS_FLUX_3_BACKSUBS

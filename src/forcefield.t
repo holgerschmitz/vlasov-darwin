@@ -575,7 +575,7 @@ VelocityD GenericEMForceExact<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -585,9 +585,9 @@ VelocityD GenericEMForceExact<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
                 + vtz*(ebx*ebz*mcosp+eby*sinp) 
@@ -639,7 +639,7 @@ double GenericEMForceExact<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -649,9 +649,9 @@ double GenericEMForceExact<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
                 + vtz*(ebx*ebz*mcosp+eby*sinp) 
@@ -693,7 +693,7 @@ double GenericEMForceExact<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -703,9 +703,9 @@ double GenericEMForceExact<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
                 
   double vtnewy = vty*(mcosp*eby*eby + cosp) 
                 + vtz*(eby*ebz*mcosp-ebx*sinp) 
@@ -747,7 +747,7 @@ double GenericEMForceExact<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -757,9 +757,9 @@ double GenericEMForceExact<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtnewz = vtz*(mcosp*ebz*ebz + cosp) 
                 + vty*(eby*ebz*mcosp+ebx*sinp) 
@@ -806,7 +806,7 @@ VelocityD GenericEMForceExactBackSubs<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -816,9 +816,9 @@ VelocityD GenericEMForceExactBackSubs<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
                 + vtz*(ebx*ebz*mcosp+eby*sinp) 
@@ -870,7 +870,7 @@ double GenericEMForceExactBackSubs<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -880,9 +880,9 @@ double GenericEMForceExactBackSubs<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtnewx = vtx*(mcosp*ebx*ebx + cosp) 
                 + vtz*(ebx*ebz*mcosp+eby*sinp) 
@@ -924,7 +924,7 @@ double GenericEMForceExactBackSubs<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -935,9 +935,9 @@ double GenericEMForceExactBackSubs<FieldType>
   double vty = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
 
   double vtx = (
                    vtnewx - ebx*(eby*vty + ebz*vtz)*mcosp
@@ -984,7 +984,7 @@ double GenericEMForceExactBackSubs<FieldType>
   double vpar = vx*ebx + vy*eby + vz*ebz;
   double Epar = Ex*ebx + Ey*eby + Ez*ebz;
   
-  double deltaPar = Epar*dt;
+  double deltaPar = -Epar*dt;
   
   double Eperpx = Ex - Epar*ebx;
   double Eperpy = Ey - Epar*eby;
@@ -994,9 +994,9 @@ double GenericEMForceExactBackSubs<FieldType>
   double vtnewy = vy - vpar*eby - (Eperpz*ebx - Eperpx*ebz) / blength;
   double vtz = vz - vpar*ebz - (Eperpx*eby - Eperpy*ebx) / blength;
 
-  double cosp = cos(blength*dt);
+  double cosp = cos(-blength*dt);
   double mcosp = 1-cosp;
-  double sinp = sin(blength*dt);
+  double sinp = sin(-blength*dt);
   
   double vtx = 
     (
