@@ -1002,7 +1002,7 @@ double GenericEMForceExactBackSubs<FieldType>
     (
        vtnewx * (mcosp*eby*eby + cosp)
       +vtnewy * (-mcosp*ebx*eby + sinp*ebz)
-      +vtz * (mcosp*ebx*ebz )
+      +vtz * (mcosp*ebx*ebz - eby*sinp)
     )
     /(
        mcosp*ebz*ebz + cosp
@@ -1012,7 +1012,7 @@ double GenericEMForceExactBackSubs<FieldType>
     (
        vtnewx * (-mcosp*ebx*eby - ebz*sinp)
       +vtnewy * (mcosp*ebx*ebx + cosp)
-      +vtz * (mcosp*eby*ebz)
+      +vtz * (mcosp*eby*ebz + ebx*sinp)
     )
     /(
        mcosp*ebz*ebz + cosp
