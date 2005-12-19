@@ -4,6 +4,7 @@
 
 #include "matrix.h"
 #include <list>
+#include <fstream>
 
 typedef std::pair<int,int> Point;
 typedef std::list<Point> PointList;
@@ -40,9 +41,15 @@ void phaseprobe(SimFileName srcname, SimFileName destname, const PointList &vec)
             for (int vz=low[4]; vz<=high[4]; vz++)
               probe(vx, vy, vz) = phase(posx, posy, vx, vy, vz);
 
-        HDFostream hdfout(destname.filename().c_str());
-        hdfout << probe;
-        hdfout.close();
+        std::ofstream outfile(destname.filename().c_str());
+        for (int vx=low[2]; vx<=high[2]; vx++)
+          for (int vy=low[3]; vy<=high[3]; vy++)
+            for (int vz=low[4]; vz<=high[4]; vz++)
+            {
+              outfile << vx << " " << vy << " " << vz 
+                << " " << probe(vx,vy,vz) << std::endl;
+            }
+        outfile.close();
       }
     }
   }
