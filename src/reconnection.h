@@ -219,8 +219,9 @@ class GEMReconnectionInit : public VlasovInitialiser {
       
       /// The velocity carrying the sheet current
       double vz0;
+
       /// The initial perturbation of the current to start the reconnection
-      double vz1;
+      double pert;
       
       /// thermal velocity
       VelocityD v_th;

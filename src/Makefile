@@ -46,8 +46,8 @@ vlasov_es: $(OBJECTS)
 	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
 	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 
-vlasov_esb:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC_B
-vlasov_esb: $(OBJECTS) 
+vlasov_esb_bs_ex:	CXXFLAGS = $(BASE_CXXFLAGS) -DSIM_ELECTROSTATIC_B
+vlasov_esb_bs_ex: $(OBJECTS) 
 	$(CXX)  -g $^ -o $@ $(LDFLAGS) $(LOADLIBS)
 	cp $@ $(HOME)/bin/$(X_OSTYPE)/
 

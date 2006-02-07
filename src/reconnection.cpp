@@ -672,7 +672,7 @@ GEMReconnectionInit::GEMReconnectionInit() {}
 PARAMETERMAP* GEMReconnectionInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["vz0"] = WParameter(new ParameterValue<double>(&vz0, 0));
-  (*pm)["vz1"] = WParameter(new ParameterValue<double>(&vz1, 0));
+  (*pm)["pert"] = WParameter(new ParameterValue<double>(&pert, 0));
   (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
   (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
   (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
@@ -732,8 +732,9 @@ void GEMReconnectionInit::initialise(ForceFieldBase *pVlasov) {
       
       double sc1 = sech( (Xi[1]-Ysheet1)/lambda_norm );
       
-      double N_pert = vz1*cos(PIl*(Xi[0]-XSymm)/Nx);
-      double N = (N0-N_pert)*sc1*sc1;
+      double N_pert = pert*cos(PIl*(Xi[0]-XSymm)/Nx)
+                             *cos(0.5*PIl*(Xi[1]-Ysheet1)/Ny);
+      double N = sc1*sc1*exp(N_pert);
       
       UStream[2] =  vz0;
                    
