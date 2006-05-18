@@ -24,7 +24,7 @@ class LeapFrogAdvance;
   #define FORCE_TYPE GenericEMForceBoris2
 #endif
 
-#ifdef POS_FLUX_3_TESTING
+#ifdef POS_FLUX_3_BACKSUBS_EXACT
   #define SCHEME_TYPE PosFluxCons3rdOrder
   #define ADVANCE_TYPE SimpleLeapFrogAdvance
   #define FORCE_TYPE GenericEMForceExactBackSubs
