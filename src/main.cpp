@@ -43,6 +43,7 @@ int main (int argc, char** argv) {
     cerr << "MAIN: Could not open " << setupfilename.c_str() << " ...\n"; 
     exit(-1);
   }
+  
   ProcessRebuild().Rebuild(setupfile);
   
   cerr << "MAIN: initializing\n";

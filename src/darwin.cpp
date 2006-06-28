@@ -43,32 +43,25 @@ void Darwin::Init ()
     
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
-  den.setComponent(ScalarField::ScalarComponent);
-  den.setParity(ScalarField::EvenParity);
+  den.setFieldType(ScalarField::RHO);
 
   om2.resize(LBound.Data(),HBound.Data());
   om2.setComponent(ScalarField::ScalarComponent);
   om2.setParity(ScalarField::EvenParity);
     
   jx.resize(LBound.Data(),HBound.Data());
-  jx.setComponent(ScalarField::XComponent);
-  jx.setParity(ScalarField::OddParity);
+  jx.setFieldType(ScalarField::JX);
   jy.resize(LBound.Data(),HBound.Data());
-  jy.setComponent(ScalarField::YComponent);
-  jy.setParity(ScalarField::OddParity);
+  jy.setFieldType(ScalarField::JY);
   jz.resize(LBound.Data(),HBound.Data());
-  jz.setComponent(ScalarField::ZComponent);
-  jz.setParity(ScalarField::OddParity);
+  jz.setFieldType(ScalarField::JZ);
 
   jxold.resize(LBound.Data(),HBound.Data());
-  jxold.setComponent(ScalarField::XComponent);
-  jxold.setParity(ScalarField::OddParity);
+  jxold.setFieldType(ScalarField::JX);
   jyold.resize(LBound.Data(),HBound.Data());
-  jyold.setComponent(ScalarField::YComponent);
-  jyold.setParity(ScalarField::OddParity);
+  jyold.setFieldType(ScalarField::JY);
   jzold.resize(LBound.Data(),HBound.Data());
-  jzold.setComponent(ScalarField::ZComponent);
-  jzold.setParity(ScalarField::OddParity);
+  jzold.setFieldType(ScalarField::JZ);
 
   sx.resize(LBound.Data(),HBound.Data());
   sx.setComponent(ScalarField::XComponent);
@@ -105,48 +98,37 @@ void Darwin::Init ()
   vzz.setParity(ScalarField::EvenParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
-  Pot.setComponent(ScalarField::ScalarComponent);
-  Pot.setParity(ScalarField::EvenParity);
+  Pot.setFieldType(ScalarField::PHI);
   
   Az.resize(LBound.Data(),HBound.Data());
-  Az.setComponent(ScalarField::ZComponent);
-  Az.setParity(ScalarField::OddParity);
+  Az.setFieldType(ScalarField::AZ);
 
   Ex.resize(LBound.Data(),HBound.Data());
-  Ex.setComponent(ScalarField::XComponent);
-  Ex.setParity(ScalarField::OddParity);
+  Ex.setFieldType(ScalarField::EX);
   Ey.resize(LBound.Data(),HBound.Data());
-  Ey.setComponent(ScalarField::YComponent);
-  Ey.setParity(ScalarField::OddParity);
+  Ey.setFieldType(ScalarField::EY);
   Ez.resize(LBound.Data(),HBound.Data());
-  Ez.setComponent(ScalarField::ZComponent);
-  Ez.setParity(ScalarField::OddParity);
+  Ez.setFieldType(ScalarField::EZ);
 
     
   Etx.resize(LBound.Data(),HBound.Data());
-  Etx.setComponent(ScalarField::XComponent);
-  Etx.setParity(ScalarField::OddParity);
+  Etx.setFieldType(ScalarField::EX);
   Ety.resize(LBound.Data(),HBound.Data());
-  Ety.setComponent(ScalarField::YComponent);
-  Ety.setParity(ScalarField::OddParity);
+  Ety.setFieldType(ScalarField::EY);
   
   Theta.resize(LBound.Data(),HBound.Data());
-  Theta.setComponent(ScalarField::ScalarComponent);
-  Theta.setParity(ScalarField::EvenParity);
+  Theta.setFieldType(ScalarField::THETA);
   
   DivEt.resize(LBound.Data(),HBound.Data());
   DivEt.setComponent(ScalarField::ScalarComponent);
   DivEt.setParity(ScalarField::EvenParity);
 
   Bx.resize(LBound.Data(),HBound.Data());
-  Bx.setComponent(ScalarField::XComponent);
-  Bx.setParity(ScalarField::EvenParity);
+  Bx.setFieldType(ScalarField::BX);
   By.resize(LBound.Data(),HBound.Data());
-  By.setComponent(ScalarField::YComponent);
-  By.setParity(ScalarField::EvenParity);
+  By.setFieldType(ScalarField::BY);
   Bz.resize(LBound.Data(),HBound.Data());
-  Bz.setComponent(ScalarField::ZComponent);
-  Bz.setParity(ScalarField::EvenParity);
+  Bz.setFieldType(ScalarField::BZ);
     
   den.clear();
   om2.clear();

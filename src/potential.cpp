@@ -34,22 +34,18 @@ void Potential::Init () {
 
     // resize grid
     den.resize(LBound.Data(),HBound.Data());
-    den.setComponent(ScalarField::ScalarComponent);
-    den.setParity(ScalarField::EvenParity);
+    den.setFieldType(ScalarField::RHO);
     
     Pot.resize(LBound.Data(),HBound.Data());
-    Pot.setComponent(ScalarField::ScalarComponent);
-    Pot.setParity(ScalarField::EvenParity);
+    Pot.setFieldType(ScalarField::PHI);
 
     Ex.resize(LBound.Data(),HBound.Data());
     Ex.clear();
-    Ex.setComponent(ScalarField::XComponent);
-    Ex.setParity(ScalarField::OddParity);
-
+    Ex.setFieldType(ScalarField::EX);
+    
     Ey.resize(LBound.Data(),HBound.Data());
     Ey.clear();
-    Ey.setComponent(ScalarField::YComponent);
-    Ey.setParity(ScalarField::OddParity);
+    Ey.setFieldType(ScalarField::EY);
 
     int gssx = HBound[0]-LBound[0], gssy = HBound[1]-LBound[1];
     pois = new Poisson();

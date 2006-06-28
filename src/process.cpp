@@ -104,6 +104,8 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<SimpleReconnectionBoundary, Boundary>(&boundary));
   (*pm)["gem-reconnection"] 
       = WParameter(new ParameterRebuild<GEMReconnectionBoundary, Boundary>(&boundary));
+  (*pm)["shock"] 
+      = WParameter(new ParameterRebuild<MPIShockBoundary, Boundary>(&boundary));
 #endif // single processor
   return pm;
 }

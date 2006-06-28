@@ -52,8 +52,7 @@ DistMomentRhoBase::DistMomentRhoBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   Rho.resize(Lowx.Data(),Highx.Data());
-  Rho.setComponent(ScalarField::ScalarComponent);
-  Rho.setParity(ScalarField::EvenParity);
+  Rho.setFieldType(ScalarField::RHO);
 }
     
 ScalarField& DistMomentRhoBase::getField(std::string name) {
@@ -111,16 +110,13 @@ DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   Jx.resize(Lowx.Data(),Highx.Data());
-  Jx.setComponent(ScalarField::XComponent);
-  Jx.setParity(ScalarField::OddParity);
+  Jx.setFieldType(ScalarField::JX);
   
   Jy.resize(Lowx.Data(),Highx.Data());
-  Jy.setComponent(ScalarField::YComponent);
-  Jy.setParity(ScalarField::OddParity);
+  Jy.setFieldType(ScalarField::JY);
   
   Jz.resize(Lowx.Data(),Highx.Data());
-  Jz.setComponent(ScalarField::ZComponent);
-  Jz.setParity(ScalarField::OddParity);
+  Jz.setFieldType(ScalarField::JZ);
 
   Vxx.resize(Lowx.Data(),Highx.Data());
   Vxx.setComponent(ScalarField::ScalarComponent);

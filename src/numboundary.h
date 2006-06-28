@@ -32,6 +32,50 @@ class MixedBoundary : public NumBoundary {
       }
 };
 
+template<class BoundLeft, class BoundRight, class BoundBottom, class BoundTop>
+class MixedBoundaryWithOffset : public NumBoundary {
+  private:
+    double ol;
+    double or;
+    double ob;
+    double ot;
+    
+  public:
+    MixedBoundaryWithOffset(double ol_=0.0, double or_=0.0, double ob_=0.0, double ot_=0.0)
+     : ol(2.0*ol_), or(2.0*or_), ot(2.0*ot_), ob(2.0*ob_)
+    {}
+    MixedBoundaryWithOffset(const MixedBoundaryWithOffset& bound)
+     : ol(bound.ol), or(bound.or), ob(bound.ob), ot(bound.ot)
+    {}
+    
+    double setOffsetLeft(double ol_)
+    {
+      ol = 2.0*ol_;
+    }
+    
+    double setOffsetRight(double or_)
+    {
+      or = 2.0*or_;
+    }
+    
+    double setOffsetBottom(double ob_)
+    {
+      ob = 2.0*ob_;
+    }
+    
+    double setOffsetTop(double ot_)
+    {
+      ot = 2.0*ot_;
+    }
+    
+    void apply(NumMatrix<double,2> &u) const;
+    bool normalize() const { 
+       return false; 
+    }
+};
+
+
+
 class BoundPeriodic {
   private:
       const int low0, low1, high0, high1;

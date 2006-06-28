@@ -30,6 +30,7 @@ class PtrWrapper {
     public:
         /// Constructor with a pointer to the TYPE
         PtrWrapper(TYPE* pObj = 0) : m_pObj(pObj) {};
+        
         /// Copy constructor
         PtrWrapper(const PtrWrapper<TYPE>& wrapper) { 
             m_pObj = wrapper.m_pObj;
