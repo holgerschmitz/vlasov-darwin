@@ -62,12 +62,12 @@ int main()
   PointList points;
   for (int i=-20; i<=20; ++i)
   {
-    int posx = int( 7*exp( 0.3*double(i) ))+1;
+    int posx = 256 - int( 7*exp( 0.3*double(i) ));
     int posy = int( 7*exp(-0.3*double(i) ))+1;
     points.push_back(Point(posx,posy));
   }
   
-  for (int time=0; time<=1600; time+=200)
+  for (int time=0; time<=2000; time+=200)
   {
     srcname.setReplace("#t", time);
     destname.setReplace("#t", time);
