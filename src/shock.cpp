@@ -14,15 +14,30 @@
 
 MPIShockBoundary::MPIShockBoundary() :
     MPIPeriodicSplitXYBoundary()
-{} 
+{
+  initOpenBound();
+} 
 
 
 MPIShockBoundary::MPIShockBoundary(int argc, char **argv) :
     MPIPeriodicSplitXYBoundary(argc,argv)
-{}
+{
+  initOpenBound();
+}
 
 MPIShockBoundary::~MPIShockBoundary() {}
 
+void MPIShockBoundary::initOpenBound()
+{
+  if (mycoord[0]==dims[0]-1)
+  {
+    openBound = new OpenBound(*this, OpenBound::right);
+  }
+  else
+  {
+    openBound = NULL;
+  }
+}
 
 PARAMETERMAP* MPIShockBoundary::MakeParamMap(PARAMETERMAP* pm = NULL)
 {
@@ -67,17 +82,7 @@ void MPIShockBoundary::exchangeX(VlasovDist &field) {
     }
     else
     {
-//      std::cerr << "Mirror X - right\n";
-      for (Xi[0] = High[0]-1; Xi[0] <= High[0]; ++Xi[0])
-        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
-          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
-            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
-              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
-              {
-                === Here put inflow boundaries ===
-                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
-                  = field(2*High[0]-3-Xi[0], Xi[1], Low[2]+High[2]-Vi[0], Vi[1], Vi[2]); 
-              }
+      openBound->apply();
     }
     
                 

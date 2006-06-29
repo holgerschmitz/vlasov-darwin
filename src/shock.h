@@ -17,6 +17,8 @@
 
 #include <mpi.h>
 
+class OpenBound;
+
 /** Boundary class implementing a simple shockwave setup.
  * The boundary conditions are periodic in the y-direction. There is a 
  * conducting wall at x=L and an constant inflow at x=0
@@ -64,6 +66,7 @@ class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
       double vx;
       VelocityD v_th;
       double density;
+      OpenBound *openBound;
       
   public:
       /**Default constructor used by the parsers

@@ -100,7 +100,8 @@ class PosFluxCons3rdOrder : public ForceField {
       /// The number of boundary cells needed to the left
       int bound_minus()  { return 1;}
   public:
-      PosFluxCons3rdOrder(SpeciesData &data) : ForceField(data), errmsg(false) {}
+      template<class InitData>
+      PosFluxCons3rdOrder(InitData &data) : ForceField(data), errmsg(false) {}
 };
 
 #include "scheme_temp.cpp"
