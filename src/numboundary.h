@@ -35,37 +35,38 @@ class MixedBoundary : public NumBoundary {
 template<class BoundLeft, class BoundRight, class BoundBottom, class BoundTop>
 class MixedBoundaryWithOffset : public NumBoundary {
   private:
-    double ol;
-    double or;
-    double ob;
-    double ot;
+    double oleft;
+    double oright;
+    double obot;
+    double otop;
     
   public:
-    MixedBoundaryWithOffset(double ol_=0.0, double or_=0.0, double ob_=0.0, double ot_=0.0)
-     : ol(2.0*ol_), or(2.0*or_), ot(2.0*ot_), ob(2.0*ob_)
+    MixedBoundaryWithOffset(double oleft_=0.0, double oright_=0.0, double obot_=0.0, double otop_=0.0)
+     : oleft(2.0*oleft_), oright(2.0*oright_), otop(2.0*otop_), obot(2.0*obot_)
     {}
+    
     MixedBoundaryWithOffset(const MixedBoundaryWithOffset& bound)
-     : ol(bound.ol), or(bound.or), ob(bound.ob), ot(bound.ot)
+     : oleft(bound.oleft), oright(bound.oright), obot(bound.obot), otop(bound.otop)
     {}
     
-    double setOffsetLeft(double ol_)
+    double setOffsetLeft(double oleft_)
     {
-      ol = 2.0*ol_;
+      oleft = 2.0*oleft_;
     }
     
-    double setOffsetRight(double or_)
+    double setOffsetRight(double oright_)
     {
-      or = 2.0*or_;
+      oright = 2.0*oright_;
     }
     
-    double setOffsetBottom(double ob_)
+    double setOffsetBottom(double obot_)
     {
-      ob = 2.0*ob_;
+      obot = 2.0*obot_;
     }
     
-    double setOffsetTop(double ot_)
+    double setOffsetTop(double otop_)
     {
-      ot = 2.0*ot_;
+      otop = 2.0*otop_;
     }
     
     void apply(NumMatrix<double,2> &u) const;

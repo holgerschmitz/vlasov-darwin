@@ -15,6 +15,8 @@
 #include <mpi.h>
 #endif
 
+class ForceFieldBase;
+
 /** @brief Interface for wrapping and exchanging boundaries.
  *
  *  This interface is used to exchange the boundaries of distribution
@@ -31,6 +33,17 @@ class Boundary : public Rebuildable {
        *  virtual methods
        */
       virtual ~Boundary() {}
+
+      virtual void setFields
+        (
+          ScalarField &density,
+          ScalarField &jx,
+          ScalarField &jy,
+          ScalarField &jz
+        ) 
+        {}
+
+      virtual void init(ForceFieldBase *) {}
 
       /** @brief Exchange the boundaries of the distribution function
        *  in the x-direction
@@ -95,6 +108,8 @@ class Boundary : public Rebuildable {
       
       virtual int getUniqueId() const = 0;
 };
+
+
 
 
 /** @brief Implements Boudary to supply a periodic system running on

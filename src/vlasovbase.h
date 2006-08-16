@@ -11,7 +11,8 @@
 #ifndef VLASOVBASE_H
 #define VLASOVBASE_H
 
-typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
+//typedef SimpleDiagnostic<VlasovDist,HDFostream> PhaseDiag;
+typedef SimpleDiagnostic<VlasovDist,ofstream> PhaseDiag;
 
 
 class VlasovInitialiser;

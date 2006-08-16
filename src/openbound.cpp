@@ -1,7 +1,9 @@
 
+#include "openbound.h"
+
 BoundMatrix::BoundMatrix(VlasovDist &dist_, DirectionType direction_)
-  dist(dist_),
-  direction(direction_)
+  : dist(dist_),
+    direction(direction_)
 {
   setDirection(direction);
 }
@@ -9,8 +11,8 @@ BoundMatrix::BoundMatrix(VlasovDist &dist_, DirectionType direction_)
 void BoundMatrix::setDirection(DirectionType direction_)
 {
   direction = direction_;
-  int *dlo = dist.getLow();
-  int *dhi = dist.getHigh();
+  const int *dlo = dist.getLow();
+  const int *dhi = dist.getHigh();
   
   for (int d = 0; d < 5; d++) {
     lo[d] = dlo[d];
@@ -52,13 +54,15 @@ void BoundMatrix::copyVelocity(int fromi, int fromj, int toi, int toj)
 
 void BoundMatrix::copyBoundary()
 {
+  int i0,i1,i2,i3;
+  int j0,j1,j2,j3;
   switch (direction)
   {
     case left:
-      int i0 = lo[0];
-      int i1 = lo[0]+1;
-      int i2 = lo[0]+2;
-      int i3 = lo[0]+3;
+      i0 = lo[0];
+      i1 = lo[0]+1;
+      i2 = lo[0]+2;
+      i3 = lo[0]+3;
       for (int j=lo[1]; j<=hi[1]; ++j)
       {
         copyVelocity(i3,j,i0,j);
@@ -67,10 +71,10 @@ void BoundMatrix::copyBoundary()
       break;
       
     case right:
-      int i0 = hi[0];
-      int i1 = hi[0]-1;
-      int i2 = hi[0]-2;
-      int i3 = hi[0]-3;
+      i0 = hi[0];
+      i1 = hi[0]-1;
+      i2 = hi[0]-2;
+      i3 = hi[0]-3;
       for (int j=lo[1]; j<=hi[1]; ++j)
       {
         copyVelocity(i3,j,i0,j);
@@ -79,10 +83,10 @@ void BoundMatrix::copyBoundary()
       break;
       
     case bottom:
-      int j0 = lo[1];
-      int j1 = lo[1]+1;
-      int j2 = lo[1]+2;
-      int j3 = lo[1]+3;
+      j0 = lo[1];
+      j1 = lo[1]+1;
+      j2 = lo[1]+2;
+      j3 = lo[1]+3;
       for (int i=lo[0]; i<=hi[0]; ++i)
       {
         copyVelocity(i,j3,i,j0);
@@ -91,10 +95,10 @@ void BoundMatrix::copyBoundary()
       break;
 
     case top:
-      int j0 = hi[1];
-      int j1 = hi[1]-1;
-      int j2 = hi[1]-2;
-      int j3 = hi[1]-3;
+      j0 = hi[1];
+      j1 = hi[1]-1;
+      j2 = hi[1]-2;
+      j3 = hi[1]-3;
       for (int i=lo[0]; i<=hi[0]; ++i)
       {
         copyVelocity(i,j3,i,j0);
@@ -110,15 +114,17 @@ OpenBoundForce::OpenBoundForce
     ForceFieldBase &base_
   )
   : base(base_),
-    Distribution(base.Distribution)
+    Distribution(base.getDistribution())
 {
-  dx = base.dx;
+  dx[0] = base.deltaX();
+  dx[1] = base.deltaY();
   dv[0] = base.deltaVx();
   dv[1] = base.deltaVy();
   dv[2] = base.deltaVz();
   
   // only the first two indices are used for resizing
-  veloffset.resize(Distribution.getLow(), Distribution.getHigh);
+  veloffset.resize(Distribution.getLow(), Distribution.getHigh());
+  boundary = new EmptyBoundary();
 }
 
 void OpenBoundForce::setDirection(BoundMatrix::DirectionType direction)
@@ -126,35 +132,35 @@ void OpenBoundForce::setDirection(BoundMatrix::DirectionType direction)
   Distribution.setDirection(direction);
 
   // only the first two indices are used for resizing
-  veloffset.resize(Distribution.getLow(), Distribution.getHigh);
+  veloffset.resize(Distribution.getLow(), Distribution.getHigh());
 }
 
 VelocityD OpenBoundForce::Force(const PositionI &Pos, 
                 const VelocityD &Vel,
                 double dt)
 {
-  return veloffset(i,j);
+  return veloffset(Pos[0],Pos[1]);
 }
 
 double OpenBoundForce::ForceX(const PositionI &Pos, 
               const VelocityD &Vel,
               double dt)
 {
-  return veloffset(i,j)[0];
+  return veloffset(Pos[0],Pos[1])[0];
 }
 
 double OpenBoundForce::ForceY(const PositionI &Pos, 
               const VelocityD &Vel,
               double dt)
 {
-  return veloffset(i,j)[1];
+  return veloffset(Pos[0],Pos[1])[1];
 }
 
 double OpenBoundForce::ForceZ(const PositionI &Pos, 
               const VelocityD &Vel,
               double dt)
 {
-  return veloffset(i,j)[2];
+  return veloffset(Pos[0],Pos[1])[2];
 }
 
 
@@ -166,25 +172,24 @@ void OpenBoundForce::setMoments(double density_, VelocityD current_)
 
 void OpenBoundForce::initialize()
 {
-  int *lo = Distribution.getLow();
-  int *hi = Distribution.getHigh();
+  const int *lo = Distribution.getLow();
+  const int *hi = Distribution.getHigh();
 
-  copyBoundary();
+  Distribution.copyBoundary();
   for (int i=lo[0]; i<=hi[0]; ++i)
     for (int j=lo[1]; j<=hi[1]; ++j)
     {
       double realden = integrateDensity(i,j);
-      multiplyDensity(i, j, density/realden);
+      multiplyDist(i, j, density/realden);
       VelocityD realcurr = integrateCurrent(i,j);
-      veloffset(i,j) = (current-realcurr)/density;
-      veloffset(i,j) *= 2;
+      veloffset(i,j) = (current-realcurr)/(0.5*density);
     }
 }
 
 double OpenBoundForce::integrateDensity(int i, int j)
 {
-  int *lo = Distribution.getLow();
-  int *hi = Distribution.getHigh();
+  const int *lo = Distribution.getLow();
+  const int *hi = Distribution.getHigh();
   
   double den = 0;
   for (int k=lo[2]; k<=hi[2]; ++k)
@@ -196,29 +201,29 @@ double OpenBoundForce::integrateDensity(int i, int j)
 
 void OpenBoundForce::multiplyDist(int i, int j, double factor)
 {
-  int *lo = Distribution.getLow();
-  int *hi = Distribution.getHigh();
+  const int *lo = Distribution.getLow();
+  const int *hi = Distribution.getHigh();
   
   double den = 0;
   for (int k=lo[2]; k<=hi[2]; ++k)
     for (int l=lo[3]; l<=hi[3]; ++l)
       for (int m=lo[4]; m<=hi[4]; ++m) 
         Distribution(i,j,k,l,m) *= factor;
-  return den;
 }
 
 VelocityD OpenBoundForce::integrateCurrent(int i, int j) 
 {
-  int *lo = Distribution.getLow();
-  int *hi = Distribution.getHigh();
+  const int *lo = Distribution.getLow();
+  const int *hi = Distribution.getHigh();
 
   double jxval=0, jyval=0, jzval=0;
+  double d;
   VelocityI vi;
   VelocityD V;
   
-  for (int vi[0]=lo[2]; vi[0]<=hi[2]; ++vi[0])
-    for (int vi[1]=lo[3]; vi[1]<=hi[3]; ++vi[1])
-      for (int vi[2]=lo[4]; vi[2]<=hi[4]; ++vi[2])
+  for (vi[0]=lo[2]; vi[0]<=hi[2]; ++vi[0])
+    for (vi[1]=lo[3]; vi[1]<=hi[3]; ++vi[1])
+      for (vi[2]=lo[4]; vi[2]<=hi[4]; ++vi[2])
       {
         V = base.velocity(vi);
         d = Distribution(i,j,vi[0],vi[1],vi[2]);
@@ -233,7 +238,7 @@ VelocityD OpenBoundForce::integrateCurrent(int i, int j)
 
 
 OpenBound::OpenBound(ForceFieldBase& base, BoundMatrix::DirectionType direction)
-  : PosFluxCons3rdOrder(base)
+  : PosFluxCons3rdOrder<OpenBoundForce>(base)
 {
   setDirection(direction);
 }

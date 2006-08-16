@@ -27,6 +27,8 @@ ForceFieldBase::~ForceFieldBase() {
 void ForceFieldBase::initialise() {
     std::cout << "Executing initializer " << std::endl;
     
+    boundary->init(this);
+    
     init->initialise(this);
     
     std::cout << "Boundary Exchange " << std::endl;

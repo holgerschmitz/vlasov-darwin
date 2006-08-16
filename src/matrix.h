@@ -138,9 +138,6 @@ class Matrix : public ValueChecker<T> {
     /** comparison */
     int operator!=(const Matrix<T, rank>&) const;
 
-    /** output to ostream */
-    friend ostream& operator<< <>(ostream&, const Matrix<T, rank>&);
-
   protected:
     /** */
     void deleteData();

@@ -183,7 +183,7 @@ bool Darwin::Execute () {
   int mx0 = HBound[0], mx1 = HBound[0]-1;
   int my0 = HBound[1], my1 = HBound[1]-1;
   
-  const Boundary &bound = Process::instance().getBoundary();
+  Boundary &bound = Process::instance().getBoundary();
 
   ScalarField tmp;
 
@@ -276,6 +276,8 @@ bool Darwin::Execute () {
       }
     initOldFields = false;
   }
+  
+  bound.setFields(den,jx,jy,jz);
   
   /* *************************************
    *  With the charge density we can first calculate the 

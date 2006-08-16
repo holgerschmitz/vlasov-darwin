@@ -26,7 +26,7 @@ class Process {
       time = 0;
     }
     ~Process();
-    const Boundary& getBoundary() const { return *boundary; }
+    Boundary& getBoundary() const { return *boundary; }
     int getTime() { return time; }
     static Process& instance() { return *process; }
     void init();

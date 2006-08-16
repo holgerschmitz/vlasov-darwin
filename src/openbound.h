@@ -1,6 +1,10 @@
 #ifndef OPENBOUND_H
 #define OPENBOUND_H
 
+#include "vlasov.h"
+#include "vlasovbase.h"
+#include "scheme.h"
+
 /** Replacement for the VlasovDist when the scheme is used for the open
  *  boundary conditions.
  *  Wraps a distribution and presents only the boundary values
@@ -8,7 +12,7 @@
 class BoundMatrix  
 {
   public:
-    typedef enum {top, bottom, left, right} DirectionType;
+    enum DirectionType {top, bottom, left, right};
   private:
     VlasovDist &dist;
     DirectionType direction;
@@ -18,7 +22,6 @@ class BoundMatrix
     int dims[5];
     
   public:
-    typedef enum {top, bottom, left, right} DirectionType;
     
     /** constructur */
     BoundMatrix(VlasovDist &dist_, DirectionType direction_=top);
@@ -67,13 +70,13 @@ class BoundMatrix
     }
 
     /** index operator, writing */
-    T& operator()(int i, int j, int k, int l, int m)
+    double& operator()(int i, int j, int k, int l, int m)
     {
       return dist(i,j,k,l,m);
     }
     
     /** index operator, reading */
-    T  operator()(int i, int j, int k, int l, int m) const
+    double operator()(int i, int j, int k, int l, int m) const
     {
       return dist(i,j,k,l,m);
     }
@@ -92,11 +95,19 @@ class BoundMatrix
 
 class OpenBoundForce {
   protected:
+    class EmptyBoundary
+    {
+      public:   
+        void exchangeX(BoundMatrix &field) {}
+        void exchangeY(BoundMatrix &field) {}
+    };
+    
     /// the physical space between grid points
     PositionD dx;
     VelocityD dv;
     ForceFieldBase &base;
     BoundMatrix Distribution;
+    EmptyBoundary *boundary;
   private:
     double density;
     VelocityD current;
@@ -190,7 +201,8 @@ class OpenBoundForce {
   private:
     
     double integrateDensity(int i, int j);
-    VelocityD integrateCurrent(int i, int j)
+    void multiplyDist(int i, int j, double factor);
+    VelocityD integrateCurrent(int i, int j);
 };
 
 // may convert this to templated class

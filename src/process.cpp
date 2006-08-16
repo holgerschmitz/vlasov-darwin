@@ -5,6 +5,7 @@
 #include "vlasovinit.h"
 #include "reconnection.h"
 #include "bernstein.h"
+#include "shock.h"
 #include "magnetostatic.h"
 
 Process *Process::process;
@@ -104,6 +105,8 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<SimpleReconnectionBoundary, Boundary>(&boundary));
   (*pm)["gem-reconnection"] 
       = WParameter(new ParameterRebuild<GEMReconnectionBoundary, Boundary>(&boundary));
+  (*pm)["open-reconnection"] 
+      = WParameter(new ParameterRebuild<OpenGEMReconnectionBoundary, Boundary>(&boundary));
   (*pm)["shock"] 
       = WParameter(new ParameterRebuild<MPIShockBoundary, Boundary>(&boundary));
 #endif // single processor
@@ -191,8 +194,10 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
   (*pm)["reconnection"] 
       = WParameter(new ParameterRebuild<VlasovReconnectionInit, VlasovInitialiser>(&initialiser));
- (*pm)["gem-reconnection"] 
+  (*pm)["gem-reconnection"] 
       = WParameter(new ParameterRebuild<GEMReconnectionInit, VlasovInitialiser>(&initialiser));
+  (*pm)["open-reconnection"] 
+      = WParameter(new ParameterRebuild<OpenGEMReconnectionInit, VlasovInitialiser>(&initialiser));
   (*pm)["periodic-reconnection"] 
       = WParameter(new ParameterRebuild<VlasovPeriodicReconnectionInit, VlasovInitialiser>(&initialiser));
   return pm;

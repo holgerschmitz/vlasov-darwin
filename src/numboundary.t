@@ -75,13 +75,13 @@ void MixedBoundaryWithOffset<BoundLeft, BoundRight, BoundBottom, BoundTop>
   const int fb = bb.factor();
 
   for(int i = lx; i <= mx; i++) {
-    u(i,bb.low())  = fb*u(i,bb.lowSrc()) + ob;
-    u(i,bt.high()) = ft*u(i,bt.highSrc()) + ot;
+    u(i,bb.low())  = fb*u(i,bb.lowSrc()) + obot;
+    u(i,bt.high()) = ft*u(i,bt.highSrc()) + otop;
   }
 
   for(int j = ly; j <= my; j++) {
-    u(bl.low(),j)  = fl*u(bl.lowSrc(),j) + ol;
-    u(br.high(),j) = fr*u(br.highSrc(),j) + or;
+    u(bl.low(),j)  = fl*u(bl.lowSrc(),j) + oleft;
+    u(br.high(),j) = fr*u(br.highSrc(),j) + oright;
   }
 }
 

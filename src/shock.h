@@ -29,7 +29,7 @@ class OpenBound;
 class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
   private:
       MixedBoundaryWithOffset<
-        BoundNeumann, BoundNeumann,
+        BoundDirichlet, BoundNeumann, 
         BoundPeriodic, BoundPeriodic
       > PotentialBound;
       
@@ -39,14 +39,9 @@ class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
       > BZBound;
 
       MixedBoundary<
-        BoundDirichlet, BoundDirichlet, 
-        BoundPeriodic, BoundPeriodic
-      > ExBound;
-
-      MixedBoundaryWithOffset<
         BoundNeumann, BoundDirichlet, 
         BoundPeriodic, BoundPeriodic
-      > AyBound;
+      > ExBound;
       
       DPBoundary evenXBound;           
 
@@ -64,6 +59,7 @@ class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
       NPBoundary ScalarBound;
       
       double vx;
+      double Bz;
       VelocityD v_th;
       double density;
       OpenBound *openBound;
@@ -80,7 +76,16 @@ class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
   
       /// Virtual destructor deleting all the allocated arrays
       ~MPIShockBoundary();
-      
+  
+      void init(ForceFieldBase *);
+          
+      void setFields
+        (
+          ScalarField &density,
+          ScalarField &jx,
+          ScalarField &jy,
+          ScalarField &jz
+        );
       /** Wraps the boundaries in x-direction.
        *  Only exchangeX is needed here, exchangeY is periodic.
        */
@@ -98,6 +103,7 @@ class MPIShockBoundary : public MPIPeriodicSplitXYBoundary {
       bool periodicY() { return true; }
       
     protected:
+      void initOpenBound(ForceFieldBase *base);
       PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
 };
 

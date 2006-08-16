@@ -232,14 +232,10 @@ void Matrix<T, rank>::newData(const int* l, const int* h)
 //   return os;
 // }
 // 
+
 template<class T>
 ostream& operator<<(ostream& os, const Matrix<T, 2>& matr) 
 {
-  if (!matr) {
-    os << "(undef)" << endl;
-    return os;
-  }
-  
   for (int i = matr.getLow(0); i<= matr.getHigh(0); ++i)
   {
     for (int j = matr.getLow(1); j<= matr.getHigh(1); ++j)
@@ -249,6 +245,73 @@ ostream& operator<<(ostream& os, const Matrix<T, 2>& matr)
     os << std::endl;
   }
   return os;
+}
+
+template<class T>
+ostream& operator<<(ostream& os, const Matrix<T, 5>& matr) 
+{
+  
+  for (int s = 0; s<5; ++s)
+  {
+    os << matr.getLow(s) << " " << matr.getHigh(s) << "\n";
+  }
+  
+  for (int i = matr.getLow(0); i<= matr.getHigh(0); ++i)
+  {
+    for (int j = matr.getLow(1); j<= matr.getHigh(1); ++j)
+    {
+      for (int k = matr.getLow(2); k<= matr.getHigh(2); ++k)
+      {
+        for (int l = matr.getLow(3); l<= matr.getHigh(3); ++l)
+        {
+          for (int m = matr.getLow(4); m<= matr.getHigh(4); ++m)
+          {
+            os << i << " " << j << " " << k << " " 
+              << l << " "  << m << " " << matr(i,j,k,l,m)<< "\n";
+          }
+        }
+      }
+    }
+  }
+  return os;
+}
+
+template<class T>
+istream& operator>>(istream& is, const Matrix<T, 5>& matr) 
+{
+  
+  int low[5], high[5];
+  
+  for (int s = 0; s<5; ++s)
+  {
+    is >> low[s] >> high[s];
+  }
+  
+  matr.resize(low,high);
+  
+  for (int i = low[0]; i<= high[0]; ++i)
+  {
+    for (int j = low[1]; j<= high[1]; ++j)
+    {
+      for (int k = low[2]; k<= high[2]; ++k)
+      {
+        for (int l = low[3]; l<= high[3]; ++l)
+        {
+          for (int m = low[4]; m<= high[4]; ++m)
+          {
+            int c1, c2, c3, c4, c5;
+            is >> c1 >> c2 >> c3 >> c4 >> c5 >> matr(i,j,k,l,m);
+            if ((c1!=i) || (c2!=j) || (c3!=k) || (c4!=l) || (c5!=m))
+            {
+              std::cerr << "Matrix indices do not agree!";
+              exit(-1);
+            }
+          }
+        }
+      }
+    }
+  }
+  return is;
 }
 
 

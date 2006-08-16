@@ -3,7 +3,8 @@
 
 #include "reconnection.h"
 #include "scalarfield.h"
-
+#include "shock.h"
+#include "openbound.h"
 #include <sstream>
 
 #ifndef SINGLE_PROCESSOR
@@ -14,24 +15,25 @@
 
 MPIShockBoundary::MPIShockBoundary() :
     MPIPeriodicSplitXYBoundary()
-{
-  initOpenBound();
-} 
+{} 
 
 
 MPIShockBoundary::MPIShockBoundary(int argc, char **argv) :
     MPIPeriodicSplitXYBoundary(argc,argv)
-{
-  initOpenBound();
-}
+{}
 
 MPIShockBoundary::~MPIShockBoundary() {}
 
-void MPIShockBoundary::initOpenBound()
+void MPIShockBoundary::init(ForceFieldBase *base)
 {
-  if (mycoord[0]==dims[0]-1)
+  this->initOpenBound(base);
+}
+
+void MPIShockBoundary::initOpenBound(ForceFieldBase *base)
+{
+  if (mycoord[0]==0)
   {
-    openBound = new OpenBound(*this, OpenBound::right);
+    openBound = new OpenBound(*base, BoundMatrix::left);
   }
   else
   {
@@ -39,10 +41,36 @@ void MPIShockBoundary::initOpenBound()
   }
 }
 
-PARAMETERMAP* MPIShockBoundary::MakeParamMap(PARAMETERMAP* pm = NULL)
+
+void MPIShockBoundary::setFields
+  (
+    ScalarField &density,
+    ScalarField &jx,
+    ScalarField &jy,
+    ScalarField &jz
+  )
+{
+  PositionI low = this->scalarLow();
+  PositionI high = this->scalarHigh();
+  
+  // potential at the inflow
+  PotentialBound.setOffsetLeft(0);
+  
+  // derivative of the potential at the wall
+  PotentialBound.setOffsetRight(0);
+  
+  // Magnetic field at the inflow
+  BZBound.setOffsetLeft(Bz);
+
+  // derivative of the magnetic field at the wall
+  BZBound.setOffsetRight(0);
+}
+        
+PARAMETERMAP* MPIShockBoundary::MakeParamMap(PARAMETERMAP* pm)
 {
   pm = MPIPeriodicSplitXYBoundary::MakeParamMap(pm);
   (*pm)["vx"] = WParameter(new ParameterValue<double>(&vx, 0));
+  (*pm)["Bz"] = WParameter(new ParameterValue<double>(&Bz, 0));
   (*pm)["Therm_vx"] = WParameter(new ParameterValue<double>(&v_th[0], 1));
   (*pm)["Therm_vy"] = WParameter(new ParameterValue<double>(&v_th[1], 1));
   (*pm)["Therm_vz"] = WParameter(new ParameterValue<double>(&v_th[2], 1));
@@ -82,7 +110,17 @@ void MPIShockBoundary::exchangeX(VlasovDist &field) {
     }
     else
     {
-      openBound->apply();
+//      std::cerr << "Wall X - right\n";
+      for (Xi[0] = High[0]-1; Xi[0] <= High[0]; ++Xi[0])
+        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
+          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
+            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
+              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
+              {
+                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
+                  = field(2*High[0]-3-Xi[0], Xi[1], 
+                    Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
+              }
     }
     
                 
@@ -112,17 +150,9 @@ void MPIShockBoundary::exchangeX(VlasovDist &field) {
     }
     else
     {
-//      std::cerr << "Wall X - left\n";
-      for (Xi[0] = Low[0]; Xi[0] <= Low[0]+1; ++Xi[0])
-        for (Xi[1] = Low[1]; Xi[1] <= High[1]; ++Xi[1])
-          for (Vi[0] = Low[2]; Vi[0] <= High[2]; ++Vi[0]) 
-            for (Vi[1] = Low[3]; Vi[1] <= High[3]; ++Vi[1]) 
-              for (Vi[2] = Low[4]; Vi[2] <= High[4]; ++Vi[2])
-              {
-                field(Xi[0], Xi[1], Vi[0], Vi[1], Vi[2])
-                  = field(2*Low[0]+3-Xi[0], Xi[1], 
-                    Low[2]+High[2]-Vi[0], Low[3]+High[3]-Vi[1], Low[4]+High[4]-Vi[2]);
-              }
+      VelocityD current(density*vx,0,0);
+      openBound->setMoments(density, current);
+      //openBound->apply();
     }
                 
 }
@@ -166,8 +196,8 @@ void MPIShockBoundary::ScalarFieldReduce(ScalarField &field) const {
 
 const NumBoundary& MPIShockBoundary::getNumBoundary(ScalarField &field) const {
 
-    ScalarField::FieldType ftype = field.getFieldType();
-    ScalarField::ComponentType comp = field.getFieldType();
+    ScalarField::FieldComponent ftype = field.getFieldType();
+    ScalarField::ComponentType comp = field.getComponent();
     
     int par = field.getParity();
     
@@ -181,9 +211,6 @@ const NumBoundary& MPIShockBoundary::getNumBoundary(ScalarField &field) const {
         break;
       case ScalarField::EX : 
         return ExBound;
-        break;
-      case ScalarField::AY : 
-        return AyBound;
         break;
       default:
         switch (comp)

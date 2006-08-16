@@ -28,7 +28,7 @@ class ScalarField : public NumMatrix<double, DIMENSION>
          XYComponent=4, XZComponent=5, YZComponent=6} ComponentType;
             
       typedef enum 
-        {BX, BY ,BZ, EX, EY, EZ, JX, JY, JZ, RHO, PHI, AX, AY, AZ, THETA, unspecified} FieldType;
+        {BX, BY ,BZ, EX, EY, EZ, JX, JY, JZ, RHO, PHI, AX, AY, AZ, THETA, unspecified} FieldComponent;
       static const int EvenParity;
       static const int OddParity;
 
@@ -38,7 +38,7 @@ class ScalarField : public NumMatrix<double, DIMENSION>
       /// The component index 0,1,2 stands for x, y and z.
       ComponentType component;
 
-      FieldType ftype;
+      FieldComponent ftype;
   public:
       /// Accessor method setting the parity
       void setParity(int parity_) 
@@ -57,8 +57,9 @@ class ScalarField : public NumMatrix<double, DIMENSION>
         
       /// Accessor method getting the component
       ComponentType getComponent() { return component; }
+      FieldComponent getFieldType() { return ftype; }
 
-      void setFieldType(FieldType type)
+      void setFieldType(FieldComponent type)
       {
         ftype = type;
         switch (ftype)
@@ -107,7 +108,6 @@ class ScalarField : public NumMatrix<double, DIMENSION>
         }
       }
       
-      FieldType getFieldType() { return ftype; }
 
       /// Set the parity to +1
       void setEven() { parity=1; }
