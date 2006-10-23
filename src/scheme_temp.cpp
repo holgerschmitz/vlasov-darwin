@@ -1,65 +1,62 @@
-
-#include "util.h"
-
+#include "util.h" // for function floor(const double&)
+//-----------------------------------------------------------------------------
 template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_x(double timestep) {
- //   CheckDensity(Distribution,"XStart");
+
     errmsg = false;
-    
+    //get upper/lower Boundary
     const int *UBound = this->Distribution.getHigh();
     const int *LBound = this->Distribution.getLow();
 
     PositionI Xi;
     VelocityI Vi;
-    
+
     int lx = LBound[0];
     int bx = UBound[0];
     int bxM = bx - 2;
-    
+
+    //create new matrices, with the lower and upper indices given by lx/bx
     NumMatrix<double, 1> Flux(&lx,&bx);
     NumMatrix<double, 1> Dj(&lx,&bx);
 
-//    cerr << "Advancing in x\n";
-    for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) {
-      double deltax = -timestep*this->velocity(Vi)[0]/this->dx[0];
-      int deltaI = int(floor(deltax)+1);        // i + deltaI - 1/2 <= X_(i+1/2) < i + deltaI + 1/2
-                                                // für vernünftige Werte von V ist deltaI = 0 oder 1
-      double alpha = deltax - deltaI + 1;       // 0 <= alpha < 1
 
-//      cerr << "Vx: " << Vi[0] << " " << deltax << " " << deltaI << "\n";
+    for (Vi[0] = LBound[2]; Vi[0] <= UBound[2]; ++Vi[0]) {
+	//calculate space step delta x 
+      double deltax = -timestep*this->velocity(Vi)[0]/this->dx[0];
+	//calculate space step in cells
+	// i + deltaI - 1/2 <= X_(i+1/2) < i + deltaI + 1/2
+	//for all legitmate values of V: deltaI =  1 or 0
+	// 0 <= alpha < 1
+      int deltaI = int(floor(deltax)+1);
+	//non integer part of deltax
+      double alpha = deltax - deltaI + 1;
+
       for (Xi[1] = LBound[1]+2; Xi[1] <= UBound[1]-2; ++Xi[1])
         for (Vi[1] = LBound[3]; Vi[1] <= UBound[3]; ++Vi[1]) 
           for (Vi[2] = LBound[4]; Vi[2] <= UBound[4]; ++Vi[2]) {
-            
-             
             // Asymmetric since we later use Flux(x) and Flux(x-1)
             for (Xi[0] = LBound[0]+1; Xi[0] <= bxM; ++Xi[0]) {
                 // go deltaI right: j is Xi[0] or Xi[0]+1
-                int j =  Xi[0]+deltaI;
-                                
+                int j =  Xi[0]+deltaI; 
                 if ( ((deltaI<0) || (deltaI>1)) && !errmsg) {
-                   cerr << "X: deltaI out of bounds:" << deltaI << endl;
+                   cerr << "X: deltaI out of bounds: " << deltaI << endl;
                    errmsg = true;
                 }
 
                 Flux(Xi[0]) = interpolateX(Xi, Vi, j, alpha);
-                Dj(Xi[0]) = this->Distribution(j   ,Xi[1], Vi[0], Vi[1], Vi[2]);
+                Dj(Xi[0]) = this->Distribution(j,Xi[1], Vi[0], Vi[1], Vi[2]);
             }
-    
             for (Xi[0] = LBound[0]+2; Xi[0] <= bxM; ++Xi[0]) 
                 this->Distribution(Xi[0] ,Xi[1] , Vi[0], Vi[1], Vi[2]) 
                     = Flux(Xi[0]-1) - Flux(Xi[0]) + Dj(Xi[0]);
           }
     }
-    
-//    CheckDensity(Distribution,"XEnd");
+    //exchange new boundaries, in both space directions
     this->boundary->exchangeX(this->Distribution);
-    this->boundary->exchangeY(this->Distribution);
-//    CheckDensity(Distribution,"XDone");
-    
+    this->boundary->exchangeY(this->Distribution); 
 }
-
+//-----------------------------------------------------------------------------
 template<class ForceField>
 void PosFluxCons3rdOrder<ForceField>
         ::advanceSpace_y(double timestep) {

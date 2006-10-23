@@ -7,7 +7,6 @@
 #include "boundary.h"
 #include "globals.h"
 
-        
 /* **************************************************************
  *                  SinglePeriodicBoundary                      *
  ****************************************************************/
@@ -409,12 +408,14 @@ const PositionI &MPIPeriodicSplitXBoundary::scalarHigh() const {
 
 double MPIPeriodicSplitXBoundary::AvgReduce(double val) {
     double result;
+    //this collects results from all nodes, MPI_SUM returns the sum of all results
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_SUM, comm);
     return result/double(ComSize);
 }
 
 double MPIPeriodicSplitXBoundary::MaxReduce(double val) {
     double result;
+    //this collects results from all nodes, MPI_MAX returns the maximum of all results
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_MAX, comm);
     return result;
 }
@@ -784,5 +785,3 @@ const PositionI &MPIPeriodicSplitXYBoundary::scalarHigh() const {
 
 
 #endif
-
-

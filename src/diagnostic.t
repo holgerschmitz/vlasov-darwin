@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: diagnostic.t,v 1.2 2003/12/11 10:40:10 hs Exp $
+// $Id: diagnostic.t,v 1.1.1.1 2006/05/11 10:02:00 th Exp $
 
 
 template<class Type, class StreamType>

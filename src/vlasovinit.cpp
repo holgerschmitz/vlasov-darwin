@@ -29,16 +29,16 @@ PARAMETERMAP* VlasovMaxwellInit::MakeParamMap (PARAMETERMAP* pm) {
   return pm;
 }
 
-VlasovMaxwellInit::~VlasovMaxwellInit() {}
+VlasovMaxwellInit::~VlasovMaxwellInit(){ }
 
 
-/** @brief Do the initialisation
+/* brief Do the initialisation
  *   
  *  Iterate through the whole distribution function and assign the appropriate
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov) {
+void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov){
   VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
@@ -128,7 +128,7 @@ void VlasovMaxwellInit::initialise(ForceFieldBase *pVlasov) {
 //===============   VlasovTwoMaxwellInit  =================================
 //=========================================================================
 
-VlasovTwoMaxwellInit::VlasovTwoMaxwellInit() {}
+VlasovTwoMaxwellInit::VlasovTwoMaxwellInit(){ }
 
 PARAMETERMAP* VlasovTwoMaxwellInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
@@ -156,16 +156,16 @@ PARAMETERMAP* VlasovTwoMaxwellInit::MakeParamMap (PARAMETERMAP* pm) {
 }
 
 
-VlasovTwoMaxwellInit::~VlasovTwoMaxwellInit() {}
+VlasovTwoMaxwellInit::~VlasovTwoMaxwellInit(){ }
 
 
-/** @brief Do the initialisation
+/* brief Do the initialisation
  *  
  *  Iterate through the whole distribution function and assign the appropriate
  *  phase space density to every point in phase space. The Phase space density 
  *  is calculated as a Maxwellian distribution.
  */
-void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
+void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov){
   VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
@@ -272,8 +272,9 @@ void VlasovTwoMaxwellInit::initialise(ForceFieldBase *pVlasov) {
 //===============   VlasovWaveGenInit   ===================================
 //=========================================================================
 
-VlasovWaveGenInit::VlasovWaveGenInit() { }
+VlasovWaveGenInit::VlasovWaveGenInit(){ }
 
+//building the parameter map
 PARAMETERMAP* VlasovWaveGenInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["Stream_vx"] = WParameter(new ParameterValue<double>(&u_stream[0], 0));
@@ -287,16 +288,15 @@ PARAMETERMAP* VlasovWaveGenInit::MakeParamMap (PARAMETERMAP* pm) {
   return pm;
 }
 
-VlasovWaveGenInit::~VlasovWaveGenInit() {}
+VlasovWaveGenInit::~VlasovWaveGenInit(){ }
 
 
-/** @brief Do the initialisation
- *  
- *  Iterate through the whole distribution function and assign the appropriate
- *  phase space density to every point in phase space. The Phase space density 
- *  is calculated as a Maxwellian distribution.
- */
-void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
+//  Do the initialisation 
+//   Iterate through the whole distribution function and assign the appropriate
+//   phase space density to every point in phase space. The Phase space density 
+//   is calculated as a Maxwellian distribution.
+ 
+void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov){
   VlasovDist &dist = pVlasov->getDistribution();
   const int *L = dist.getLow();
   const int *H = dist.getHigh();
@@ -383,7 +383,7 @@ void VlasovWaveGenInit::initialise(ForceFieldBase *pVlasov) {
 //===============   VlasovGaussTempInit  ====================================
 //=========================================================================
 
-VlasovGaussTempInit::VlasovGaussTempInit() { }
+VlasovGaussTempInit::VlasovGaussTempInit(){ }
 
 PARAMETERMAP* VlasovGaussTempInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
@@ -402,7 +402,7 @@ PARAMETERMAP* VlasovGaussTempInit::MakeParamMap (PARAMETERMAP* pm) {
 VlasovGaussTempInit::~VlasovGaussTempInit() {}
 
 
-/** @brief Do the initialisation
+/* brief Do the initialisation
  *   
  *  Iterate through the whole distribution function and assign the appropriate
  *  phase space density to every point in phase space. The Phase space density 
@@ -495,7 +495,7 @@ void VlasovGaussTempInit::initialise(ForceFieldBase *pVlasov) {
 //========================   VlasovHDFInit ================================
 //=========================================================================
 
-VlasovHDFInit::VlasovHDFInit() { }
+VlasovHDFInit::VlasovHDFInit(){ }
 
 PARAMETERMAP* VlasovHDFInit::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
@@ -503,7 +503,7 @@ PARAMETERMAP* VlasovHDFInit::MakeParamMap (PARAMETERMAP* pm) {
   return pm;
 }
 
-VlasovHDFInit::~VlasovHDFInit() {}
+VlasovHDFInit::~VlasovHDFInit(){ }
 
 void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
 {
@@ -528,9 +528,9 @@ void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
 }
 
 
-// //=========================================================================
-// //===============   VlasovCurrentSheetInit ================================
-// //=========================================================================
+// =========================================================================
+// ===============   VlasovCurrentSheetInit ================================
+// =========================================================================
 // 
 // VlasovCurrentSheetInit::VlasovCurrentSheetInit(VlasovSpecies<ForceField>* pVlasov_) {
 //   pVlasov = pVlasov_;
@@ -552,12 +552,12 @@ void VlasovHDFInit::initialise(ForceFieldBase *pVlasov)
 // VlasovCurrentSheetInit<ForceField>::~VlasovCurrentSheetInit() {}
 // 
 // 
-// /** @brief Do the initialisation
-//  *   
-//  *  Iterate through the whole distribution function and assign the appropriate
-//  *  phase space density to every point in phase space. The Phase space density 
-//  *  is calculated as a Maxwellian distribution.
-//  */
+//  Do the initialisation
+//     
+//    Iterate through the whole distribution function and assign the appropriate
+//    phase space density to every point in phase space. The Phase space density 
+//    is calculated as a Maxwellian distribution.
+//  
 // template<class ForceField>
 // void VlasovCurrentSheetInit<ForceField>::initialise(VlasovDist &dist) {
 //   const int *L = dist.getLow();

@@ -1,6 +1,16 @@
 // -*- C++ -*-
 // $Id$
-
+/** @file boundary.h
+    * @brief Interface for wrapping and exchanging boundaries
+    *
+    *  This interface is used to exchange the boundaries of distribution
+ 	*  functions and scalar fields. It can be implemented to define
+ 	*  periodic boundaries or exchange data with other processes.
+ 	*
+ 	*  See the page @ref indices for a discussion on the numerical
+ 	*  ranges of the fields
+	*/
+//-----------------------------------------------------------------------------
 #ifndef BOUNDARY_H
 #define BOUNDARY_H
 
@@ -10,40 +20,34 @@
 #include "parameter.h"
 #include "task.h"
 #include "numboundary.h"
-
+//-----------------------------------------------------------------------------
+//if this is a mutli processor run, use MPI for interprocessor communicatio
 #ifndef SINGLE_PROCESSOR
 #include <mpi.h>
 #endif
+//-----------------------------------------------------------------------------
+//Boundary
 
-class ForceFieldBase;
-
-/** @brief Interface for wrapping and exchanging boundaries.
+/** @brief Interface for wrapping and exchanging boundaries .
  *
  *  This interface is used to exchange the boundaries of distribution
  *  functions and scalar fields. It can be implemented to define
  *  periodic boundaries or exchange data with other processes.
+ *  This is the (abstract) base class of all boundary classes.
  *
  *  See the page @ref indices for a discussion on the numerical
  *  ranges of the fields
  */
 class Boundary : public Rebuildable {
   public:
+	/// Default constructor, 
       Boundary() {}
-      /** @brief We need a virtual destructor because the class has 
+      /** @brief Virtual destructor
+	 *  
+	 *  We need a virtual destructor because the class has 
        *  virtual methods
        */
       virtual ~Boundary() {}
-
-      virtual void setFields
-        (
-          ScalarField &density,
-          ScalarField &jx,
-          ScalarField &jy,
-          ScalarField &jz
-        ) 
-        {}
-
-      virtual void init(ForceFieldBase *) {}
 
       /** @brief Exchange the boundaries of the distribution function
        *  in the x-direction
@@ -106,17 +110,19 @@ class Boundary : public Rebuildable {
       /// Return the process number
       virtual int procnum() const = 0;
       
+	  ///get a unique Id
       virtual int getUniqueId() const = 0;
 };
-
-
-
+//Boundary
+//-----------------------------------------------------------------------------
+//SinglePeriodicBoundary
 
 /** @brief Implements Boudary to supply a periodic system running on
  *  a single processor
  */
 class SinglePeriodicBoundary : public Boundary {
-  private:
+	private:
+	///a periodic and symmetric boundary
       PPBoundary numBound;
   public:   
       /// Wraps the boundaries in x-direction
@@ -152,14 +158,21 @@ class SinglePeriodicBoundary : public Boundary {
       /// The unique id number is always zero
       int getUniqueId() const { return 0; }
 };
-
+//SinglePeriodicBoundary
+//-----------------------------------------------------------------------------
+//MPIPeriodicSplitBoundary
 #ifndef SINGLE_PROCESSOR
+// this will be used for multi processor runs, to split the simulation grid 
+// into vertical rectangles
 
-/** @brief Implements Boudary to supply a periodic system running on
- *  a single processor
- */
+/** @brief a boundary class for mutliple processor runs
+  *
+  * Is design to be exchanged via the MPI protocol
+  * This implementation splits only the x-axis into rectangles.
+  */
 class MPIPeriodicSplitXBoundary : public Boundary {
   protected:
+	///a periodic and symmetric boundary
       PPBoundary numBound;
 
       /// The number of processes
@@ -174,33 +187,31 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       /// The coordinates of this process
       int mycoord;
       
-      /// The ranks of the left and the right neighbour processes
-      int leftcoord, rightcoord;
+      
+	int leftcoord,  ///< The rank of the left neighbour process
+	    rightcoord; ///< The rank of the right  neighbour process
       
       /** @brief The size of the array that needs to be exchanged, 
        *  when the exchangeX method is called
        */
       int exchSize;
       
-      /** @brief Buffers of the size exchSize that hold the data
-       *  to send and receive
-       */
-      double *sendarr, *recvarr;
+	double *sendarr, ///< buffer holding the data to be send (size: exchSize)
+		 *recvarr; ///< buffer holding the received data (size: exchSize)
 
       /// The size of the scalar fields when reducing
       int scalarSize;
       
-      /** @brief Buffers of the size scalarSize that hold the data
-       *  to reduce the scalar fields
-       */
-      double *scalarsend, *scalarrecv;
+	double *scalarsend, ///< send Buffer for the data used to reduce the scalarfields (size: scalarSize)
+		 *scalarrecv; ///< receive Buffer for the data used to reduce the scalarfields (size: scalarSize)
 
-      /** @brief The positions of the lower and upper corner of the
-       *  local piece of the distribution function in phase space
-       */
-      PhasePositionI Low, High;
+PhasePositionI Low,///<The position of the lower corner of the local piece of the distribution function in phase space
+	        High;///<The position of the lower corner of the local piece of the distribution function in phase space
+	
+	///initialize
       void init(int argc, char **argv);
   public:
+	///default constructor
       MPIPeriodicSplitXBoundary();
       /** @brief Constructor using the command line arguments.
        *  Sets up all the local variables and allocates memory
@@ -259,15 +270,21 @@ class MPIPeriodicSplitXBoundary : public Boundary {
       
       /// Returns the comm rank as given by mpi
       int procnum() const { return ComRank; }
-      
+	///returns an ID, which is identical with the coordinates
       int getUniqueId() const { return mycoord; }
 };
+//MPIPeriodicSplitXBoundary
+//-----------------------------------------------------------------------------
+//MPIPeriodicSplitXYBoundary
 
-/** @brief Implements Boundary to supply a periodic system running on
- *  a single processor
+/** @brief a boundary class for mutliple processor runs
+ *
+ * Is designed to be exchanged via the MPI protocol.
+ * Here splitting is performed in both spatial directions.
  */
 class MPIPeriodicSplitXYBoundary : public Boundary {
   protected:
+	///a periodic and symmetric boundary
       PPBoundary numBound;
 
       /// The number of processes
@@ -279,11 +296,13 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       /// The Comm object referring to the cartesian process grid
       MPI_Comm comm;
 
-      /// The ranks of the left and the right neighbour processes
-      int leftcoord, rightcoord;
-      /// The ranks of the top and the bottom neighbour processes
-      int topcoord, bottomcoord;
       
+	int leftcoord,  ///< The rank of the left neighbour process
+	    rightcoord; ///< The rank of the right neighbour process
+      
+	int topcoord, ///< The rank of the top neighbour process
+	    bottomcoord;  ///< The rank of the bottom neighbour processes
+	///dimensions
       int dims[2];
       /// The cartesian coordinates of this process
       int mycoord[2];
@@ -293,32 +312,32 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
        */
       int exchSize[2];
       
-      /** @brief Buffers of the size exchSize[0] that hold the data
-       *  to send and receive in the x--direction
-       */
-      double *sendarrx, *recvarrx;
+	double *sendarrx, ///< send Buffer for exchanging data in x-direction (size: exchSize[0])
+	       *recvarrx; ///< receive Buffer for exchanging data in x-direction (size: exchSize[0])
       
-      /** @brief Buffers of the size exchSize[1] that hold the data
-       *  to send and receive in the y--direction
-       */
-      double *sendarry, *recvarry;
+	double *sendarry, ///< send Buffer for exchanging data in y-direction (size: exchSize[1])
+	       *recvarry; ///< receive Buffer for exchanging data in y-direction (size: exchSize[1])
 
       /// The size of the scalar fields when reducing
       int scalarSize;
       
-      /** @brief Buffers of the size scalarSize that hold the data
-       *  to reduce the scalar fields
-       */
-      double *scalarsend, *scalarrecv;
+      
+	double *scalarsend, ///< send Buffer for exchanging data used for reducing scalar fields (size: scalarSize)
+	       *scalarrecv; ///< receive Buffer for exchanging data used for reducing scalar fields (size: scalarSize)
 
-      /** @brief The positions of the lower and upper corner of the
-       *  local piece of the distribution function in phase space
-       */
-      PhasePositionI Low, High;
+      PhasePositionI Low, 
+	///<The positions of the lower corner of the local piece of the distribution function in phase space
+			   High;
+	///<The positions of the upper corner of the local piece of the distribution function in phase space
+			   
+	///initialize
       void init(int argc, char **argv);
   public:
+	///default constructor
       MPIPeriodicSplitXYBoundary();
-      /** @brief Constructor using the command line arguments.
+	
+     /** @brief Constructor using the command line arguments.
+	 *
        *  Sets up all the local variables and allocates memory
        *  for the buffers
        */
@@ -328,13 +347,15 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       /// Virtual destructor deleting all the allocated arrays
       ~MPIPeriodicSplitXYBoundary();
       
-      /** @brief Exchanges the boundaries in x-direction.
+     /** @brief Exchanges the boundaries in x-direction.
+       *
        *  The two outmost simulated cells are sent and the surrounding 
        *  two ghost cells are filled with values
        */
       void exchangeX(VlasovDist &field);
       
-      /** @brief Exchanges the boundaries in y-direction.
+     /** @brief Exchanges the boundaries in y-direction.
+	 *
        *  The two outmost simulated cells are sent and the surrounding 
        *  two ghost cells are filled with values
        */
@@ -353,13 +374,10 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       /// Returns periodic boundary conditions
       const NumBoundary& getNumBoundary(ScalarField &field) const;
 
-      /** @brief Use MPIALLReduce to calculate the sum and then divide
-       *  by the number of processes.
-       */
+      /// Use MPIALLReduce to calculate the sum and then divide by the number of processes. 
       double AvgReduce(double val);
       
-      /** @brief Use MPIALLReduce to calculate the maximum
-       */
+      /// Use MPIALLReduce to calculate the maximum
       double MaxReduce(double val);
       
       /// Returns the global lower bound of the distribution function
@@ -379,13 +397,15 @@ class MPIPeriodicSplitXYBoundary : public Boundary {
       
       /// Returns the comm rank as given by mpi
       int procnum() const { return ComRank; }
-
+	///returns an ID, which consists of the Dimensions and coordinates
       int getUniqueId() const { return dims[1]*mycoord[0] + mycoord[1]; }
-      
-      virtual bool periodicX() { return true; }
+	/// returns "true" since this is periodic in the x-direction
+      virtual bool periodicX() { return true; } 
+	/// returns "true" since this is periodic in the y-direction
       virtual bool periodicY() { return true; }
 };
-#endif // single processor
+//MPIPeriodicSplitXYBoundary
+//-----------------------------------------------------------------------------
+#endif // multiple processor
 
-
-#endif
+#endif //BOUNDARY_H

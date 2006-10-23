@@ -1,17 +1,31 @@
 // -*- C++ -*-
 // $Id$
-
+//-----------------------------------------------------------------------------
 #include "vlasovbase.h"
-
+//-----------------------------------------------------------------------------
 #ifndef SCHEME_H
 #define SCHEME_H
-
+//-----------------------------------------------------------------------------
+  /** @file scheme.h 
+    * @brief Implements the flux conservative scheme
+  	*
+	* This class implements the flux conservative integration scheme in third order.
+	*/
+//-----------------------------------------------------------------------------
+//PosFluxCons3rdOrder
+  /** @brief Implements the flux conservative scheme
+  	*
+	* This class implements the flux conservative integration scheme in third order.
+	*/
 template<class ForceField>
 class PosFluxCons3rdOrder : public ForceField {
   protected:      
       /// A maximum value of the distribution function
       double f_infty;
-      
+      /** @brief errormessage 
+	  *
+	  * will be set TRUE if error occurrs in processing by this class
+	  */
       bool errmsg;
   protected:
       /// Advance the x--direction of the distribution function
@@ -30,67 +44,67 @@ class PosFluxCons3rdOrder : public ForceField {
       /// The slope limiter towards the right
       double epsilonRight(double fj, double fjm);
       
-      /// Third order flux-cunserving interpolation in the x-direction
+      /// Third order flux-conserving interpolation in the x-direction
       double interpolateX    (const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the y-direction
+      /// Third order flux-conserving interpolation in the y-direction
       double interpolateY    (const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vx-direction
+      /// Third order flux-conserving interpolation in the vx-direction
       double interpolateVx   (const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vy-direction
+      /// Third order flux-conserving interpolation in the vy-direction
       double interpolateVy   (const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vz-direction
+      /// Third order flux-conserving interpolation in the vz-direction
       double interpolateVz   (const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vx-direction
+      /// Third order flux-conserving interpolation in the vx-direction
       double interpolateVxLow(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vy-direction
+      /// Third order flux-conserving interpolation in the vy-direction
       double interpolateVyLow(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vz-direction
+      /// Third order flux-conserving interpolation in the vz-direction
       double interpolateVzLow(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vx-direction
+      /// Third order flux-conserving interpolation in the vx-direction
       double interpolateVxHigh(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vy-direction
+      /// Third order flux-conserving interpolation in the vy-direction
       double interpolateVyHigh(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
                               double alpha);
 
-      /// Third order flux-cunserving interpolation in the vz-direction
+      /// Third order flux-conserving interpolation in the vz-direction
       double interpolateVzHigh(const PositionI &Xi,
                               const VelocityI &Vi,
                               int j,
@@ -100,10 +114,15 @@ class PosFluxCons3rdOrder : public ForceField {
       /// The number of boundary cells needed to the left
       int bound_minus()  { return 1;}
   public:
-      template<class InitData>
-      PosFluxCons3rdOrder(InitData &data) : ForceField(data), errmsg(false) {}
+  	  /** @brief constructor
+	   *
+	   * initializes ForceFIeld with given Data object and errmsg as FALSE
+	   */
+      PosFluxCons3rdOrder(SpeciesData &data) : ForceField(data), errmsg(false) {}
 };
-
+//PosFluxCons3rdOrder
+//-----------------------------------------------------------------------------
+//including the class tmeplate implementations
 #include "scheme_temp.cpp"
-
-#endif
+//-----------------------------------------------------------------------------
+#endif // SCHEME_H

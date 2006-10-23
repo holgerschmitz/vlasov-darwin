@@ -6,6 +6,18 @@
 #include "matrix.h"
 #include "numboundary.h"
 
+  /** @file helmholtz.h
+    * @brief helmholtz solver
+    *
+    * Solves the Helmholtz equation by a mulitgrid method.
+	*  The Helmholtz equation is given by
+ 	*  \f$\Delta u(x) -\lambda(x)u(x) + f(x) = 0\f$
+	 *  where \f$u(x)\f$ is the unknown scalar field.
+ 	 *
+	 *  Assumes that arrays range from 0 to N+1, where 0 and N+1 are
+	 *  periodic boundaries.
+	 */
+
 /** @brief Solves Helmholtz equation using a multigrid method.
  *
  *  The Helmholtz equation is given by
@@ -20,14 +32,13 @@ class Helmholtz {
         /// physical dimensions of a grid cell. Read from global variables
         double dx[2];
 
-        /** @brief Do nu1 Gauss steps then repeat multigrid refinement
-         *  gama times then do nu2 Gauss steps.
-         */
-        int gama,nu1,nu2;
+        int gama, ///<Do nu1 Gauss steps then repeat multigrid refinement gama times then do nu2 Gauss steps.
+        	nu1, ///<Do nu1 Gauss steps then repeat multigrid refinement gama times then do nu2 Gauss steps.
+        	nu2; ///<Do nu1 Gauss steps then repeat multigrid refinement gama times then do nu2 Gauss steps.
         
         /// The error to reach.
         double epsilon;
-        
+        ///boundary values
         const NumBoundary *boundary;
     public:
         /** @brief The default constructor reads the attributes from

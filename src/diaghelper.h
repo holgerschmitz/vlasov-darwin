@@ -1,9 +1,12 @@
 // -*- C++ -*-
 // $Id$
 
-/** @file diaghelper.h This file contains small helper classes to provide
- *  easy diagnostic of physical values.
- */
+/** @file diaghelper.h 
+	* @brief helper classes for diagnostics 
+	*
+	* This file contains small helper classes to provide
+ 	* easy diagnostic of physical values.
+ 	*/
  
 #include <fstream>
 
@@ -30,9 +33,9 @@ class ES_EFieldEnergy {
       /// The output file stream to diagnose into
       std::ofstream Output;
   public:
-      /// Initialize the local values
+        /// Initialize the local values
 	  void Init (Potential *pPot_);
-      /// Perform diagnostic and write result to the output stream
+        /// Perform diagnostic and write result to the output stream
 	  void Execute (); 
 };
 

@@ -1,39 +1,42 @@
 // -*- C++ -*-
 // $Id$
-
+//-----------------------------------------------------------------------------
 #ifndef POISSON_H
 #define POISSON_H
-
+//-----------------------------------------------------------------------------
+/** @file poisson.h
+ * @brief Solves Poisson equation using a multigrid method.
+ *
+ * The Poisson equation is given by
+ * \f$\Delta u(x) + f(x) = 0\f$
+ * where \f$u(x)\f$ is the unknown scalar field.
+ */
+//-----------------------------------------------------------------------------
 #include "matrix.h"
 #include "numboundary.h"
-
-
+//-----------------------------------------------------------------------------
+//Poisson
 /** @brief Solves Poisson equation using a multigrid method.
  *
  *  The Poisson equation is given by
  *  \f$\Delta u(x) + f(x) = 0\f$
  *  where \f$u(x)\f$ is the unknown scalar field.
- *
- *  The boundary object is passed, when
  */
 class Poisson {
     protected:
         /// physical dimensions of a grid cell. Read from global variables
         double dx[2];
 
-        /** @brief Do nu1 Gauss steps then repeat multigrid refinement
-         *  gama times then do nu2 Gauss steps.
-         */
-        int gama,nu1,nu2;
+	  int nu1,  ///< Do nu1 Gauss steps ...
+	      gama, ///< ...then repeat multigrid refinement gama times...
+	      nu2;  ///< ...then do nu2 Gauss steps.
         
         /// The error to reach.
         double epsilon;
-        
+	  /// Boundary conditions
         const NumBoundary *boundary;
     public:
-        /** @brief The default constructor reads the attributes from
-         *  global variables
-         */
+        /// The default constructor reads the attributes from global variables
         Poisson();
     
         /** @brief Solves the Helmholtz equation
@@ -45,19 +48,16 @@ class Poisson {
                       const NumBoundary &boundary_);
 
         /// The grid spacing in x-direction
-        double Dx() { 
-            return dx[0];
-        }
+        double Dx() {return dx[0];}
         
         /// The grid spacing in y-direction
-        double Dy() { 
-            return dx[1];
-        }
+        double Dy() {return dx[1];}
+	  
     private:
         /// Perform one Gauss-Seidel red-black iteration
         void gauss( NumMatrix<double,2> &u,     
                     NumMatrix<double,2> &f);   
-                     
+ 
         /** @brief Calculates the defect and stores the new
          *  fields of \f$f(x)\f$ and \f$\lambda(x)\f$ on the
          *  coarser grid
@@ -65,14 +65,13 @@ class Poisson {
         void defect(NumMatrix<double,2> &u,
                     NumMatrix<double,2> &f,
                     NumMatrix<double,2> &fn);
-                        
-        
+
         /** @brief Prolongates the solution \f$u(x)\f$ onto 
          *  the finer grid resolution.
-         */                              
+         */
         void prolongate(NumMatrix<double,2> &u,
                         NumMatrix<double,2> &un);
-        
+
         /** @brief One single multigrid step.
          *  This method calls itself recursively on coarser
          *  and coarser grids
@@ -80,7 +79,7 @@ class Poisson {
         void mgi(   NumMatrix<double,2> &u,     
                     NumMatrix<double,2> &f,
 		    bool norm=true);    
-        
+
         /** @brief Normalizes a scalar field.
          *  This method is not needed for the Helmhotz solver.
          */            
@@ -91,5 +90,6 @@ class Poisson {
                         NumMatrix<double,2> &f);
         
 };
-
-#endif
+//Poisson
+//-----------------------------------------------------------------------------
+#endif //POISSON_H

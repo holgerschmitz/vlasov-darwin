@@ -43,25 +43,32 @@ void Darwin::Init ()
     
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
-  den.setFieldType(ScalarField::RHO);
+  den.setComponent(ScalarField::ScalarComponent);
+  den.setParity(ScalarField::EvenParity);
 
   om2.resize(LBound.Data(),HBound.Data());
   om2.setComponent(ScalarField::ScalarComponent);
   om2.setParity(ScalarField::EvenParity);
     
   jx.resize(LBound.Data(),HBound.Data());
-  jx.setFieldType(ScalarField::JX);
+  jx.setComponent(ScalarField::XComponent);
+  jx.setParity(ScalarField::OddParity);
   jy.resize(LBound.Data(),HBound.Data());
-  jy.setFieldType(ScalarField::JY);
+  jy.setComponent(ScalarField::YComponent);
+  jy.setParity(ScalarField::OddParity);
   jz.resize(LBound.Data(),HBound.Data());
-  jz.setFieldType(ScalarField::JZ);
+  jz.setComponent(ScalarField::ZComponent);
+  jz.setParity(ScalarField::OddParity);
 
   jxold.resize(LBound.Data(),HBound.Data());
-  jxold.setFieldType(ScalarField::JX);
+  jxold.setComponent(ScalarField::XComponent);
+  jxold.setParity(ScalarField::OddParity);
   jyold.resize(LBound.Data(),HBound.Data());
-  jyold.setFieldType(ScalarField::JY);
+  jyold.setComponent(ScalarField::YComponent);
+  jyold.setParity(ScalarField::OddParity);
   jzold.resize(LBound.Data(),HBound.Data());
-  jzold.setFieldType(ScalarField::JZ);
+  jzold.setComponent(ScalarField::ZComponent);
+  jzold.setParity(ScalarField::OddParity);
 
   sx.resize(LBound.Data(),HBound.Data());
   sx.setComponent(ScalarField::XComponent);
@@ -98,37 +105,48 @@ void Darwin::Init ()
   vzz.setParity(ScalarField::EvenParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
-  Pot.setFieldType(ScalarField::PHI);
+  Pot.setComponent(ScalarField::ScalarComponent);
+  Pot.setParity(ScalarField::EvenParity);
   
   Az.resize(LBound.Data(),HBound.Data());
-  Az.setFieldType(ScalarField::AZ);
+  Az.setComponent(ScalarField::ZComponent);
+  Az.setParity(ScalarField::OddParity);
 
   Ex.resize(LBound.Data(),HBound.Data());
-  Ex.setFieldType(ScalarField::EX);
+  Ex.setComponent(ScalarField::XComponent);
+  Ex.setParity(ScalarField::OddParity);
   Ey.resize(LBound.Data(),HBound.Data());
-  Ey.setFieldType(ScalarField::EY);
+  Ey.setComponent(ScalarField::YComponent);
+  Ey.setParity(ScalarField::OddParity);
   Ez.resize(LBound.Data(),HBound.Data());
-  Ez.setFieldType(ScalarField::EZ);
+  Ez.setComponent(ScalarField::ZComponent);
+  Ez.setParity(ScalarField::OddParity);
 
     
   Etx.resize(LBound.Data(),HBound.Data());
-  Etx.setFieldType(ScalarField::EX);
+  Etx.setComponent(ScalarField::XComponent);
+  Etx.setParity(ScalarField::OddParity);
   Ety.resize(LBound.Data(),HBound.Data());
-  Ety.setFieldType(ScalarField::EY);
+  Ety.setComponent(ScalarField::YComponent);
+  Ety.setParity(ScalarField::OddParity);
   
   Theta.resize(LBound.Data(),HBound.Data());
-  Theta.setFieldType(ScalarField::THETA);
+  Theta.setComponent(ScalarField::ScalarComponent);
+  Theta.setParity(ScalarField::EvenParity);
   
   DivEt.resize(LBound.Data(),HBound.Data());
   DivEt.setComponent(ScalarField::ScalarComponent);
   DivEt.setParity(ScalarField::EvenParity);
 
   Bx.resize(LBound.Data(),HBound.Data());
-  Bx.setFieldType(ScalarField::BX);
+  Bx.setComponent(ScalarField::XComponent);
+  Bx.setParity(ScalarField::EvenParity);
   By.resize(LBound.Data(),HBound.Data());
-  By.setFieldType(ScalarField::BY);
+  By.setComponent(ScalarField::YComponent);
+  By.setParity(ScalarField::EvenParity);
   Bz.resize(LBound.Data(),HBound.Data());
-  Bz.setFieldType(ScalarField::BZ);
+  Bz.setComponent(ScalarField::ZComponent);
+  Bz.setParity(ScalarField::EvenParity);
     
   den.clear();
   om2.clear();
@@ -169,12 +187,12 @@ void Darwin::Init ()
   Lambda.resize(LBound.Data(),HBound.Data());
   Out.resize(LBound.Data(),HBound.Data());
 
-  std::cout << "Done Darwin: Size=( " << LBound << "),(" << HBound<< ")" << endl;
+  std::cout << "Done: Darwin: Size=( " << LBound << " ) , ( " << HBound<< " )" << endl;
 }
 
 bool Darwin::Execute () {
   // std::cerr << "bool Darwin::Execute ()\n";
-  if (Parameters::instance().isRestart()) std::cerr << "  restart\n";
+  if (Parameters::instance().isRestart()) std::cerr << " restart\n";
   int i;
   double dF, dF2;
   
@@ -183,7 +201,7 @@ bool Darwin::Execute () {
   int mx0 = HBound[0], mx1 = HBound[0]-1;
   int my0 = HBound[1], my1 = HBound[1]-1;
   
-  Boundary &bound = Process::instance().getBoundary();
+  const Boundary &bound = Process::instance().getBoundary();
 
   ScalarField tmp;
 
@@ -276,8 +294,6 @@ bool Darwin::Execute () {
       }
     initOldFields = false;
   }
-  
-  bound.setFields(den,jx,jy,jz);
   
   /* *************************************
    *  With the charge density we can first calculate the 
@@ -419,9 +435,9 @@ bool Darwin::Execute () {
     for (int i=lx1; i<=mx1; ++i) {
       for (int j=ly1; j<=my1; ++j) {
         In(i,j) = +(vxx(i+1,j) - vxx(i-1,j)) / (2*dx[0])    
-                  +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) /// -div (rho <vv>)
-                  -om2(i,j)*Ex(i,j)                      /// om2*E
-                  -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      /// q/m rho <v> x B
+                  +(vxy(i,j+1) - vxy(i,j-1)) / (2*dx[1]) // -grad (rho <vv>)
+                  -om2(i,j)*Ex(i,j)                      // om2*E
+                  -sy(i,j)*Bz(i,j)+sz(i,j)*By(i,j);      // q/m rho <v> x B
       }
     }
   }
@@ -455,9 +471,9 @@ bool Darwin::Execute () {
       for (int j=ly1; j<=my1; ++j) 
       {
         In(i,j) = +(vxy(i+1,j) - vxy(i-1,j)) / (2*dx[0])    
-                  +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) /// -div (rho <vv>)
-                  -om2(i,j)*Ey(i,j)                   /// om2*E
-                  -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    /// q/m rho <v> x B
+                  +(vyy(i,j+1) - vyy(i,j-1)) / (2*dx[1]) // -grad (rho <vv>)
+                  -om2(i,j)*Ey(i,j)                   // om2*E
+                  -sz(i,j)*Bx(i,j)+sx(i,j)*Bz(i,j);    // q/m rho <v> x B
       }
   }
   else
@@ -489,8 +505,8 @@ bool Darwin::Execute () {
       for (int j=ly1; j<=my1; ++j) 
       {
         In(i,j) = +(vxz(i+1,j) - vxz(i-1,j)) / (2*dx[0])    
-                  +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) /// -div (rho <vv>)
-                  -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); /// q/m rho <v> x B
+                  +(vyz(i,j+1) - vyz(i,j-1)) / (2*dx[1]) // -grad (rho <vv>)
+                  -sx(i,j)*By(i,j)+sy(i,j)*Bx(i,j); // q/m rho <v> x B
       }
   }
   else
@@ -586,4 +602,3 @@ ScalarField *Darwin::GetByName(const std::string& name) {
   else 
     return &Bz; 
 }
-

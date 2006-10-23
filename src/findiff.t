@@ -283,7 +283,7 @@ void FiniteDiffSchemeRK3<ForceField>
               this->Distribution.swap(T1Dist);
 
               RKState = 2;
-              VlasovDiagnostic = true;
+              //VlasovDiagnostic = true;
               break;
               
       case 2: forwardDist(this->Distribution, T2Dist, 3*timestep/4.); 
@@ -469,7 +469,7 @@ void FiniteDiff4SchemeRK3<ForceField>
               this->Distribution.swap(T1Dist);
 
               RKState = 2;
-              VlasovDiagnostic = true;
+              //VlasovDiagnostic = true;
               break;
               
       case 2: forwardDist(this->Distribution, T2Dist, 3*timestep/4.); 

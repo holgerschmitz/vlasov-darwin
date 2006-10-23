@@ -5,30 +5,28 @@
 #include "vlasovinit.h"
 #include "reconnection.h"
 #include "bernstein.h"
-#include "shock.h"
 #include "magnetostatic.h"
-
+//-----------------------------------------------------------------------------
 Process *Process::process;
-
+//-----------------------------------------------------------------------------
 Process::~Process() {
   delete boundary;
 }
-
+//-----------------------------------------------------------------------------
 void Process::init() {
+  //init field of the parameter instance
   Parameters::instance().getField()->Init();
-  for (
-    SpeciesList::iterator it=species.begin(); 
-    it!=species.end(); 
-    ++it
-  )
+  //init all species
+  for ( SpeciesList::iterator it=species.begin();  it!=species.end();  ++it )
   {
     (*it)->Init();
   }
 }
-
+//-----------------------------------------------------------------------------
 void Process::run() {
   int T = Parameters::instance().totalTime(); 
   ForceField::FieldType *field = Parameters::instance().getField();
+  //display time step and call execute for all species +field 
   for (time=0; time<T; ++time) 
   {
     std::cout << "Cycle " << time << std::endl << flush;
@@ -44,7 +42,9 @@ void Process::run() {
     DiagnosticManager::instance().execute();
   }
 }
-
+//-----------------------------------------------------------------------------
+//ProcessRebuild
+//build parametermap, containing boundary, species and general parameters
 PARAMETERMAP* ProcessRebuild::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["boundary"] 
@@ -56,10 +56,10 @@ PARAMETERMAP* ProcessRebuild::MakeParamMap (PARAMETERMAP* pm) {
 
   return pm;
 }
-
+//-----------------------------------------------------------------------------
 std::string ProcessRebuild::Rebuild(std::istream& in)
 {
-  std::cerr << "Rebuilding Process!\n";
+  std::cerr << "Rebuilding Process ...\n";
   Rebuildable::Rebuild(in);
   if (NULL == boundary) {
     std::cerr << "No boundary specified! Must exit!\n";
@@ -69,21 +69,25 @@ std::string ProcessRebuild::Rebuild(std::istream& in)
     std::cerr << "No globals specified! Must exit!\n";
     exit(-1);
   }
-  std::cerr << "Making Process!\n";
+  std::cerr << "Making Process ...\n";
   makeProcess();
-  std::cerr << "Making Process! done\n";
+  std::cerr << "Making Process: done\n";
   return "";
 }
-
+//-----------------------------------------------------------------------------
+//allocate new process, get species and boundary
+// p has no use other that to allocate process, which will the constructor
+// p's lifetime is limited to this method, but, since in Process' constructor a static pointer is assigned,
+// this does not extend to the process object itself.
 void ProcessRebuild::makeProcess()
 {
   Process *p = new Process(boundary->getBoundary(), VlasovRebuild::getSpeciesList());
 }
-
+//-----------------------------------------------------------------------------
 BoundaryRebuild::BoundaryRebuild() {
   BoundaryKeeper::setBoundary(&boundary);
 }
-
+//-----------------------------------------------------------------------------
 Boundary *BoundaryRebuild::getBoundary() { 
   if (NULL == boundary) {
     std::cerr << "No boundary type specified inside boundary! Must exit!\n";
@@ -91,7 +95,7 @@ Boundary *BoundaryRebuild::getBoundary() {
   }
   return boundary; 
 }
-
+//-----------------------------------------------------------------------------
 PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["single-periodic"] 
@@ -105,42 +109,50 @@ PARAMETERMAP* BoundaryRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<SimpleReconnectionBoundary, Boundary>(&boundary));
   (*pm)["gem-reconnection"] 
       = WParameter(new ParameterRebuild<GEMReconnectionBoundary, Boundary>(&boundary));
-  (*pm)["open-reconnection"] 
-      = WParameter(new ParameterRebuild<OpenGEMReconnectionBoundary, Boundary>(&boundary));
-  (*pm)["shock"] 
-      = WParameter(new ParameterRebuild<MPIShockBoundary, Boundary>(&boundary));
 #endif // single processor
   return pm;
 }
-
+//-----------------------------------------------------------------------------
 //VlasovRebuild::RebuildList VlasovRebuild::slist;
 SpeciesList VlasovRebuild::spList;
-
+//-----------------------------------------------------------------------------
 VlasovRebuild::VlasovRebuild() {
 //  slist.push_back(this);
 }
-
+//-----------------------------------------------------------------------------
+// allocate a new vlasov object ( typedef for:VlasovSpecies<ForceField,ADVANCE_TYPE,SCHEME_TYPE>)
+//add all derived diagnostics to it.
+//return pointer to this vlasovSpecies object
 pVlasov VlasovRebuild::getVlasovInstance() {
+  //set initializer pointer in the species data object to the instance pointer of initRebuild
   vlasovData.init = initRebuild->getInitInstance();
+  //allocate new VlasovSpecies 
   pVlasov vl = new Vlasov(vlasovData);
+  //for all items of the derived diagnostic list:
+  // add them to the new object
+  //
   for (
     VlasovDerivedDiagnostic::DerivedDiagList::iterator it=VlasovDerivedDiagnostic::diaglist.begin();
     it !=VlasovDerivedDiagnostic::diaglist.end();
     ++it
   )
-  {
+  { 
+    //add iterator contents to the new object
     vl->addDerivedDiagnostic(*it);
+    // call the retrieve method for iterator content
+    //this will set the field in the derived diagnotics 
     (*it)->retrieveField(vl);
   }
   
   VlasovDerivedDiagnostic::diaglist.clear();
   return vl;
 }
-
+//-----------------------------------------------------------------------------
+//add instance to species list
 void VlasovRebuild::finalize() {
   spList.push_back(getVlasovInstance());
 }
-
+//-----------------------------------------------------------------------------
 SpeciesList VlasovRebuild::getSpeciesList() {
   return spList;
 //  SpeciesList list;
@@ -154,7 +166,7 @@ SpeciesList VlasovRebuild::getSpeciesList() {
 //  }
 //  return list; 
 }
-
+//-----------------------------------------------------------------------------
 PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["mass"] = WParameter(new ParameterValue<double>(&vlasovData.mass, 1));
@@ -177,7 +189,7 @@ PARAMETERMAP* VlasovRebuild::MakeParamMap (PARAMETERMAP* pm) {
   );
   return pm;
 }
-
+//-----------------------------------------------------------------------------
 PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["maxwell"] 
@@ -194,11 +206,10 @@ PARAMETERMAP* VlasovInitRebuild::MakeParamMap (PARAMETERMAP* pm) {
       = WParameter(new ParameterRebuild<VlasovHDFInit, VlasovInitialiser>(&initialiser));
   (*pm)["reconnection"] 
       = WParameter(new ParameterRebuild<VlasovReconnectionInit, VlasovInitialiser>(&initialiser));
-  (*pm)["gem-reconnection"] 
+ (*pm)["gem-reconnection"] 
       = WParameter(new ParameterRebuild<GEMReconnectionInit, VlasovInitialiser>(&initialiser));
-  (*pm)["open-reconnection"] 
-      = WParameter(new ParameterRebuild<OpenGEMReconnectionInit, VlasovInitialiser>(&initialiser));
   (*pm)["periodic-reconnection"] 
       = WParameter(new ParameterRebuild<VlasovPeriodicReconnectionInit, VlasovInitialiser>(&initialiser));
   return pm;
 }
+//-----------------------------------------------------------------------------

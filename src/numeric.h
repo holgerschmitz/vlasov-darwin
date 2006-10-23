@@ -7,10 +7,13 @@
  
 #ifndef NUMERIC_H
 #define NUMERIC_H
-
+//is defined in vlasov.h as the same
+///symbolic constant Pi1 
 #define PIl 3.1415926535897932384626433832795029L
 /** @file numeric.h
- *  Numeric helper functions and classes
+ *  @brief Numeric helpers
+ *
+ * Implements a number of numeric helper classes and functions 
  */
 
 /**
@@ -24,6 +27,7 @@
  */
 inline double frand() { return rand()/double(RAND_MAX); }
 
+///return sign(T)
 template<typename T>
 inline int sgn(T x)
 {
@@ -31,10 +35,8 @@ inline int sgn(T x)
 }
 
 /** @brief Returns the error function
- *  @todo Do we really need the error function. Isn't it implemented in math.h
- */
+ *  @todo Do we really need the error function. Isn't it implemented in math.h*/
 //double erf(double);
-
 template<typename T>
 T tanh(T x) {
   T p = exp(x);
@@ -42,16 +44,19 @@ T tanh(T x) {
   return (p-m)/(p+m);
 }
 
+/// return sinh(T)
 template<typename T>
 T sinh(T x) {
   return 0.5*(exp(x)-exp(-x));
 }
 
+/// return cosh(T)
 template<typename T>
 T cosh(T x) {
   return 0.5*(exp(x)+exp(-x));
 }
 
+/// return sech(T)
 template<typename T>
 T sech(T x) {
   return 2./(exp(x)+exp(-x));

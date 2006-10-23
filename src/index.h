@@ -1,6 +1,12 @@
 // -*- C++ -*-
 // $Id$
 
+/** @file index.h 
+	* @brief an array class template
+    * 
+    * Defines a class template for arrays of fixed length, plus a number of standard operations on them.
+    */
+
 #ifndef INDEX_H
 #define INDEX_H
 

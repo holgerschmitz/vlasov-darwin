@@ -213,7 +213,7 @@ void RungeKuttaAdvance<ForceField,Scheme>::advance(double timestep) {
               this->advanceStepA(3*timestep/4.);
 
               RKState = 2;
-              VlasovDiagnostic = true;
+              //VlasovDiagnostic = true;
               break;
       case 2: this->advanceStepB(3*timestep/4.);      // Distribution = c2
               for (int i=LBound[0]; i<=UBound[0]; ++i)
@@ -296,7 +296,7 @@ void RungeKuttaBAdvance<ForceField,Scheme>::advance(double timestep) {
               this->advanceStepA(3*timestep/4.);
 
               RKState = 2;
-              VlasovDiagnostic = true;
+              //VlasovDiagnostic = true;
               break;
       case 2: this->advanceStepB(3*timestep/4.);      // Distribution = c2
               for (int i=LBound[0]; i<=UBound[0]; ++i)

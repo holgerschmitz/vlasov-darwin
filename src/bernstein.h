@@ -1,11 +1,21 @@
 // -*- C++ -*-
 // $Id$
-
+//-----------------------------------------------------------------------------
 #include "wrapvlasov.h"
 #include <complex>
-
+//-----------------------------------------------------------------------------
 #ifndef BERNSTEIN_H
 #define BERNSTEIN_H
+//-----------------------------------------------------------------------------
+/** @file bernstein.h 
+ * @brief Bernstein wave exciting initializer.
+
+ *  Initialises the Vlasov distribution function with a
+ *  Maxwellian plus a perturbation which excites Bernstein waves
+ *
+ *  This is used for test runs.
+ */
+	
 
 /** @brief Initialises the Vlasov distribution function with a
  *  Maxwellian plus a perturbation which excites Bernstein waves
@@ -19,7 +29,7 @@
  */
 class VlasovBernsteinInit : public VlasovInitialiser {
   protected:
-    /// density in particles\f$m^{-{\rm dim}}\f$
+    /// density in particles  \f$m^{-{\rm dim}}\f$
     double N;
     /// thermal velocity
     VelocityD v_th;
@@ -37,24 +47,30 @@ class VlasovBernsteinInit : public VlasovInitialiser {
     /// pointer to the owning VlasovSpecies class
     ForceFieldBase *pVlasov; 
   public:
-	  /// Default constructor
+    /// Default constructor
     VlasovBernsteinInit();
-	  /// Destructor
+    /// Destructor
     virtual ~VlasovBernsteinInit();
 
     /** @brief Perform distribution initialisation.
      *  The Maxwellian distribution will be written into the
      *  dist parameter.
+    
      */
     virtual void initialise(ForceFieldBase *pVlasov);
   protected:
     /// Create the parameter map for the readable object
     virtual PARAMETERMAP* MakeParamMap (PARAMETERMAP* pm = NULL);
   private:
+    ///typedef for build-in complex double
     typedef std::complex<double> Complex;
+    ///Parameter for the Bernstein Wave generating initial distribution
     Complex ComplexCore(double vperp, double phi, int n);
+    ///Parameter for the Bernstein Wave generating initial distribution
     double DistFactor(double vperp, int n);
+    ///Parameter for the Bernstein Wave generating initial distribution
     Complex Distribution1(double vperp, double phi);
+    ///Parameter for the Bernstein Wave generating initial distribution
     Complex Distribution1Integral(double vxmin, double vymin, double vxmax, double vymax, int steps);
 };
 

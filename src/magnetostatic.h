@@ -2,7 +2,9 @@
 // $Id$
 
 /** @file magnetostatic.h
- *  Classes implementing potentials
+ *  @brief class for magnetostatic approximation
+ *
+ * Implements the magnetostatic approximation of the Maxwell equations.
  */
 
 
@@ -26,11 +28,12 @@
  */
 class Magnetostatic {
   protected:
+  	  /// true if its the first step
       bool firststep;
     
-      /// Lower and upper bound of the numerical grid
+      /// Lower bound of the numerical grid
       PositionI LBound,HBound;
-  
+  	  ///< upper bound of the numerical grid
       /// grid spacing
       PositionD dx;
       
@@ -46,8 +49,10 @@ class Magnetostatic {
       /// Container of all the Species that contribute to the charge density
       vector<pMagnetostaticForce> species;
 
-      /// Temporary fields needed for the Poisson and Helmholtz solvers
-      ScalarField In, Lambda, Out;
+      
+      ScalarField In, 	///< Temporary field needed for the Poisson and Helmholtz solvers
+      			  Lambda, ///< Temporary field needed for the Poisson and Helmholtz solvers
+      			  Out; ///< Temporary field needed for the Poisson and Helmholtz solvers
       
       /// The poisson solver object
       Poisson *pois;
@@ -55,29 +60,41 @@ class Magnetostatic {
       /// The Helmholtz solver object
       Helmholtz *helmh;
       
-      /** @brief The grid containing the potential values.
-       *  Scalar potential and z-component of the vector potential
-       */
-      ScalarField Pot, Ax, Ay, Az;
-      ScalarField oldjx, oldjy, oldjz;
+
+       
+      ScalarField Pot, ///< scalar potential
+      			  Ax, ///< x-component of the vector potential
+      			  Ay, ///< y-component of the vector potential
+      			  Az; ///< z-component of the vector potential
+      ScalarField oldjx, ///< x-component of the old current density
+      			  oldjy, ///< y-component of the old current density
+      			  oldjz;///< z-component of the old current density
       
-      /// All the electric and magnetic field components
-      ScalarField Ex, Ey, Ez,  Bx, By, Bz;
+ 
+      ScalarField Ex, ///< electric field, x-component
+      			  Ey, ///< electric field, x-component
+      			  Ez,  ///< electric field, z-component
+      			  Bx, ///< magnetic field, x-component
+      			  By, ///< magnetic field, y-component
+      			  Bz;///< magnetic field, z-component
       
-      /** @brief Helper fields for clearing the divergence of the 
+      /** @brief Helper field for clearing the divergence of the 
        *  transverse electric field.
        */
       ScalarField Theta, DivF;
-      
-      /** @brief Contains the charge and current densities 
-       * \f$\rho({\bf x})\f$ and \f${\bf j}({\bf x})\f$
+      /**< @brief Helper field for clearing the divergence of the 
+       *  transverse electric field.
        */
-      ScalarField den, jx, jy, jz;
-      /** @brief Contains the charge and current densities 
-       * \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
-       *  and \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
-       */
-      ScalarField om2, sx, sy, sz;
+       
+      ScalarField den, ///< charge density
+      			  jx,  ///< x-component of the current density
+      			  jy, ///< y-component of the current density
+      			  jz;///< z-component of the current density
+
+      ScalarField om2, ///< charge density \f$\omega^2({\bf x})=\sum_i q_i\rho_i({\bf x})\f$ 
+      			  sx,///< x-component of the current density \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
+      			  sy, ///< y-component of the current density \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
+      			  sz;///< z-component of the current density \f${\bf s}({\bf x})=\sum_i q_i{\bf j}_i({\bf x})\f$
       
   public:  
 	    /// Construct passing the value of mainproc
@@ -96,7 +113,7 @@ class Magnetostatic {
       ScalarField &GetBy() { return By; }
       /// Return the scalar field that stores the field component \f$B_z\f$
       ScalarField &GetBz() { return Bz; }
-
+	  ///get field by name (Ex, ..., Bx,...) default is Bz
       ScalarField *GetByName(const std::string&);
       /** @brief Initialize all the physical quantities and allocate
        *  the scalar fields

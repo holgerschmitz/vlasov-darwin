@@ -5,15 +5,15 @@
 #include "magnetostatic.h"
 #include "potential.h"
 #include "fielddiag.h"
-
+//-----------------------------------------------------------------------------
 #ifndef SINGLE_PROCESSOR
 #include <mpi.h>
 #endif
-
+//-----------------------------------------------------------------------------
 Parameters *Parameters::globals;
 int Parameters::Argc;
 char **Parameters::Argv;
-
+//-----------------------------------------------------------------------------
 Parameters::Parameters() {
   globals = this;
   Field = new FieldType();
@@ -21,13 +21,13 @@ Parameters::Parameters() {
   FieldDiag = NULL;
   IsRestart = false;
 }
-
+//-----------------------------------------------------------------------------
 void Parameters::init()
 {
   if (FieldDiag) FieldDiag->init(Field);
   initialized = true;
 }
-
+//-----------------------------------------------------------------------------
 PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
   pm = Rebuildable::MakeParamMap(pm);
   (*pm)["x-size"] = WParameter(new ParameterValue<int>(&GridX,256));
@@ -61,21 +61,21 @@ PARAMETERMAP* Parameters::MakeParamMap (PARAMETERMAP* pm) {
   );
   return pm;
 }   
-
+//-----------------------------------------------------------------------------
 std::string Parameters::Rebuild(std::istream& in) 
 {
-  std::string strToken = Rebuildable::Rebuild(in);
-  GridLow = PositionI(0,0);
+    std::string strToken = Rebuildable::Rebuild(in);
+    GridLow = PositionI(0,0);
   
-  if (-1==VelResX) VelResX = VelRes;
-  if (-1==VelResY) VelResY = VelRes;
-  if (-1==VelResZ) VelResZ = VelRes;
+    if (-1==VelResX) VelResX = VelRes;
+    if (-1==VelResY) VelResY = VelRes;
+    if (-1==VelResZ) VelResZ = VelRes;
   
-  GridHigh = PositionI(GridX+1,GridY+1);
-  DistLow = PhasePositionI(-1,-1,0,0,0);
-  DistHigh = PhasePositionI(GridX+2,GridY+2,VelResX+1,VelResY+1,VelResZ+1);
+    GridHigh = PositionI(GridX+1,GridY+1);
+    DistLow = PhasePositionI(-1,-1,0,0,0);
+    DistHigh = PhasePositionI(GridX+2,GridY+2,VelResX+1,VelResY+1,VelResZ+1);
   return strToken;
 }
-
+//-----------------------------------------------------------------------------
 Boundary **BoundaryKeeper::ppboundary;
  

@@ -79,6 +79,7 @@ PARAMETERMAP* EBFieldDiagnostic::MakeParamMap (PARAMETERMAP* pm)
   return pm;
 }
 
+//if an Diag object is available, its field is set to the appropiate component of EB
 void EBFieldDiagnostic::init(ForceField::FieldType *field)
 {
   if (Ex_diag)

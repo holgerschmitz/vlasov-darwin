@@ -38,18 +38,22 @@ void Magnetostatic::Init ()
     
   // resize grid
   den.resize(LBound.Data(),HBound.Data());
-  den.setFieldType(ScalarField::RHO);
+  den.setComponent(ScalarField::ScalarComponent);
+  den.setParity(ScalarField::EvenParity);
 
   om2.resize(LBound.Data(),HBound.Data());
   om2.setComponent(ScalarField::ScalarComponent);
   om2.setParity(ScalarField::EvenParity);
     
   jx.resize(LBound.Data(),HBound.Data());
-  jx.setFieldType(ScalarField::JX);
+  jx.setComponent(ScalarField::XComponent);
+  jx.setParity(ScalarField::OddParity);
   jy.resize(LBound.Data(),HBound.Data());
-  jy.setFieldType(ScalarField::JY);
+  jy.setComponent(ScalarField::YComponent);
+  jy.setParity(ScalarField::OddParity);
   jz.resize(LBound.Data(),HBound.Data());
-  jz.setFieldType(ScalarField::JZ);
+  jz.setComponent(ScalarField::ZComponent);
+  jz.setParity(ScalarField::OddParity);
 
   sx.resize(LBound.Data(),HBound.Data());
   sx.setComponent(ScalarField::XComponent);
@@ -62,30 +66,44 @@ void Magnetostatic::Init ()
   sz.setParity(ScalarField::OddParity);
 
   Pot.resize(LBound.Data(),HBound.Data());
-  Pot.setFieldType(ScalarField::PHI);
+  Pot.setComponent(ScalarField::ScalarComponent);
+  Pot.setParity(ScalarField::EvenParity);
   
   Ax.resize(LBound.Data(),HBound.Data());
-  Ax.setFieldType(ScalarField::AX);
+  Ax.setComponent(ScalarField::XComponent);
+  Ax.setParity(ScalarField::OddParity);
 
   Ay.resize(LBound.Data(),HBound.Data());
-  Ay.setFieldType(ScalarField::AY);
+  Ay.setComponent(ScalarField::YComponent);
+  Ay.setParity(ScalarField::OddParity);
 
   Az.resize(LBound.Data(),HBound.Data());
-  Az.setFieldType(ScalarField::AZ);
+  Az.setComponent(ScalarField::ZComponent);
+  Az.setParity(ScalarField::OddParity);
 
   oldjx.resize(LBound.Data(),HBound.Data());
-  oldjx.setFieldType(ScalarField::JX);
+  oldjx.setComponent(ScalarField::XComponent);
+  oldjx.setParity(ScalarField::OddParity);
+
   oldjy.resize(LBound.Data(),HBound.Data());
-  oldjy.setFieldType(ScalarField::JY);
+  oldjy.setComponent(ScalarField::YComponent);
+  oldjy.setParity(ScalarField::OddParity);
+
   oldjz.resize(LBound.Data(),HBound.Data());
-  oldjz.setFieldType(ScalarField::JZ);
+  oldjz.setComponent(ScalarField::ZComponent);
+  oldjz.setParity(ScalarField::OddParity);
 
   Ex.resize(LBound.Data(),HBound.Data());
-  Ex.setFieldType(ScalarField::EX);
+  Ex.setComponent(ScalarField::XComponent);
+  Ex.setParity(ScalarField::OddParity);
+  
   Ey.resize(LBound.Data(),HBound.Data());
-  Ey.setFieldType(ScalarField::EY);
+  Ey.setComponent(ScalarField::YComponent);
+  Ey.setParity(ScalarField::OddParity);
+  
   Ez.resize(LBound.Data(),HBound.Data());
-  Ez.setFieldType(ScalarField::EZ);
+  Ez.setComponent(ScalarField::ZComponent);
+  Ez.setParity(ScalarField::OddParity);
 
     
   Theta.resize(LBound.Data(),HBound.Data());
@@ -97,11 +115,16 @@ void Magnetostatic::Init ()
   DivF.setParity(ScalarField::EvenParity);
 
   Bx.resize(LBound.Data(),HBound.Data());
-  Bx.setFieldType(ScalarField::BX);
+  Bx.setComponent(ScalarField::XComponent);
+  Bx.setParity(ScalarField::EvenParity);
+  
   By.resize(LBound.Data(),HBound.Data());
-  By.setFieldType(ScalarField::BY);
+  By.setComponent(ScalarField::YComponent);
+  By.setParity(ScalarField::EvenParity);
+  
   Bz.resize(LBound.Data(),HBound.Data());
-  Bz.setFieldType(ScalarField::BZ);
+  Bz.setComponent(ScalarField::ZComponent);
+  Bz.setParity(ScalarField::EvenParity);
     
   den.clear();
   om2.clear();

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: $
+// $Id: pparabolic.t,v 1.1.1.1 2006/05/11 10:02:00 th Exp $
 
 #include "numeric.h"
 

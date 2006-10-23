@@ -12,7 +12,7 @@ DerivedFieldsContainer::DerivedFieldsContainer(Boundary *boundary_)
 
 pDistributionDerivedField DerivedFieldsContainer::add(pDistributionDerivedField field) {
   std::string key((*field).name());
-  cerr << "Adding field class " << key << "\n";
+  cerr << "Adding field class: " << key << "\n";
   derivedFields[key] = field;
   return field;
 }
@@ -41,7 +41,7 @@ pDistributionDerivedField DerivedFieldsContainer::getField(std::string name) {
   if ("hflux"==name) {
     return add(new DistMomentHeatFlux(boundary));
   }
-  cerr << "Field Class " << name << " not found\n";
+  cerr << "Field Class: " << name << " not found\n";
   return pDistributionDerivedField(NULL);
 }
 
@@ -52,7 +52,8 @@ DistMomentRhoBase::DistMomentRhoBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   Rho.resize(Lowx.Data(),Highx.Data());
-  Rho.setFieldType(ScalarField::RHO);
+  Rho.setComponent(ScalarField::ScalarComponent);
+  Rho.setParity(ScalarField::EvenParity);
 }
     
 ScalarField& DistMomentRhoBase::getField(std::string name) {
@@ -110,13 +111,16 @@ DistMomentVelocitiesBase::DistMomentVelocitiesBase(Boundary *boundary_)
   PositionI Highx = boundary->scalarHigh();
   
   Jx.resize(Lowx.Data(),Highx.Data());
-  Jx.setFieldType(ScalarField::JX);
+  Jx.setComponent(ScalarField::XComponent);
+  Jx.setParity(ScalarField::OddParity);
   
   Jy.resize(Lowx.Data(),Highx.Data());
-  Jy.setFieldType(ScalarField::JY);
+  Jy.setComponent(ScalarField::YComponent);
+  Jy.setParity(ScalarField::OddParity);
   
   Jz.resize(Lowx.Data(),Highx.Data());
-  Jz.setFieldType(ScalarField::JZ);
+  Jz.setComponent(ScalarField::ZComponent);
+  Jz.setParity(ScalarField::OddParity);
 
   Vxx.resize(Lowx.Data(),Highx.Data());
   Vxx.setComponent(ScalarField::ScalarComponent);
